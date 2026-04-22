@@ -1,0 +1,8 @@
+<?php
+/**
+ * Fichier : list.php
+ * Auteur  : Samuel Tido Kaze
+ * Date    : 22.04.2026
+ * Projet  : TPI VetiSoin
+ * Role    : Liste des reservations du soignant
+ */
