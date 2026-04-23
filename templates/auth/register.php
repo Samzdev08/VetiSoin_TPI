@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : register.php
  * Auteur  : Samuel Tido Kaze
@@ -6,21 +7,39 @@
  * Projet  : TPI VetiSoin
  * Role    : Page d'inscription
  */
+$flash = $_SESSION['flash'] ?? [];
+unset($_SESSION['flash']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
 </head>
+
 <body>
 
     <h1>Créer un compte</h1>
 
-    <?php if (!empty($error)): ?>
-        <p><?= htmlspecialchars($error) ?></p>
-    <?php endif; ?>
+    <div class="container mt-3">
+
+        <?php if (!empty($flash['success'])) : ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                ✓ <?= $flash['success'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($flash['error'])) : ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                ✕ <?= $flash['error'] ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+    </div>
 
     <form action="/auth/create" method="POST">
 
@@ -56,4 +75,5 @@
     <a href="/auth/login">Se connecter</a>
 
 </body>
+
 </html>

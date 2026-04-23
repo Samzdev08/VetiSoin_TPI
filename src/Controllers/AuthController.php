@@ -27,14 +27,14 @@ class AuthController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = new PhpRenderer(__DIR__ . '/../../templates', ['title' => 'Connexion']);
+        Csrf::generate();
         return $view->render($response, '/auth/login.php');
     }
 
-    public function renderResponse(Response $response, string $error, array $old_post = [], string $file = 'register'): Response
+    public function renderResponse(Response $response, array $old_post = [], string $file = 'register'): Response
     {
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title'    => 'Inscription',
-            'error'    => $error ?? null,
             'old_post' => $old_post,
         ]);
 
@@ -50,6 +50,7 @@ class AuthController
     public function showLoginForm(Request $request, Response $response): Response
     {
         $view = new PhpRenderer(__DIR__ . '/../../templates', ['title' => 'Connexion']);
+        Csrf::generate();
         return $view->render($response, '/auth/login.php');
     }
 
@@ -81,22 +82,21 @@ class AuthController
             !Validator::isNotEmpty($data['telephone'])
         ) {
             $errors[] = 'Tous les champs sont obligatoires.';
-        } 
+        }
 
         if (!Validator::isEmail($data['email'])) {
             $errors[] = 'Email invalide';
         }
-         if (preg_match('/[0-9!@#$%^&*()-+]/', $data['nom'])) {
+        if (preg_match('/[0-9!@#$%^&*()-+]/', $data['nom'])) {
             $errors[] = 'Le nom ne doit pas contenir de chiffres ou de caractères spéciaux.';
         }
 
         if (preg_match('/[0-9!@#$%^&*()-+]/', $data['prenom'])) {
             $errors[] = 'Le prénom ne doit pas contenir de chiffres ou de caractères spéciaux.';
         }
-        
-        if(!Validator::minLength($data['telephone'], 10) || !Validator::maxLength($data['telephone'], 11)){
 
-             $errors[] = 'Entrez un numéro de téléphone valide.';
+        if (!preg_match('/^[0-9]{10,11}$/', $data['telephone'])) {
+            $errors[] = 'Entrez un numéro de téléphone valide.';
         }
 
 
@@ -109,7 +109,9 @@ class AuthController
         }
 
         if (!empty($errors)) {
-            return $this->renderResponse($response, $errors[0], $_POST);
+
+            $_SESSION['flash']['error'] = $errors[0];
+            return $this->renderResponse($response, $_POST);
         }
 
         $soignant = new Soignant(
@@ -123,11 +125,13 @@ class AuthController
 
 
         if (!$soignant->isUnique()) {
-            return $this->renderResponse($response, 'Cette adresse email est déjà utilisée.', $_POST);
+
+            $_SESSION['flash']['error'] = 'Cette adresse email est déjà utilisée.';
+            return $this->renderResponse($response, $_POST);
         }
 
         $lastInsertId = $soignant->createSoignant();
-        
+
 
         if ($lastInsertId) {
             return $response
@@ -135,6 +139,81 @@ class AuthController
                 ->withStatus(302);
         }
 
-        return $this->renderResponse($response, 'Erreur lors de la création du compte', $_POST);
+        $_SESSION['flash']['error'] = 'Erreur lors de la création du compte';
+        return $this->renderResponse($response, $_POST);
+    }
+
+    public function login(Request $request, Response $response)
+    {
+        $errors = [];
+
+        $data = filter_input_array(INPUT_POST, [
+            'email' => FILTER_SANITIZE_EMAIL,
+            'mot_de_passe' => FILTER_SANITIZE_SPECIAL_CHARS,
+        ]);
+
+        $data['csrf_token'] = $_POST['csrf_token'] ?? null;
+
+        if (!Csrf::check($data['csrf_token'])) {
+            $errors[] = 'Token invalide.';
+        }
+
+        if (
+            !Validator::isNotEmpty($data['email']) ||
+            !Validator::isNotEmpty($data['mot_de_passe'])
+        ) {
+            $errors[] = 'Tous les champs sont obligatoires.';
+        }
+
+        if (!Validator::isEmail($data['email'])) {
+            $errors[] = 'Email invalide';
+        }
+
+
+
+        if (!empty($errors)) {
+
+            $_SESSION['flash']['error'] = $errors[0];
+            return $this->renderResponse($response, $_POST, 'login');
+        }
+
+        $soignant = new Soignant(
+            null,
+            null,
+            $data['email'],
+            $data['mot_de_passe'],
+            null,
+            null
+        );
+
+        $result = $soignant->login();
+
+        if ($result['success']) {
+
+
+            $_SESSION['user_role'] = $result['user']['role'];
+            $_SESSION['user_id'] = $result['user']['id'];
+            $_SESSION['user_statut'] = $result['user']['statut'];
+
+            
+
+            $_SESSION['flash']['success'] = $result['message'];
+
+            return $response
+                ->withHeader('Location', '/catalogue')
+                ->withStatus(302);
+        }
+
+        $_SESSION['flash']['error'] =  $result['message'];
+        return $this->renderResponse($response, $_POST, 'login');
+    }
+
+    public function logout(Request $request, Response $response)
+    {
+        $_SESSION['flash']['success'] = 'Vous avez été déconnecté avec succès.';
+        session_destroy();
+        session_start(); // Relancer pour que le flash survive à la redirection
+        $_SESSION['flash']['success'] = 'Vous avez été déconnecté avec succès.';
+        return $response->withHeader('Location', '/auth/login')->withStatus(302);
     }
 }

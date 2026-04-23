@@ -5,7 +5,7 @@
  * Auteur  : Samuel Tido Kaze
  * Date    : 22.04.2026
  * Projet  : TPI VetiSoin
- * Role    : Entite Soignant / Administrateur
+ * Role    : Entite Soignant
  */
 
 namespace App\Models;
@@ -40,7 +40,7 @@ class Soignant
             $this->email
 
         ]);
-        
+
         return $stmt->fetch() === false;
     }
 
@@ -68,5 +68,33 @@ class Soignant
         }
 
         return false;
+    }
+
+    public function login()
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare('SELECT id, nom, prenom, mot_de_passe, role, statut FROM soignant WHERE email = ?');
+        $stmt->execute([$this->email]);
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      
+        if (!$user) {
+            return ['success' => false, 'message' => 'Email ou mot de passe incorrect.'];
+        }
+
+        
+        if ($user['statut'] === 'Inactif') {
+            return ['success' => false, 'message' => 'Compte inactif, vous ne pouvez pas vous connecter.'];
+        }
+
+        
+        if (!password_verify($this->mot_de_passe, $user['mot_de_passe'])) {
+            return ['success' => false, 'message' => 'Email ou mot de passe incorrect.'];
+        }
+
+        
+        return ['success' => true, 'user' => $user, 'message' => 'Connexion réussie, bienvenue ' . $user['prenom']];
     }
 }
