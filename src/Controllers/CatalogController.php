@@ -15,14 +15,29 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\PhpRenderer;
 use App\Outils\Csrf;
 use App\Outils\Validator;
-use App\Models\Soignant;
+use App\Models\Article;
 
 class CatalogController
 {
+    
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $view = new PhpRenderer(__DIR__ . '/../../templates', ['title' => 'Accueil']);
+        $genre = $_GET['genre'] ?? null;
+        $category = $_GET['categorie'] ?? null;
+        $taille = $_GET['taille'] ?? null;
+        $recherche = $_GET['recherche'] ?? null;
+
+        $articles = new Article($category, $recherche, $genre, null, null, $taille);
+
+        $articlesItem = $articles->getAll();
+        
+        $view = new PhpRenderer(__DIR__ . '/../../templates', 
+        [
+            'title' => 'Accueil',
+            'articles' => $articlesItem
+        
+        ]);
         $view->setLayout('layout.php');
         return $view->render($response, '/catalog/list.php');
     }
