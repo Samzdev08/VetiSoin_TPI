@@ -13,14 +13,14 @@
 
 <h1>Catalogue</h1>
 
-<form action="/catalogue" method="GET" id="filter-form">
+<form action="/catalogue" method="GET">
 
-    <input type="hidden" name="genre" id="genre-hidden" value="<?= htmlspecialchars($_GET['genre']) ?? '' ?>">
-    <input type="hidden" name="taille" id="taille-hidden" value="<?= htmlspecialchars($_GET['taille']) ?? '' ?>">
-    <input type="hidden" name="categorie" id="categorie-hidden" value="<?= htmlspecialchars($_GET['categorie']) ?? '' ?>">
+    <input type="hidden" name="genre" id="genre-hidden" value="<?= htmlspecialchars($_GET['genre'] ?? '')  ?>">
+    <input type="hidden" name="taille" id="taille-hidden" value="<?= htmlspecialchars($_GET['taille'] ?? '')  ?>">
+    <input type="hidden" name="categorie" id="categorie-hidden" value="<?= htmlspecialchars($_GET['categorie'] ?? '')  ?>">
 
     <label for="recherche">Recherche</label>
-    <input type="text" id="recherche" name="recherche" placeholder="Nom de l'article" oninput="this.form.submit()" value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>">
+    <input type="text" id="recherche" name="recherche" placeholder="Nom de l'article" onchange="this.form.submit()" value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>">
 
     <p>Catégorie</p>
     <button type="submit" onclick="setValue('categorie-hidden', '')">Toutes</button>
@@ -55,13 +55,13 @@
 <?php if ($articles): ?>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 container-articles">
         <?php foreach ($articles as $article): ?>
-            <div class="col articles">
-                <div class="card h-100 shadow-sm article-item" data-id="<?= $article['id'] ?>" style="cursor: pointer;">
+            <div class="col articles" data-id="<?= $article['id'] ?>">
+                <div class="card h-100 shadow-sm article-item" style="cursor: pointer;">
                     <div class="card-body text-center position-relative">
 
                         <img src="<?= $article['photo'] ?>" alt="<?= htmlspecialchars($article['nom']) ?>" class="card-img-top mb-3" style="height: 200px; object-fit: cover;">
-                        <h5 class="card-title fw-bold"><?= $article['marque'] ?></h5>
-                        <p class="card-text text-muted"><?= $article['nom'] ?></p>
+                        <h5 class="card-title fw-bold"><?= htmlspecialchars($article['nom']) ?></h5>
+                        <p class="card-text text-muted"><?= htmlspecialchars($article['marque']) ?></p>
                     </div>
                 </div>
             </div>
@@ -115,4 +115,13 @@
 
 
     Affichage(count);
+    console.log(document.querySelectorAll('.articles'))
+
+    
+    document.querySelectorAll('.articles').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.getAttribute('data-id');
+            window.location.href = `/catalogue/${id}`;
+        });
+    });
 </script>

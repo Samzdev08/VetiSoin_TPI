@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fichier : CatalogController.php
  * Auteur  : Samuel Tido Kaze
@@ -7,20 +6,15 @@
  * Projet  : TPI VetiSoin
  * Role    : Consultation du catalogue d'articles
  */
-
 namespace App\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\PhpRenderer;
-use App\Outils\Csrf;
-use App\Outils\Validator;
 use App\Models\Article;
 
 class CatalogController
 {
-    
-
     public function __invoke(Request $request, Response $response): Response
     {
         $genre = $_GET['genre'] ?? null;
@@ -28,17 +22,60 @@ class CatalogController
         $taille = $_GET['taille'] ?? null;
         $recherche = $_GET['recherche'] ?? null;
 
-        $articles = new Article($category, $recherche, $genre, null, null, $taille);
-
+        $articles = new Article(null, $category, $recherche, $genre, null, null, $taille);
         $articlesItem = $articles->getAll();
-        
-        $view = new PhpRenderer(__DIR__ . '/../../templates', 
-        [
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title' => 'Accueil',
             'articles' => $articlesItem
-        
         ]);
         $view->setLayout('layout.php');
         return $view->render($response, '/catalog/list.php');
+    }
+
+    public function detail(Request $request, Response $response, array $args): Response
+    {
+        $id = $args['id'];
+        $article = new Article($id, null, null, null, null, null, null);
+        $articleData = $article->getById();
+
+        if (!$articleData) {
+            $response->getBody()->write('Article non trouvé');
+            return $response->withStatus(404);
+        }
+
+       
+        $selectedColor = $articleData['variantes'][0]['couleur'] ?? null;
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title' => 'Détails de l\'article',
+            'article' => $articleData,
+            'selectedColor' => $selectedColor
+        ]);
+        $view->setLayout('layout.php');
+        return $view->render($response, '/catalog/detail.php');
+    }
+
+    public function setColor(Request $request, Response $response, array $args): Response
+    {
+        $color = $args['color'];
+        $id = $args['id'];
+
+        
+        $article = new Article($id, null, null, null, null, null, null);
+        $articleData = $article->getById();
+
+        if (!$articleData) {
+            $response->getBody()->write('Article non trouvé');
+            return $response->withStatus(404);
+        }
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title' => 'Détails de l\'article',
+            'article' => $articleData,
+            'selectedColor' => $color
+        ]);
+        $view->setLayout('layout.php');
+        return $view->render($response, '/catalog/detail.php');
     }
 }

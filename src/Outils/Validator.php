@@ -30,4 +30,9 @@ class Validator
     {
         return strlen($value) < $length;
     }
+
+    public static function isNumeric($value)
+    {
+        return is_numeric($value);
+    }
 }
