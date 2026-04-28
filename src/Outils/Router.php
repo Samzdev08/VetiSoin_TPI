@@ -22,6 +22,9 @@ $app->get('/patients', PatientController::class);
 
 $app->get('/panier', PanierController::class);
 $app->post('/panier/add', [PanierController::class, 'addToCart']);
+$app->post('/panier/remove/{id}', [PanierController::class, 'removeFromCart']);
+$app->post('/panier/update/{id}', [PanierController::class, 'updateCart']);
+$app->get('/panier/vider', [PanierController::class, 'clearCart']);
 
 
 $app->post('/setColor/{color}/{id}', [CatalogController::class, 'setColor']);

@@ -23,6 +23,7 @@ class PanierController
             'paniers' => $_SESSION['cart'] ?? [],
         ]);
 
+        $view->setLayout('layout.php');
         return $view->render($response, '/reservations/cart.php');
     }
 
@@ -63,10 +64,35 @@ class PanierController
             'nom' => $data['nom'],
             'couleur' => $data['couleur'],
             'photo' => $data['photo'],
-            'marque' => $data['marque']
+            'marque' => $data['marque'],
+            'maxStock' => $data['maxStock']
         ];
 
         $_SESSION['flash']['success'] = 'Article ajouté au panier avec succès.';
         return $response->withHeader('Location', '/panier')->withStatus(302);
+    }
+
+    public function removeFromCart(Request $request, Response $response, array $args): Response
+    {
+        $index = $args['id'];
+
+        if (isset($_SESSION['cart'][$index])) {
+            unset($_SESSION['cart'][$index]);
+            $_SESSION['cart'] = array_values($_SESSION['cart']);
+            $_SESSION['flash']['success'] = 'Article retiré du panier avec succès.';
+        } else {
+            $_SESSION['flash']['error'] = 'Article non trouvé dans le panier.';
+        }
+
+        return $response->withHeader('Location', '/panier')->withStatus(302);
+    }
+
+
+    public function clearCart(Request $request, Response $response, array $args): Response {
+
+
+        $_SESSION['cart'] = [];
+        $_SESSION['flash']['success'] = 'Panier vidé avec succès.';
+        return $response->withHeader('Location', '/catalogue')->withStatus(302);
     }
 }

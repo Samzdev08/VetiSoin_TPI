@@ -47,8 +47,9 @@
                                 <td><?= htmlspecialchars($panier['couleur']) ?></td>
                                 <td><?= htmlspecialchars($panier['taille']) ?></td>
                                 <td>
-                                    <form action="/panier/update/<?= $i ?>" method="post" class="d-inline">
+                                    <form action="/panier/update/<?= $i ?>" method="POST" class="d-inline">
                                         <input type="hidden" name="index" value="<?= $i ?>">
+                                        <input type="hidden" name="maxStock" value="<?= $panier['maxStock'] ?>">
                                         <input type="number"
                                                name="quantite"
                                                value="<?= $panier['quantite'] ?>"
@@ -58,9 +59,11 @@
                                     </form>
                                 </td>
                                 <td class="text-end">
-                                    <a href="/panier/remove/<?= $i ?>"
-                                       class="btn btn-outline-danger btn-sm"
-                                       title="Retirer cet article">✕</a>
+                                    <form action="/panier/remove/<?= $i ?>" method="POST">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            X
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
