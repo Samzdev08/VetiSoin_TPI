@@ -63,14 +63,15 @@ class Patient
 
         if ($this->nom) {
 
-            $sql .= ' AND (nom LIKE :nom1 OR prenom LIKE :nom)';
+            $sql .= ' AND (nom LIKE :nom1 OR prenom LIKE :nom OR numero_dossier LIKE :nom2)';
             $params[':nom1'] = "%$this->nom%";
             $params[':nom'] = "%$this->nom%";
+            $params[':nom2'] = "%$this->nom%";  
         }
-
-        if ($this->numeroDossier) {
-            $sql .= ' AND numero_dossier LIKE :numero_dossier';
-            $params[':numero_dossier'] = "%$this->numeroDossier%";
+        
+        if ($this->service) {
+            $sql .= ' AND service = :service';
+            $params[':service'] = $this->service;
         }
 
 
