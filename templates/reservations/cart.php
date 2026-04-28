@@ -54,8 +54,10 @@
                                                name="quantite"
                                                value="<?= $panier['quantite'] ?>"
                                                min="1"
+                                               max="<?= $panier['maxStock'] ?>"
                                                class="form-control form-control-sm"
-                                               style="width: 80px;">
+                                               style="width: 80px;"
+                                               onchange="this.form.submit()">
                                     </form>
                                 </td>
                                 <td class="text-end">

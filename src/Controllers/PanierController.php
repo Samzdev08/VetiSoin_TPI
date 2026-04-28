@@ -87,8 +87,33 @@ class PanierController
         return $response->withHeader('Location', '/panier')->withStatus(302);
     }
 
+    public function updateCart(Request $request, Response $response, array $args): Response {
 
-    public function clearCart(Request $request, Response $response, array $args): Response {
+
+        $id = $args['id'];
+
+        $data = $request->getParsedBody();
+
+        if($data['quantite'] > (int)$data['maxStock']){
+
+            $_SESSION['flash']['error'] = 'La quantité demandée dépasse le stock disponible.';
+            return $response->withHeader('Location', '/panier')->withStatus(302);
+
+        }
+
+
+        foreach ($_SESSION['cart'] as &$item) {
+
+           $_SESSION['cart'][$id]['quantite'] = $data['quantite'];
+        }
+
+        $_SESSION['flash']['success'] = 'Quantité mise à jour avec succès.';
+        return $response->withHeader('Location', '/panier')->withStatus(302);
+    }
+
+
+    public function clearCart(Request $request, Response $response, array $args): Response
+    {
 
 
         $_SESSION['cart'] = [];
