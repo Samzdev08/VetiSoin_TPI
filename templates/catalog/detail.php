@@ -30,7 +30,9 @@ $variantesFiltrees = array_values(array_filter(
 ));
 
 
-$photoActive = $variantesFiltrees[0]['photo'] ?? ($article['variantes'][0]['photo']);
+
+$photoActive = $variantesFiltrees[0]['photo'];
+$stockInitial = $variantesFiltrees[0]['stock'] ?? 0;
 ?>
 <style>
     .color-option {
@@ -79,7 +81,7 @@ $photoActive = $variantesFiltrees[0]['photo'] ?? ($article['variantes'][0]['phot
                             }
                             $couleursUniques[] = $couleur;
                             $hex = $arrayColor[$couleur] ?? '#6c757d';
-                            
+
                             ?>
                             <form action="/setColor/<?= $couleur ?>/<?= $article['id'] ?>"
                                 method="POST"
@@ -92,17 +94,42 @@ $photoActive = $variantesFiltrees[0]['photo'] ?? ($article['variantes'][0]['phot
                         <?php endforeach; ?>
                     </div>
 
-                    <p class="mb-1"><strong>Taille</strong></p>
-                    <select name="taille" class="form-select mb-3">
-                        <?php foreach ($variantesFiltrees as $variante): ?>
-                            <option value="<?= htmlspecialchars($variante['taille']) ?>">
-                                <?= htmlspecialchars($variante['taille']) ?>
-                                <?= ($variante['stock']) === 0 ? ' (rupture)' : '' ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
 
-                    <a href="" class="btn btn-dark w-100">Ajouter au panier</a>
+                    <form action="/panier/add" method="post" id="form-panier">
+                        <input type="hidden" name="variante_id" value="" id="variante_article-input">
+                        <input type="hidden" name="nom" value="<?= $article['nom'] ?>">
+                        <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                        <input type="hidden" name="couleur" value="<?= $selectedColor ?>">
+                        <input type="hidden" name="photo" value="<?= $photoActive ?>">
+                        <input type="hidden" name="marque" value="<?= $article['marque'] ?>">
+                        <input type="hidden" name="maxStock" value="" id="maxStock-input">
+
+                        <p class="mb-1"><strong>Taille</strong></p>
+                        <select name="taille" id="select-taille" class="form-select mb-3">
+                            <?php foreach ($variantesFiltrees as $variante): ?>
+                                <option value="<?= $variante['taille'] ?>"
+                                    data-stock="<?= $variante['stock'] ?>" data-id="<?= $variante['id'] ?>">  
+                                    <?= htmlspecialchars($variante['taille']) ?> — <?= $variante['stock'] ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <p class="mb-1"><strong>Quantité</strong></p>
+                        <input type="number"
+                            name="quantite"
+                            id="input-quantite"
+                            min="1"
+                            max="<?= $stockInitial ?>"
+                            value="1"
+                            class="form-control mb-3"
+                            style="width: 100px;">
+
+                        <button type="submit" class="btn btn-primary">
+                            Ajouter au panier
+                        </button>
+                    </form>
+
+
                 </div>
             </div>
         </div>
@@ -111,3 +138,32 @@ $photoActive = $variantesFiltrees[0]['photo'] ?? ($article['variantes'][0]['phot
         <a href="/catalogue" class="btn btn-secondary">← Retour au catalogue</a>
     </div>
 </div>
+
+<script>
+
+    const variante_article_input = document.getElementById('variante_article-input');
+    const selectTaille = document.getElementById('select-taille');
+    const inputQuantite = document.getElementById('input-quantite');
+    const maxStockInput = document.getElementById('maxStock-input');
+
+    function updateMaxQuantite() {
+
+        const selectedOption = selectTaille.options[selectTaille.selectedIndex];
+
+        const stock = parseInt(selectedOption.dataset.stock);
+        const varianteId = selectedOption.dataset.id;
+        const quantite = parseInt(inputQuantite.value);
+
+        maxStockInput.value = stock;
+        inputQuantite.max = stock;
+        variante_article_input.value = varianteId;
+
+        if (quantite > stock) {
+            inputQuantite.value = stock;
+        }
+    }
+
+    selectTaille.addEventListener('change', updateMaxQuantite)
+
+    updateMaxQuantite();
+</script>

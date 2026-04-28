@@ -11,6 +11,7 @@
 use App\Controllers\AuthController;
 use App\Controllers\CatalogController;
 use App\Controllers\PatientController;
+use App\Controllers\PanierController;
 
 
 
@@ -18,6 +19,11 @@ $app->get('/', AuthController::class);
 $app->get('/catalogue', CatalogController::class);
 $app->get('/catalogue/{id}', [CatalogController::class, 'detail']);
 $app->get('/patients', PatientController::class);
+
+$app->get('/panier', PanierController::class);
+$app->post('/panier/add', [PanierController::class, 'addToCart']);
+
+
 $app->post('/setColor/{color}/{id}', [CatalogController::class, 'setColor']);
 
 $group = $app->group('/patient', function ($group) {
