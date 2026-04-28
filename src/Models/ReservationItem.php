@@ -45,5 +45,19 @@ class ReservationItem{
         return $this->id;
     }
 
+    public function updateStock() {
+        $db = Database::getInstance()->getConnection();
+
+        $sql = "UPDATE article_variante SET stock = stock - :quantity WHERE id = :articleId";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':quantity' => $this->quantity,
+            ':articleId' => $this->articleId
+        ]);
+
+        return $stmt->rowCount();
+        
+    }
+
 
 }

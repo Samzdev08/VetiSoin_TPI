@@ -98,14 +98,18 @@ class ReservationController
             );
 
             $reservationItemId = $reservationItem->create();
+            $reservationItemId = $reservationItem->updateStock();
 
             if (!$reservationItemId) {
                 $_SESSION['flash']['error'] = 'Erreur lors de l\'ajout de l\'article à la réservation.';
                 return $response->withHeader('Location', '/reservations/checkout')->withStatus(302);
             }
         }
+        foreach ($_SESSION['cart'] as $item) {
 
 
+        }
+        $_SESSION['cart'] = [];
         $_SESSION['flash']['success'] = 'Réservation créée avec succès.';
         return $response->withHeader('Location', '/catalogue')->withStatus(302);
     }
