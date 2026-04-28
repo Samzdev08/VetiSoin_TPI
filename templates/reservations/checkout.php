@@ -111,97 +111,28 @@
             <?php endif; ?>
         </div>
 
+        
+
 
         <div id="recapRdv" class="recap-rdv empty">
             Sélectionne un créneau de retrait...
         </div>
 
-        <button class="btn-confirm" id="btnConfirm" disabled>
-            Confirmer la réservation
-        </button>
+        <form action="/reservations/add" method="post">
+
+            <textarea name="commentaire" id="" maxlength="250" placeholder="Optionnel — Ajouter un commentaire pour le personnel de l'hôpital (ex: besoins spécifiques, urgence, etc.)" class="form-control mb-3" style="height: 100px;"></textarea>
+
+            </textarea>
+
+            <input type="hidden" name="patient_id" id="input-patient-id">
+            <input type="hidden" name="date_retrait" id="input-date-retrait">
+
+            <button type="submit" class="" id="btnConfirm" disabled style="cursor:not-allowed;">
+                Confirmer la réservation
+            </button>
     </aside>
 
 </div>
 
 
-<script>
-    const gridHorraire = document.querySelector('.horraire-grid');
-    const labelHorraire = document.querySelector('.horraire-label');
-
-    const HORAIRES = ['08h00', '10h00', '11h30', '14h30', '16h00'];
-
-    const today = new Date();
-    const maxDate = new Date(today);
-    maxDate.setDate(maxDate.getDate() + 7);
-
-
-    const fmt = d => d.toISOString().split('T')[0];
-
-    flatpickr('#calendarContainer', {
-        locale: 'fr',
-        inline: true,
-        dateFormat: 'Y-m-d',
-        minDate: fmt(today),
-        maxDate: fmt(maxDate),
-        defaultDate: fmt(today),
-
-        onChange: function(selectedDate, dateStr) {
-
-            gridHorraire.innerHTML = '';
-            AffichageHorraire(dateStr);
-        }
-
-
-    });
-
-    function AffichageHorraire(date) {
-
-        HORAIRES.forEach(h => {
-
-            const btn = document.createElement('button');
-            btn.className = 'horraire-btn';
-            btn.textContent = h;
-            labelHorraire.innerHTML = `Créneaux disponibles pour le <strong>${date}</strong>`;
-            gridHorraire.appendChild(btn);
-            btn.addEventListener('click', () => {
-                reservationSelected(h, date);
-            })
-
-        })
-
-    }
-
-    function setValue(input, value) {
-        document.getElementById(input).value = value;
-        document.getElementById('filter-form').submit();
-    }
-
-    function patientSelected(patientId, patientName, patientChambre, patientService, patientLastName) {
-
-        const recap = document.getElementById('recapPatient');
-        const infos = document.getElementById('infos-sec-patient');
-
-        if (recap) {
-            recap.textContent = 'Patient : ' + patientName + ' ' + patientLastName;
-
-            recap.dataset.patientId = patientId;
-        }
-
-        if (infos) {
-            infos.textContent = `Chambre ${patientChambre} — Service ${patientService}`;
-        }
-
-        
-    }
-
-    function reservationSelected(horraireValue, dateValue) {
-
-        if (horraireValue && dateValue) {
-
-            document.getElementById('recapRdv').textContent = `Retrait prévu le ${dateValue} à ${horraireValue}`;
-            document.getElementById('recapRdv').classList.remove('empty');
-            document.getElementById('btnConfirm').disabled = false;
-        }
-
-    }
-</script>
+<script src="../assets/js/checkout.js"></script>

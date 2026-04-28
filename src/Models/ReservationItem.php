@@ -6,3 +6,44 @@
  * Projet  : TPI VetiSoin
  * Role    : Entite Ligne d'article reserve
  */
+
+namespace App\Models;
+
+use App\Outils\Database;
+use PDO;
+
+class ReservationItem{
+
+    private $id;
+    private $reservationId;
+    private $articleId;
+    private $quantity;
+
+    public function __construct($id, $reservationId, $articleId, $quantity) {
+        $this->id = $id;
+        $this->reservationId = $reservationId;
+        $this->articleId = $articleId;
+        $this->quantity = $quantity;
+    }
+
+    public function create(){
+
+        $db = Database::getInstance()->getConnection();
+
+        $sql = "INSERT INTO article_reserve (id_reservation, id_article_variante, quantite) 
+        VALUES (:reservationId, :articleId, :quantity)";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([
+            ':reservationId' => $this->reservationId,
+            ':articleId' => $this->articleId,
+            ':quantity' => $this->quantity
+        ]);
+
+        $this->id = $db->lastInsertId();
+
+        return $this->id;
+    }
+
+
+}
