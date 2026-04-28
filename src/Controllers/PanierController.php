@@ -18,7 +18,11 @@ class PanierController
 {
     public function __invoke(Request $request, Response $response): Response
     {
-        $view = new PhpRenderer(__DIR__ . '/../../templates', ['title' => 'Panier']);
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title' => 'Panier',
+            'paniers' => $_SESSION['cart'] ?? [],
+        ]);
+
         return $view->render($response, '/reservations/cart.php');
     }
 
