@@ -19,14 +19,16 @@ class Reservation
     public $patient_id;
     public $soignant;
     public $date_retrait;
+    public $statut;
     public $commentaires;
 
-    public function __construct($id, $patient_id, $soignant, $date_retrait, $commentaires)
+    public function __construct($id, $patient_id, $soignant, $date_retrait, $statut, $commentaires)
     {
         $this->id = $id;
         $this->soignant = $soignant;
         $this->patient_id = $patient_id;
         $this->date_retrait = $date_retrait;
+        $this->statut = $statut;
         $this->commentaires = $commentaires;
     }
 
@@ -48,11 +50,11 @@ class Reservation
 
         return $this->id;
     }
-
     public function getReservationsBySoignantId()
     {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("
+
+        $sql = "
         SELECT 
             r.id,
             r.date_retrait_effective,
@@ -64,11 +66,21 @@ class Reservation
         FROM reservation r
         JOIN patient p ON p.id = r.id_patient
         WHERE r.id_soignant = :soignantId
-        ORDER BY r.date_retrait_effective DESC
-        ");
-        $stmt->execute([':soignantId' => $this->soignant]);
+        ";
 
+        $params = [':soignantId' => $this->soignant];
+
+        if ($this->statut) {
+            $sql .= " AND r.statut = :statut";
+            $params[':statut'] = $this->statut;
+        }
+
+        $sql .= " ORDER BY r.date_retrait_effective DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
     }
+
+ 
 }

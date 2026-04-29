@@ -27,13 +27,14 @@ class ReservationController
     public function __invoke(Request $request, Response $response): Response
     {
         $idSoignant = $_SESSION['user_id'];
+        $statut     = $_GET['statut'] ?? null;
 
         if (!$idSoignant) {
 
             $response->getBody()->write('Vous devez etre connecter !');
             return $response->withStatus(404);
         }
-        $reservation = new Reservation(null, null, $idSoignant, null, null);
+        $reservation = new Reservation(null, null, $idSoignant, null, $statut, null);
 
         $allReservations = $reservation->getReservationsBySoignantId();
 
@@ -97,7 +98,7 @@ class ReservationController
             return $response->withHeader('Location', '/reservations/checkout')->withStatus(302);
         }
 
-        $reservation = new Reservation(null, $idSoignant, $data['patient_id'], $data['date_retrait'], $data['commentaire']);
+        $reservation = new Reservation(null, $idSoignant, $data['patient_id'], $data['date_retrait'],null, $data['commentaire']);
 
         $reservationId = $reservation->create();
 
@@ -127,7 +128,7 @@ class ReservationController
             }
 
 
-            $reservation = new Reservation(null, $idSoignant, $data['patient_id'], $data['date_retrait'], $data['commentaire']);
+            $reservation = new Reservation(null, $idSoignant, $data['patient_id'], $data['date_retrait'],null,  $data['commentaire']);
             $reservationId = $reservation->create();
 
             if (!$reservationId) {
