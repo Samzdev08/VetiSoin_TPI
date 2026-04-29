@@ -39,6 +39,7 @@ $group = $app->group('/reservations', function ($group) {
     $group->get('/{id}', [ReservationController::class, 'detail']);
     $group->get('/{id}/updateForm', [ReservationController::class, 'updateForm']);
     $group->post('/add', [ReservationController::class, 'add']);
+    $group->post('/{id}/edit', [ReservationController::class, 'editPost']);
     // $group->post('/{id}/delete', [ReservationController::class, 'delete']);
 });
 

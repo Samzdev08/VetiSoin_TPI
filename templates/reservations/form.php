@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : edit.php
  * Auteur  : Samuel Tido Kaze
@@ -10,11 +11,13 @@
 /** @var array $patients */
 
 $row = $reservations[0];
+var_dump($reservations);
 
 $dateActuelle  = date('Y-m-d', strtotime($row['date_retrait_effective']));
 $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
-               . 'h'
-               . date('i', strtotime($row['date_retrait_effective']));
+    . 'h'
+    . date('i', strtotime($row['date_retrait_effective']));
+
 ?>
 
 <div>
@@ -51,11 +54,13 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                 <li>Aucun patient trouvé.</li>
             <?php else: ?>
                 <?php foreach ($patients as $patient): ?>
-                    <li>
+                    <li <?php if ($row['id_patient'] == $patient['id']): ?>style="background-color: #cfe9ff;" <?php endif; ?>
+                        onclick="patientSelected(this, <?= $patient['id'] ?>)">
                         <?= htmlspecialchars($patient['nom'] . ' ' . $patient['prenom']) ?>
                         — Chambre <?= htmlspecialchars($patient['chambre']) ?>
                         — <?= htmlspecialchars($patient['service']) ?>
                         — <?= htmlspecialchars($patient['numero_dossier']) ?>
+
                     </li>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -67,7 +72,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
 
         <input type="hidden" name="patient_id" id="input-patient-id" value="<?= $row['id_patient'] ?>">
 
-      
+
         <div>
             <h2>Date de retrait prévue</h2>
 
@@ -81,7 +86,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
             </p>
 
             <input type="hidden" name="date_retrait" id="input-date-retrait"
-                value="<?= htmlspecialchars($row['date_retrait_effective']) ?>" required>
+                value="<?= htmlspecialchars($row['date_retrait_effective']) ?>">
         </div>
 
 
@@ -107,11 +112,10 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                             <td><?= htmlspecialchars($ligne['couleur']) ?></td>
                             <td>
                                 <input type="number"
-                                    name=""
+                                    name="quantite[<?= $ligne['id'] ?>"
                                     value="<?= $ligne['quantite'] ?>"
                                     min="1"
-                                    max=""
-                                    >
+                                    max="<?=  $ligne['stock']?>">
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -127,8 +131,81 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
 
         <div>
             <button type="submit">Enregistrer les modifications</button>
-            <a href="/reservations/<?= $row['id'] ?>">Annuler</a>
+            <a href="/reservations/<?= $row['id'] ?>">Annuler</a>       
         </div>
 
     </form>
 </div>
+<script>
+    const gridHorraire = document.getElementById('horraireGrid');
+    const labelHorraire = document.getElementById('horraireLabel');
+    const HORAIRES = ['08h00', '10h00', '11h30', '14h30', '16h00'];
+
+    const dateActuelle = '<?= $dateActuelle ?>';
+    const heureActuelle = '<?= $heureActuelle ?>';
+
+    function setValue(input, value) {
+        document.getElementById(input).value = value;
+        document.getElementById('filter-form').submit();
+    }
+
+    const today = new Date();
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 7);
+    const fmt = d => d.toISOString().split('T')[0];
+
+    flatpickr('#calendarContainer', {
+        locale: 'fr',
+        inline: true,
+        dateFormat: 'Y-m-d',
+        minDate: fmt(today),
+        maxDate: fmt(maxDate),
+        defaultDate: dateActuelle,
+        onChange: function(selectedDates, dateStr) {
+            AffichageHorraire(dateStr);
+        }
+    });
+
+    AffichageHorraire(dateActuelle);
+
+    function AffichageHorraire(date) {
+        gridHorraire.innerHTML = '';
+        labelHorraire.innerHTML = `Créneaux disponibles pour le <strong>${date}</strong>`;
+
+        HORAIRES.forEach(h => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = h;
+
+            let isActive = (date === dateActuelle && h === heureActuelle);
+            btn.className = isActive ? 'btn btn-primary horraire' : 'btn btn-secondary';
+
+            btn.addEventListener('click', () => {
+
+                reservationSelected(h, date);
+                gridHorraire.querySelectorAll('button').forEach(b => {
+                    b.className = 'btn btn-secondary';
+                });
+               
+                btn.className = 'btn btn-primary'
+
+            });
+            gridHorraire.appendChild(btn);
+        });
+    }
+
+    function reservationSelected(horaire, date) {
+        document.getElementById('recapRdv').textContent = `Sélectionné : ${date} à ${horaire}`;
+        document.getElementById('input-date-retrait').value = convertToSqlFormat(date, horaire);
+    }
+
+    function convertToSqlFormat(date, horaire) {
+        return `${date} ${horaire.replace('h', ':')}:00`;
+    }
+
+    function patientSelected(li, patientId) {
+        document.querySelectorAll('ul li').forEach(l => l.style.backgroundColor = '');
+        li.style.backgroundColor = '#cfe9ff';
+        document.getElementById('input-patient-id').value = patientId;
+    }
+</script>

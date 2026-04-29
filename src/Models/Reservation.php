@@ -61,6 +61,7 @@ class Reservation
             r.commentaire,
             r.statut,
             r.is_archived,
+            p.id As id_patient,
             p.nom AS patient_nom,
             p.prenom AS patient_prenom
         FROM reservation r
@@ -94,6 +95,7 @@ class Reservation
             r.statut,
             r.commentaire,
             r.is_archived,
+            p.id As id_patient,
             p.nom AS patient_nom,
             p.prenom AS patient_prenom,
             p.numero_dossier,
@@ -104,7 +106,8 @@ class Reservation
             a.matiere,
             av.taille,
             av.couleur,
-            av.photo,
+            av.stock,
+            ar.id,
             ar.quantite,
             ar.est_retourne,
             ar.date_retour

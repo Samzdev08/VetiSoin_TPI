@@ -192,16 +192,37 @@ class ReservationController
     {
         $idReservation = $args['id'];
 
-        $reservation = new Reservation($idReservation,null, null, null, null, null);
+        $nom = $_GET['recherche'] ?? null;
+        $service = $_GET['service'] ?? null;
+
+        $patient = new Patient(
+            null,
+            $nom,
+            null,
+            null,
+            null,
+            null,
+            $service,
+            null,
+            null
+        );
+
+        $patients = $patient->getAll();
+
+        $reservation = new Reservation($idReservation, null, null, null, null, null);
 
         $reservationById = $reservation->getReservationById();
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title'   => 'Modidfication d\'une réservation',
             'reservations' => $reservationById,
+            'patients' => $patients
         ]);
         $view->setLayout('layout.php');
 
         return $view->render($response, '/reservations/form.php');
     }
+
+
+    
 }
