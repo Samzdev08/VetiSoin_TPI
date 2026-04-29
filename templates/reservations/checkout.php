@@ -7,6 +7,7 @@
  * Projet  : TPI VetiSoin
  * Role    : Page de checkout pour finaliser la reservation
  */
+
 ?>
 
 <div class="container mt-4">

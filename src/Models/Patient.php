@@ -45,7 +45,7 @@ class Patient
 
         $db = Database::getInstance()->getConnection();
 
-        $sql = "SELECT
+        $sql = "SELECT DISTINCT
             p.id,
             p.nom, 
             p.prenom, 
@@ -58,7 +58,7 @@ class Patient
         FROM patient p
         INNER JOIN reservation r 
             ON p.id = r.id_patient
-        WHERE 1 = 1";;
+        WHERE 1 = 1";
 
 
         if ($this->nom) {

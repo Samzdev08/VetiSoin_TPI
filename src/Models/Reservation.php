@@ -22,7 +22,7 @@ class Reservation
     public $statut;
     public $commentaires;
 
-    public function __construct($id, $patient_id, $soignant, $date_retrait, $statut, $commentaires)
+    public function __construct($id, $soignant, $patient_id, $date_retrait, $statut, $commentaires)
     {
         $this->id = $id;
         $this->soignant = $soignant;
@@ -82,5 +82,39 @@ class Reservation
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
- 
+    public function getReservationById()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+        SELECT 
+            r.id,
+            r.date_reservation,
+            r.date_retrait_effective,
+            r.statut,
+            r.commentaire,
+            r.is_archived,
+            p.nom AS patient_nom,
+            p.prenom AS patient_prenom,
+            p.numero_dossier,
+            p.chambre,
+            p.service AS patient_service,
+            a.nom AS article_nom,
+            a.marque,
+            a.matiere,
+            av.taille,
+            av.couleur,
+            av.photo,
+            ar.quantite,
+            ar.est_retourne,
+            ar.date_retour
+        FROM reservation r
+        JOIN patient p           ON p.id  = r.id_patient
+        JOIN article_reserve ar  ON ar.id_reservation = r.id
+        JOIN article_variante av ON av.id = ar.id_article_variante
+        JOIN article a           ON a.id  = av.id_article
+        WHERE r.id = :reservationId
+    ");
+        $stmt->execute([':reservationId' => (int)$this->id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
