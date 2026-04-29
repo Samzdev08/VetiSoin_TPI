@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : Reservation.php
  * Auteur  : Samuel Tido Kaze
@@ -20,14 +21,13 @@ class Reservation
     public $date_retrait;
     public $commentaires;
 
-    public function __construct($id, $patient_id, $soignant, $date_retrait, $commentaires )
+    public function __construct($id, $patient_id, $soignant, $date_retrait, $commentaires)
     {
         $this->id = $id;
         $this->soignant = $soignant;
         $this->patient_id = $patient_id;
         $this->date_retrait = $date_retrait;
         $this->commentaires = $commentaires;
-
     }
 
     public function create()
@@ -37,15 +37,38 @@ class Reservation
         VALUES (:soignant, :patient_id, :date_retrait, :commentaires)");
         $stmt->execute([
 
-        ':soignant' => $this->soignant,
-        ':patient_id' => $this->patient_id,
-        ':date_retrait' => $this->date_retrait,
-        ':commentaires' => $this->commentaires
+            ':soignant' => $this->soignant,
+            ':patient_id' => $this->patient_id,
+            ':date_retrait' => $this->date_retrait,
+            ':commentaires' => $this->commentaires
 
         ]);
 
         $this->id = $db->lastInsertId();
 
         return $this->id;
+    }
+
+    public function getReservationsBySoignantId()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+        SELECT 
+            r.id,
+            r.date_retrait_effective,
+            r.commentaire,
+            r.statut,
+            r.is_archived,
+            p.nom AS patient_nom,
+            p.prenom AS patient_prenom
+        FROM reservation r
+        JOIN patient p ON p.id = r.id_patient
+        WHERE r.id_soignant = :soignantId
+        ORDER BY r.date_retrait_effective DESC
+        ");
+        $stmt->execute([':soignantId' => $this->soignant]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
     }
 }

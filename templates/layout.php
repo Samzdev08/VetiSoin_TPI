@@ -8,6 +8,8 @@
  * Role    : Layout principal
  */
 
+/** @var string|null $content */
+/** @var string|null $title */
 
 $flash = $flash ?? $_SESSION['flash'] ?? [];
 unset($_SESSION['flash']);
@@ -48,6 +50,7 @@ unset($_SESSION['flash']);
                     <?php else: ?>
                         <li><a href="/dashboard">Tableau de bord</a></li>
                         <li><a href="/patients">Patients</a></li>
+                        <li><a href="/reservations">Réservations</a></li>
                         <li><a href="/auth/logout">Déconnexion</a></li>
                     <?php endif; ?>
 

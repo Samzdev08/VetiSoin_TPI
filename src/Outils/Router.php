@@ -8,6 +8,8 @@
  * Role    : Routage des requetes HTTP
  */
 
+/** @var \Slim\App $app */
+
 use App\Controllers\AuthController;
 use App\Controllers\CatalogController;
 use App\Controllers\PatientController;
@@ -31,9 +33,9 @@ $app->get('/panier/vider', [PanierController::class, 'clearCart']);
 
 $group = $app->group('/reservations', function ($group) {
 
-   // $group->get('', [ReservationController::class, 'index']);
+    $group->get('', ReservationController::class);
     $group->get('/checkout', [ReservationController::class, 'checkout']);
-   // $group->get('/{id}', [ReservationController::class, 'detail']);
+    $group->get('/{id}', [ReservationController::class, 'detail']);
     //$group->post('/update', [ReservationController::class, 'updateReservations']);
    $group->post('/add', [ReservationController::class, 'add']);
    // $group->post('/{id}/delete', [ReservationController::class, 'delete']);

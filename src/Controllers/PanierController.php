@@ -22,7 +22,7 @@ class PanierController
         $cart = $_SESSION['cart'] ?? [];
         $errors = [];
 
-        foreach ($cart as $i => $item) {
+        foreach ($cart as $i => &$item) {
             $articleModel = new ArticleVariant($item['variante_id'], null, null, null, null, null);
             $stockReel = $articleModel->getStockById();
 
@@ -36,9 +36,10 @@ class PanierController
                 $errors[] = 'La quantité de l\'article "' . $item['nom'] . '" a été ajustée (stock actuel : ' . $stockReel . ').';
                 $item['quantite'] = $stockReel;
             }
+            
 
             $item['maxStock'] = $stockReel;
-            $cart[$i] = $item;
+            
         }
 
     
