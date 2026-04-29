@@ -48,8 +48,19 @@ class ReservationItem
 
         return $this->id;
     }
+    public function getStockById()
+    {
 
-    public function updateStock()
+        $db = Database::getInstance()->getConnection();
+
+        $sql = "SELECT stock FROM article_variante WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':id' => $this->id]);
+
+        return $stmt->fetchColumn();
+    }
+
+    public function updateStock() // Apres la validation de la reservation 
     {
         $db = Database::getInstance()->getConnection();
 
@@ -110,5 +121,56 @@ class ReservationItem
             if ($db->inTransaction()) $db->rollBack();
             return false;
         }
+    }
+
+    public function updateQuantite()
+    {
+        $db = Database::getInstance()->getConnection();
+
+        
+        $stmt = $db->prepare("
+        SELECT quantite, id_article_variante 
+        FROM article_reserve 
+        WHERE id = :id
+        ");
+
+        $stmt->execute([':id' => $this->id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        
+
+        if (!$row) {
+            return false;
+        }
+
+        $ancienneQuantite = $row['quantite'];
+        $idVariante = $row['id_article_variante'];
+
+       
+        $diff = $this->quantity - $ancienneQuantite;
+       
+
+        
+        $stmtUpdate = $db->prepare("
+        UPDATE article_reserve 
+        SET quantite = :quantite 
+        WHERE id = :id
+        ");
+
+        $stmtUpdate->execute([
+            ':quantite' => $this->quantity,
+            ':id'       => $this->id
+        ]);
+
+       
+        $stmtStock = $db->prepare("
+        UPDATE article_variante 
+        SET stock = stock - :diff 
+        WHERE id = :id_variante
+        ");
+        return $stmtStock->execute([
+            ':diff'        => $diff,
+            ':id_variante' => $idVariante
+        ]);
     }
 }

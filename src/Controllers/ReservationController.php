@@ -223,6 +223,91 @@ class ReservationController
         return $view->render($response, '/reservations/form.php');
     }
 
+    public function editPost(Request $request, Response $response, $args): Response
+    {
+        $data          = $request->getParsedBody();
+        $idReservation = $args['id'] ?? null;
+        $idSoignant    = $_SESSION['user_id'] ?? null;
 
-    
+        if (!$idSoignant) {
+            $_SESSION['flash']['error'] = 'Vous devez être connecté.';
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+
+        if (!$idReservation) {
+            $_SESSION['flash']['error'] = 'ID de réservation manquant.';
+            return $response->withHeader('Location', '/reservations')->withStatus(302);
+        }
+
+        $data['commentaire'] = !empty($data['commentaire'])
+            ? filter_var($data['commentaire'], FILTER_SANITIZE_SPECIAL_CHARS)
+            : null;
+
+        if (!isset($data['patient_id'], $data['date_retrait'])) {
+            $_SESSION['flash']['error'] = 'Données manquantes pour la modification.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
+        }
+
+        $db = Database::getInstance()->getConnection();
+        try {
+            $db->beginTransaction();
+
+            var_dump($data['quantite']);
+
+            if (!empty($data['quantite']) && is_array($data['quantite'])) {
+
+                foreach ($data['quantite'] as $idItem => $nouvelleQuantite) {
+
+                    $item = new ReservationItem($idItem, null, null, null);
+                    $stockDispo = $item->getStockById();
+
+                    if ((int)$nouvelleQuantite > $stockDispo) {
+
+                        $db->rollBack();
+
+                        $_SESSION['flash']['error'] = "Stock insuffisant (dispo : $stockDispo).";
+                        return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
+                    }
+                }
+            }
+
+
+            $reservation = new Reservation(
+                $idReservation,
+                $idSoignant,
+                $data['patient_id'],
+                $data['date_retrait'],
+                null,
+                $data['commentaire']
+            );
+
+            if (!$reservation->update()) {
+
+                $db->rollBack();
+
+                $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour de la réservation.';
+                return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
+            }
+
+
+            foreach ($data['quantite'] as $idItem => $nouvelleQuantite) {
+
+                $item = new ReservationItem($idItem, null, null, $nouvelleQuantite);
+                if (!$item->updateQuantite()) {
+
+                    $db->rollBack();
+                    $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour des quantités.';
+                    return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
+                }
+            }
+
+            $db->commit();
+            $_SESSION['flash']['success'] = 'Réservation modifiée avec succès.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            $_SESSION['flash']['error'] = 'Erreur technique lors de la modification.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
+        }
+    }
 }

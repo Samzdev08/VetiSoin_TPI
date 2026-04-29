@@ -112,7 +112,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                             <td><?= htmlspecialchars($ligne['couleur']) ?></td>
                             <td>
                                 <input type="number"
-                                    name="quantite[<?= $ligne['id'] ?>"
+                                    name="quantite[<?= $ligne['article_reserve_id'] ?>]"
                                     value="<?= $ligne['quantite'] ?>"
                                     min="1"
                                     max="<?=  $ligne['stock']?>">

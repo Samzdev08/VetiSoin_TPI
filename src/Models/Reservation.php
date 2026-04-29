@@ -107,7 +107,7 @@ class Reservation
             av.taille,
             av.couleur,
             av.stock,
-            ar.id,
+            ar.id AS article_reserve_id,
             ar.quantite,
             ar.est_retourne,
             ar.date_retour
@@ -132,5 +132,25 @@ class Reservation
         AND statut = 'En attente'
     ");
         return $stmt->execute([':id' => $this->id]);
+    }
+
+    public function update()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "
+        UPDATE reservation
+        SET id_patient = :id_patient,
+            date_retrait_effective = :date_retrait,
+            commentaire = :commentaire
+        WHERE id = :id
+        AND statut = 'En attente'
+    ";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([
+            ':id_patient'   => $this->patient_id,
+            ':date_retrait' => $this->date_retrait,
+            ':commentaire'  => $this->commentaires,
+            ':id'           => $this->id,
+        ]);
     }
 }
