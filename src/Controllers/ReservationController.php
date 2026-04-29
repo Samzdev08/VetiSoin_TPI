@@ -155,4 +155,36 @@ class ReservationController
             return $response->withHeader('Location', '/reservations/checkout')->withStatus(302);
         }
     }
+
+    public function annuler(Request $request, Response $response, $args): Response
+    {
+        $idReservation = $args['id'] ?? null;
+
+        if (!$idReservation) {
+            $_SESSION['flash']['error'] = 'ID de réservation manquant.';
+            return $response->withHeader('Location', '/reservations')->withStatus(302);
+        }
+
+        $reservationItems =   new ReservationItem(null, $idReservation, null, null);
+
+        $items = $reservationItems->findById();
+
+        foreach ($items as $i) {
+
+            $item = new ReservationItem($i,null, null, null);
+            $item->retourner();
+        }
+
+
+        $reservation = new Reservation($idReservation, null, null, null, null, null);
+        $ok = $reservation->cancel();
+
+        if (!$ok) {
+            $_SESSION['flash']['error'] = 'Erreur lors de l\'annulation de la réservation.';
+        } else {
+            $_SESSION['flash']['success'] = 'Réservation annulée avec succès.';
+        }
+
+        return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
+    }
 }

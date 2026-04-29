@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : detail.php
  * Auteur  : Samuel Tido Kaze
@@ -23,7 +24,7 @@ $couleur = $badges[$row['statut']];
 
 <div class="container mt-4" style="max-width: 780px;">
 
-    
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h4 mb-0">Réservation #<?= $row['id'] ?></h1>
         <span class="badge bg-<?= $couleur ?> fs-6"><?= htmlspecialchars($row['statut']) ?></span>
@@ -73,7 +74,12 @@ $couleur = $badges[$row['statut']];
                         <th>Taille</th>
                         <th>Couleur</th>
                         <th>Qté</th>
+                        <?php if ($row['statut'] === 'Cloturée') : ?>
+                            <th>Actions</th>
+                        <?php endif ?>
                         <th>Retourné</th>
+
+
                     </tr>
                 </thead>
                 <tbody>
@@ -87,8 +93,12 @@ $couleur = $badges[$row['statut']];
                             <td><?= htmlspecialchars($ligne['taille']) ?></td>
                             <td><?= htmlspecialchars($ligne['couleur']) ?></td>
                             <td><?= htmlspecialchars($ligne['quantite']) ?></td>
+                            <?php if ($row['statut'] === 'Cloturée') : ?>
+                                <td><button class="badge bg-danger">retourner</button></td>
+                            <?php endif; ?>
                             <td>
                                 <?php if ($ligne['est_retourne']) : ?>
+
                                     <span class="badge bg-success">Oui</span>
                                 <?php else : ?>
                                     <span class="badge bg-secondary">Non</span>
@@ -115,9 +125,9 @@ $couleur = $badges[$row['statut']];
         <?php if ($row['statut'] === 'En attente') : ?>
             <a href="/reservations/<?= $row['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
             <a href="/reservations/<?= $row['id'] ?>/annuler"
-               class="btn btn-outline-danger btn-sm"
-               onclick="return confirm('Annuler cette réservation ?')">
-               Annuler
+                class="btn btn-outline-danger btn-sm"
+                onclick="return confirm('Annuler cette réservation ?')">
+                Annuler
             </a>
         <?php endif; ?>
     </div>

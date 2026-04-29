@@ -66,6 +66,7 @@ class Reservation
         FROM reservation r
         JOIN patient p ON p.id = r.id_patient
         WHERE r.id_soignant = :soignantId
+        AND r.is_archived = FALSE
         ";
 
         $params = [':soignantId' => $this->soignant];
@@ -116,5 +117,17 @@ class Reservation
     ");
         $stmt->execute([':reservationId' => (int)$this->id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function cancel()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+        UPDATE reservation
+        SET statut = 'Annulée'
+        WHERE id = :id
+        AND statut = 'En attente'
+    ");
+        return $stmt->execute([':id' => $this->id]);
     }
 }
