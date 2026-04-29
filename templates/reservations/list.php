@@ -64,7 +64,7 @@
                             <a href="/reservations/<?= $reservation['id'] ?>" class="btn btn-outline-primary btn-sm">Voir</a>
 
                             <?php if ($reservation['statut'] === 'En attente') : ?>
-                                <a href="/reservations/<?= $reservation['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
+                                <a href="/reservations/<?= $reservation['id'] ?>/updateForm" class="btn btn-outline-secondary btn-sm">Modifier</a>
                                 <a href="/reservations/<?= $reservation['id'] ?>/annuler"
                                     class="btn btn-outline-danger btn-sm"
                                     onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')">

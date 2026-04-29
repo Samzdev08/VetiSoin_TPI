@@ -7,7 +7,7 @@
  * Projet  : TPI VetiSoin
  * Role    : Catalogue d'articles avec filtres
  */
-
+/** @var array $articles */
 
 ?>
 

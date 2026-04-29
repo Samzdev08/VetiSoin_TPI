@@ -123,7 +123,7 @@ $couleur = $badges[$row['statut']];
 
     <div class="d-flex gap-2">
         <?php if ($row['statut'] === 'En attente') : ?>
-            <a href="/reservations/<?= $row['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
+            <a href="/reservations/<?= $row['id'] ?>/updateForm" class="btn btn-outline-secondary btn-sm">Modifier</a>
             <a href="/reservations/<?= $row['id'] ?>/annuler"
                 class="btn btn-outline-danger btn-sm"
                 onclick="return confirm('Annuler cette réservation ?')">

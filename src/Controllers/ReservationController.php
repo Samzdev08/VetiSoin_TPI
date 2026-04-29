@@ -171,7 +171,7 @@ class ReservationController
 
         foreach ($items as $i) {
 
-            $item = new ReservationItem($i,null, null, null);
+            $item = new ReservationItem($i, null, null, null);
             $item->retourner();
         }
 
@@ -186,5 +186,22 @@ class ReservationController
         }
 
         return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
+    }
+
+    public function updateForm(Request $request, Response $response, $args): Response
+    {
+        $idReservation = $args['id'];
+
+        $reservation = new Reservation($idReservation,null, null, null, null, null);
+
+        $reservationById = $reservation->getReservationById();
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title'   => 'Modidfication d\'une réservation',
+            'reservations' => $reservationById,
+        ]);
+        $view->setLayout('layout.php');
+
+        return $view->render($response, '/reservations/form.php');
     }
 }
