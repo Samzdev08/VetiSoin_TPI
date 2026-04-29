@@ -27,7 +27,7 @@ class ReservationController
     public function __invoke(Request $request, Response $response): Response
     {
         $idSoignant = $_SESSION['user_id'];
-        $statut     = $_GET['statut'] ?? null;
+        $statut = $_GET['statut'] ?? null;
 
         if (!$idSoignant) {
 
@@ -309,5 +309,25 @@ class ReservationController
             $_SESSION['flash']['error'] = 'Erreur technique lors de la modification.';
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
         }
+    }
+
+    public function showRdv(Request $request, Response $response, $args) : Response{
+
+        $idReservation = $args['id'] ?? null;
+        $reservation = new Reservation($idReservation, null, null, null, null, null);
+
+        $infos = $reservation->getReservationById();
+
+
+
+          $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title'   => 'Mon Rdv',
+            'infos' => $infos,
+        ]);
+        $view->setLayout('layout.php');
+
+        return $view->render($response, '/appointments/new.php');
+
+
     }
 }
