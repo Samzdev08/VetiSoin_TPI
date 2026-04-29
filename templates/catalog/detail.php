@@ -7,6 +7,8 @@
  * Projet  : TPI VetiSoin
  * Role    : Fiche detaillee d'un article
  */
+/** @var array $article */
+/** @var string|null $selectedColor */
 $arrayColor = [
     'Rouge'        => '#dc3545',
     'Bleu'         => '#007bff',

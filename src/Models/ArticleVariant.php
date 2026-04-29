@@ -14,18 +14,31 @@ use PDO;
 
 class ArticleVariant
 {
+    public $id;
     public $idArticle;
     public $taille;
     public $couleur;
     public $photo;
     public $stock;
 
-    public function __construct($idArticle, $taille, $couleur, $photo, $stock)
+    public function __construct($id, $idArticle, $taille, $couleur, $photo, $stock)
     {
+        $this->id = $id;
         $this->idArticle = $idArticle;
         $this->taille = $taille;
         $this->couleur = $couleur;
         $this->photo = $photo;
         $this->stock = $stock;
+    }
+
+    public function getStockById(){
+        
+        $db = Database::getInstance()->getConnection();
+
+        $sql = "SELECT stock FROM article_variante WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':id' => $this->id]);
+
+        return $stmt->fetchColumn();
     }
 }

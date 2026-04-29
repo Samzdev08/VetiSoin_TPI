@@ -13,17 +13,47 @@ namespace App\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\PhpRenderer;
+use App\Models\ArticleVariant;
 
 class PanierController
 {
     public function __invoke(Request $request, Response $response): Response
     {
-        $view = new PhpRenderer(__DIR__ . '/../../templates', [
-            'title' => 'Panier',
-            'paniers' => $_SESSION['cart'] ?? [],
-        ]);
+        $cart = $_SESSION['cart'] ?? [];
+        $errors = [];
 
+        foreach ($cart as $i => $item) {
+            $articleModel = new ArticleVariant($item['variante_id'], null, null, null, null, null);
+            $stockReel = $articleModel->getStockById();
+
+            if ($stockReel == 0) {
+                $errors[] = 'L\'article "' . $item['nom'] . '" est en rupture de stock et a été retiré du panier.';
+                unset($cart[$i]);
+                continue;
+            }
+
+            if ($item['quantite'] > $stockReel) {
+                $errors[] = 'La quantité de l\'article "' . $item['nom'] . '" a été ajustée (stock actuel : ' . $stockReel . ').';
+                $item['quantite'] = $stockReel;
+            }
+
+            $item['maxStock'] = $stockReel;
+            $cart[$i] = $item;
+        }
+
+    
+        $_SESSION['cart'] = array_values($cart);
+
+        if (!empty($errors)) {
+            $_SESSION['flash']['error'] = $errors; 
+        }
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title'   => 'Panier',
+            'paniers' => $_SESSION['cart'],
+        ]);
         $view->setLayout('layout.php');
+
         return $view->render($response, '/reservations/cart.php');
     }
 
@@ -87,24 +117,24 @@ class PanierController
         return $response->withHeader('Location', '/panier')->withStatus(302);
     }
 
-    public function updateCart(Request $request, Response $response, array $args): Response {
+    public function updateCart(Request $request, Response $response, array $args): Response
+    {
 
 
         $id = $args['id'];
 
         $data = $request->getParsedBody();
 
-        if($data['quantite'] > (int)$data['maxStock']){
+        if ($data['quantite'] > (int)$data['maxStock']) {
 
             $_SESSION['flash']['error'] = 'La quantité demandée dépasse le stock disponible.';
             return $response->withHeader('Location', '/panier')->withStatus(302);
-
         }
 
 
         foreach ($_SESSION['cart'] as &$item) {
 
-           $_SESSION['cart'][$id]['quantite'] = $data['quantite'];
+            $_SESSION['cart'][$id]['quantite'] = $data['quantite'];
         }
 
         $_SESSION['flash']['success'] = 'Quantité mise à jour avec succès.';
