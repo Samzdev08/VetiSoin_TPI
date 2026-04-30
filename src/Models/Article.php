@@ -122,5 +122,24 @@ class Article
     }
 
 
-    
+    public function update()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE article 
+            SET nom = :nom, 
+                marque = :marque, 
+                matiere = :matiere, 
+                genre = :genre, 
+                id_categorie = :idCategorie 
+            WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([
+            ':nom'         => $this->nom,
+            ':marque'      => $this->marque,
+            ':matiere'     => $this->matiere,
+            ':genre'       => $this->genre,
+            ':idCategorie' => $this->idCategorie,
+            ':id'          => $this->id,
+        ]);
+    }
 }

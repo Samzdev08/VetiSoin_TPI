@@ -7,6 +7,7 @@
  * Projet  : TPI VetiSoin
  * Role    : Page de connexion
  */
+/** @var string $title */
 
 $flash = $_SESSION['flash'] ?? [];
 unset($_SESSION['flash']);

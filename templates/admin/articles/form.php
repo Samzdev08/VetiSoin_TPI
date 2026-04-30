@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : edit.php
  * Auteur  : Samuel Tido Kaze
@@ -22,6 +23,8 @@ $genres = ['Femme', 'Homme', 'Mixte'];
 
     <h2 class="h5 mb-3">Informations de l'article</h2>
     <form action="/admin/articles/<?= $article['id'] ?>/edit" method="post" class="mb-5">
+
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
         <table class="table table-bordered" style="max-width: 500px;">
             <tr>
                 <th>Nom</th>
@@ -38,7 +41,7 @@ $genres = ['Femme', 'Homme', 'Mixte'];
             <tr>
                 <th>Genre</th>
                 <td>
-                    <select name="genre" class="form-select" >
+                    <select name="genre" class="form-select">
                         <?php foreach ($genres as $g) : ?>
                             <option value="<?= $g ?>" <?= $article['genre'] === $g ? 'selected' : '' ?>><?= $g ?></option>
                         <?php endforeach; ?>
@@ -80,11 +83,14 @@ $genres = ['Femme', 'Homme', 'Mixte'];
                 <?php foreach ($article['variantes'] as $variante) : ?>
                     <tr>
                         <form action="/admin/variantes/<?= $variante['id'] ?>/edit" method="post" enctype="multipart/form-data">
+                            
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
                             <td>
                                 <?php if (!empty($variante['photo'])) : ?>
                                     <img src="<?= htmlspecialchars($variante['photo']) ?>"
-                                         alt="photo" width="50" height="50"
-                                         style="object-fit: cover; border-radius: 4px;">
+                                        alt="photo" width="50" height="50"
+                                        style="object-fit: cover; border-radius: 4px;">
                                 <?php else : ?>
                                     —
                                 <?php endif; ?>
@@ -93,7 +99,7 @@ $genres = ['Femme', 'Homme', 'Mixte'];
                             <td><?= htmlspecialchars($variante['couleur']) ?></td>
                             <td>
                                 <input type="number" name="stock" value="<?= htmlspecialchars($variante['stock']) ?>"
-                                       min="0" class="form-control" style="max-width: 100px;" required>
+                                    min="0" class="form-control" style="max-width: 100px;" required>
                             </td>
                             <td>
                                 <input type="file" name="photo" accept="image/*" class="form-control">
