@@ -142,4 +142,19 @@ class Article
             ':id'          => $this->id,
         ]);
     }
+    public function create()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "INSERT INTO article (id_categorie, nom, genre, matiere, marque, date_creation) 
+            VALUES (:idCategorie, :nom, :genre, :matiere, :marque, NOW())";
+        $stmt = $db->prepare($sql);
+        $success = $stmt->execute([
+            ':idCategorie' => $this->idCategorie,
+            ':nom' => $this->nom,
+            ':genre' => $this->genre,
+            ':matiere' => $this->matiere,
+            ':marque' => $this->marque,
+        ]);
+        return $success ? $db->lastInsertId() : false;
+    }
 }

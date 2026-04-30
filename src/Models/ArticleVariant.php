@@ -66,4 +66,19 @@ class ArticleVariant
         $stmt->execute([':id' => $this->id]);
         return $stmt->fetchColumn();
     }
+
+    public function create()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "INSERT INTO article_variante (id_article, taille, couleur, photo, stock) 
+            VALUES (:idArticle, :taille, :couleur, :photo, :stock)";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([
+            ':idArticle' => $this->idArticle,
+            ':taille'    => $this->taille,
+            ':couleur'   => $this->couleur,
+            ':photo'     => $this->photo,
+            ':stock'     => $this->stock,
+        ]);
+    }
 }

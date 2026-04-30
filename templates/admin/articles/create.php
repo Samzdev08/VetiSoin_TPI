@@ -37,20 +37,20 @@ $categorySelect = 'salut';
         <table class="table table-bordered" style="max-width: 500px;">
             <tr>
                 <th>Nom</th>
-                <td><input type="text" name="nom" class="form-control" required></td>
+                <td><input type="text" name="nom" class="form-control" ></td>
             </tr>
             <tr>
                 <th>Marque</th>
-                <td><input type="text" name="marque" class="form-control" required></td>
+                <td><input type="text" name="marque" class="form-control" ></td>
             </tr>
             <tr>
                 <th>Matière</th>
-                <td><input type="text" name="matiere" class="form-control" required></td>
+                <td><input type="text" name="matiere" class="form-control" ></td>
             </tr>
             <tr>
                 <th>Genre</th>
                 <td>
-                    <select name="genre" class="form-select" required>
+                    <select name="genre" class="form-select" >
                         <option value="">— Choisir —</option>
                         <?php foreach ($genres as $g) : ?>
                             <option value="<?= $g ?>"><?= $g ?></option>
@@ -61,7 +61,7 @@ $categorySelect = 'salut';
             <tr>
                 <th>Catégorie</th>
                 <td>
-                    <select name="id_categorie" id="select-categorie" class="form-select" onchange="setTaille(this.value)" required>
+                    <select name="id_categorie" id="select-categorie" class="form-select" onchange="setTaille(this.value)" >
                         <option value="">— Choisir —</option>
                         <?php foreach ($categories as $cat) : ?>
                             <option value="<?= $cat['id'] ?>" data-nom="<?= htmlspecialchars($cat['type_taille']) ?>">
@@ -86,12 +86,12 @@ $categorySelect = 'salut';
             <tbody id="variantes-body">
                 <tr>
                     <td>
-                        <select name="variantes[0][taille]" class="form-select select-taille" required>
+                        <select name="variantes[0][taille]" class="form-select select-taille" >
                             <option value="">—</option>
                         </select>
                     </td>
-                    <td><input type="text" name="variantes[0][couleur]" class="form-control" required></td>
-                    <td><input type="number" name="variantes[0][stock]" min="0" value="0" class="form-control" style="max-width: 100px;" required></td>
+                    <td><input type="text" name="variantes[0][couleur]" class="form-control" ></td>
+                    <td><input type="number" name="variantes[0][stock]" min="0" value="0" class="form-control" style="max-width: 100px;" ></td>
                     <td><input type="file" name="variantes[0][photo]" accept="image/*" class="form-control"></td>
                 </tr>
             </tbody>
@@ -140,12 +140,12 @@ $categorySelect = 'salut';
 
         tr.innerHTML = `
             <td>
-                <select name="variantes[${i}][taille]" class="form-select select-taille" required>
+                <select name="variantes[${i}][taille]" class="form-select select-taille" >
                     <option value="">—</option>
                 </select>
             </td>
-            <td><input type="text" name="variantes[${i}][couleur]" class="form-control" required></td>
-            <td><input type="number" name="variantes[${i}][stock]" min="0" value="0" class="form-control" style="max-width: 100px;" required></td>
+            <td><input type="text" name="variantes[${i}][couleur]" class="form-control" ></td>
+            <td><input type="number" name="variantes[${i}][stock]" min="0" value="0" class="form-control" style="max-width: 100px;" ></td>
             <td><input type="file" name="variantes[${i}][photo]" accept="image/*" class="form-control"></td>
             <td><button type="button" onclick="this.closest('tr').remove()" class="btn btn-outline-danger btn-sm">×</button></td>
         `;

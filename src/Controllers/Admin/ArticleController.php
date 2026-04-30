@@ -170,7 +170,6 @@ class ArticleController
 
                 $_SESSION['flash']['error'] = $result['message'];
                 return $response->withHeader('Location', '/admin/articles/' . $idArticle . '/edit')->withStatus(302);
-
             }
             $photo = $result['filename'];
         }
@@ -191,7 +190,7 @@ class ArticleController
 
     public function showCreateForm(Request $request, Response $response, $args): Response
     {
-        
+
 
         $categorieObj = new Category(null, null, null);
 
@@ -205,5 +204,114 @@ class ArticleController
         ]);
         $view->setLayout('layout.php');
         return $view->render($response, '/admin/articles/create.php');
+    }
+
+    public function createPost(Request $request, Response $response, $args): Response
+    {
+        $data = filter_input_array(INPUT_POST, [
+            'csrf_token'   => FILTER_SANITIZE_SPECIAL_CHARS,
+            'nom'          => FILTER_SANITIZE_SPECIAL_CHARS,
+            'id_categorie' => FILTER_VALIDATE_INT,
+            'genre'        => FILTER_SANITIZE_SPECIAL_CHARS,
+            'marque'       => FILTER_SANITIZE_SPECIAL_CHARS,
+            'matiere'      => FILTER_SANITIZE_SPECIAL_CHARS,
+        ]);
+
+        $variantes = $_POST['variantes'] ?? [];
+
+        if (!Csrf::check($data['csrf_token'] ?? '')) {
+            $_SESSION['flash']['error'] = 'Jeton de sécurité invalide. Veuillez réessayer.';
+            return $response->withHeader('Location', '/admin/articles/create')->withStatus(302);
+        }
+
+        $errors = [];
+
+        if (!Validator::isNotEmpty($data['nom']) || !Validator::minLength($data['nom'], 1) || !Validator::maxLength($data['nom'], 101)) {
+            $errors[] = 'Le nom est invalide (2 à 100 caractères).';
+        }
+        if (!Validator::isNotEmpty($data['marque']) || !Validator::minLength($data['marque'], 1) || !Validator::maxLength($data['marque'], 51)) {
+            $errors[] = 'La marque est invalide (2 à 50 caractères).';
+        }
+        if (!Validator::isNotEmpty($data['matiere']) || !Validator::minLength($data['matiere'], 1) || !Validator::maxLength($data['matiere'], 51)) {
+            $errors[] = 'La matière est invalide (2 à 50 caractères).';
+        }
+        if (!in_array($data['genre'], ['Femme', 'Homme', 'Mixte'], true)) {
+            $errors[] = 'Le genre est invalide.';
+        }
+        if (!Validator::isNumeric($data['id_categorie']) || $data['id_categorie'] < 1) {
+            $errors[] = 'La catégorie est invalide.';
+        }
+
+        if (empty($variantes)) {
+            $errors[] = 'Au moins une variante est requise.';
+        }
+
+        
+        $combinaisons = [];
+        foreach ($variantes as $i => $v) {
+            $cle = strtolower(trim($v['taille'] ?? '')) . '|' . strtolower(trim($v['couleur'] ?? ''));
+            if (in_array($cle, $combinaisons, true)) {
+                $errors[] = "Variante #" . ($i + 1) . " : la combinaison taille + couleur est dupliquée.";
+            }
+            $combinaisons[] = $cle;
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['flash']['error'] = $errors[0];
+            return $response->withHeader('Location', '/admin/articles/create')->withStatus(302);
+        }
+
+        $articleObj = new Article(
+            null,
+            $data['id_categorie'],
+            $data['nom'],
+            $data['genre'],
+            $data['matiere'],
+            $data['marque'],
+            null
+        );
+        $idArticle = $articleObj->create();
+
+        if (!$idArticle) {
+            $_SESSION['flash']['error'] = 'Erreur lors de la création de l\'article.';
+            return $response->withHeader('Location', '/admin/articles/create')->withStatus(302);
+        }
+
+        foreach ($variantes as $i => $v) {
+            $photo = null;
+            if (
+                isset($_FILES['variantes']['error'][$i]['photo']) &&
+                $_FILES['variantes']['error'][$i]['photo'] === UPLOAD_ERR_OK
+            ) {
+                $fakeFile = [
+                    'name'     => $_FILES['variantes']['name'][$i]['photo'],
+                    'tmp_name' => $_FILES['variantes']['tmp_name'][$i]['photo'],
+                    'size'     => $_FILES['variantes']['size'][$i]['photo'],
+                    'error'    => $_FILES['variantes']['error'][$i]['photo'],
+                ];
+                $result = FileManager::checkMedia($fakeFile);
+                if ($result['success']) {
+                    $photo = $result['filename'];
+                }
+            }
+
+            if ($photo === null) {
+                $_SESSION['flash']['error'] = 'La photo de la variante #' . ($i + 1) . ' est obligatoire ou invalide.';
+                return $response->withHeader('Location', '/admin/articles/create')->withStatus(302);
+            }
+
+            $varianteObj = new ArticleVariant(
+                null,
+                $idArticle,
+                $v['taille'],
+                $v['couleur'],
+                $photo,
+                (int) $v['stock']
+            );
+            $varianteObj->create();
+        }
+
+        $_SESSION['flash']['success'] = 'Article créé avec succès.';
+        return $response->withHeader('Location', '/admin/articles')->withStatus(302);
     }
 }

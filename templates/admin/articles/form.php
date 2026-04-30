@@ -51,7 +51,7 @@ $genres = ['Femme', 'Homme', 'Mixte'];
             <tr>
                 <th>Catégorie</th>
                 <td>
-                    <select name="id_categorie" class="form-select" required>
+                    <select name="id_categorie" class="form-select" >
                         <?php foreach ($categories as $cat) : ?>
                             <option value="<?= $cat['id'] ?>" <?= $article['id_categorie'] == $cat['id'] ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($cat['nom']) ?>
@@ -83,7 +83,7 @@ $genres = ['Femme', 'Homme', 'Mixte'];
                 <?php foreach ($article['variantes'] as $variante) : ?>
                     <tr>
                         <form action="/admin/variantes/<?= $variante['id'] ?>/edit" method="post" enctype="multipart/form-data">
-                            
+
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                             <td>
@@ -99,7 +99,7 @@ $genres = ['Femme', 'Homme', 'Mixte'];
                             <td><?= htmlspecialchars($variante['couleur']) ?></td>
                             <td>
                                 <input type="number" name="stock" value="<?= htmlspecialchars($variante['stock']) ?>"
-                                    min="0" class="form-control" style="max-width: 100px;" required>
+                                    min="0" class="form-control" style="max-width: 100px;" >
                             </td>
                             <td>
                                 <input type="file" name="photo" accept="image/*" class="form-control">
