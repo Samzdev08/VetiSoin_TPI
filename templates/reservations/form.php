@@ -11,7 +11,6 @@
 /** @var array $patients */
 
 $row = $reservations[0];
-var_dump($reservations);
 
 $dateActuelle  = date('Y-m-d', strtotime($row['date_retrait_effective']));
 $heureActuelle = date('H', strtotime($row['date_retrait_effective']))

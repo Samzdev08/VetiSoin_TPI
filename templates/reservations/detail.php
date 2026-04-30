@@ -31,7 +31,10 @@ $couleur = $badges[$row['statut']];
     </div>
 
     <a href="/reservations" class="btn btn-sm btn-outline-secondary mb-4">← Retour</a>
-    <a href="/reservations/<?= $row['id'] ?>/rdv" class="btn btn-sm btn-outline-primary mb-4">Prendre rdv</a>
+    <?php if($row['statut'] === 'En attente') : ?>
+        <a href="/rdv/<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary mb-4">Prendre rdv</a>
+    <?php endif; ?>
+
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-subtitle text-muted mb-2">Patient</h6>

@@ -1,0 +1,120 @@
+<?php
+
+/**
+ * Fichier : AppointmentController.php
+ * Auteur  : Samuel Tido Kaze
+ * Date    : 22.04.2026
+ * Projet  : TPI VetiSoin
+ * Role    : Prise de RDV par le soignant
+ */
+
+namespace App\Controllers;
+
+use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Views\PhpRenderer;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Models\Reservation;
+use App\Outils\Database;
+use App\Models\RendezVous;
+
+class RendezvousController
+{
+    public function __construct() {}
+
+    public function showRdv(Request $request, Response $response, $args): Response
+    {
+
+        $idReservation = $args['id'] ?? null;
+        $reservation = new Reservation($idReservation, null, null, null, null, null);
+
+        $infos = $reservation->getReservationById();
+
+
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title'   => 'Mon Rdv',
+            'infos' => $infos,
+        ]);
+        $view->setLayout('layout.php');
+
+        return $view->render($response, '/appointments/new.php');
+    }
+    public function rdvPost(Request $request, Response $response, $args): Response
+    {
+        $data = $request->getParsedBody();
+        $idReservation = $args['id'] ?? null;
+        $idSoignant = $_SESSION['user_id'] ?? null;
+
+        if (!$idSoignant) {
+            $_SESSION['flash']['error'] = 'Vous devez être connecté.';
+            return $response->withHeader('Location', '/login')->withStatus(302);
+        }
+
+        if (!$idReservation) {
+            $_SESSION['flash']['error'] = 'ID de réservation manquant.';
+            return $response->withHeader('Location', '/reservations')->withStatus(302);
+        }
+
+        if (empty($data['date_rdv']) || empty($data['lieu'])) {
+            $_SESSION['flash']['error'] = 'Veuillez choisir une date, une heure et un lieu.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
+
+
+        $timestamp = strtotime($data['date_rdv']);
+        if ($timestamp === false) {
+            $_SESSION['flash']['error'] = 'Date du rendez-vous invalide.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
+        $dateRdv  = date('Y-m-d', $timestamp);
+        $heureRdv = date('H:i:s', $timestamp);
+
+
+        if ($timestamp < time()) {
+            $_SESSION['flash']['error'] = 'Le rendez-vous doit être dans le futur.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
+
+        $rendezVous = new RendezVous(null, $idReservation, $dateRdv, $heureRdv, $data['lieu']);
+
+
+        if ($rendezVous->existsForReservation()) {
+            $_SESSION['flash']['error'] = 'Un rendez-vous existe déjà pour cette réservation.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
+        }
+
+
+        if ($rendezVous->isCreneauPris()) {
+            $_SESSION['flash']['error'] = 'Ce créneau est déjà réservé. Merci d\'en choisir un autre.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
+
+        $db = Database::getInstance()->getConnection();
+        try {
+            $db->beginTransaction();
+
+
+            if (!$rendezVous->create()) {
+                $db->rollBack();
+                $_SESSION['flash']['error'] = 'Erreur lors de la création du rendez-vous.';
+                return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+            }
+
+
+            $reservation = new Reservation($idReservation, null, null, null, null, null);
+            if (!$reservation->confirmer()) {
+                $db->rollBack();
+                $_SESSION['flash']['error'] = 'Erreur lors de la confirmation de la réservation.';
+                return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+            }
+
+            $db->commit();
+            $_SESSION['flash']['success'] = 'Rendez-vous planifié avec succès.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            $_SESSION['flash']['error'] = 'Erreur technique lors de la création du rendez-vous.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
+    }
+}

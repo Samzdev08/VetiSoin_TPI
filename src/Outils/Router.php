@@ -15,7 +15,7 @@ use App\Controllers\CatalogController;
 use App\Controllers\PatientController;
 use App\Controllers\PanierController;
 use App\Controllers\ReservationController;
-use App\Controllers\NotificationController;
+use App\Controllers\RendezvousController;
 
 
 
@@ -41,8 +41,18 @@ $group = $app->group('/reservations', function ($group) {
     $group->post('/add', [ReservationController::class, 'add']);
     $group->post('/{id}/edit', [ReservationController::class, 'editPost']);
     $group->get('/{id}/rdv', [ReservationController::class, 'showRdv']);
-    $group->post('/{id}/rdv/post', [ReservationController::class, 'rdvPost']);
+   
     // $group->post('/{id}/delete', [ReservationController::class, 'delete']);
+});
+
+
+$gruop = $app->group('/rdv', function($group){
+
+    $group->get('/{id}', [RendezvousController::class, 'showRdv']);
+    $group->post('/{id}/post', [RendezvousController::class, 'rdvPost']);
+
+
+
 });
 
 

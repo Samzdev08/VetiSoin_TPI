@@ -153,4 +153,17 @@ class Reservation
             ':id'           => $this->id,
         ]);
     }
+
+
+    public function confirmer()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+        UPDATE reservation 
+        SET statut = 'Confirmée'
+        WHERE id     = :id
+        AND   statut = 'En attente'
+    ");
+        return $stmt->execute([':id' => $this->id]);
+    }
 }

@@ -21,7 +21,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
 
     <a href="/reservations/<?= $row['id'] ?>">← Retour</a>
 
-    <form action="/reservations/<?= $row['id'] ?>/rdv/post" method="post" id="form-rdv">
+    <form action="/rdv/<?= $row['id'] ?>/post" method="post" id="form-rdv">
 
         <div>
             <h2>Choisir la date de retrait</h2>

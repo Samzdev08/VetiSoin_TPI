@@ -10,8 +10,7 @@
 
 namespace App\Controllers;
 
-use App\Outils\Router;
-use App\Outils\View;
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -311,23 +310,5 @@ class ReservationController
         }
     }
 
-    public function showRdv(Request $request, Response $response, $args) : Response{
-
-        $idReservation = $args['id'] ?? null;
-        $reservation = new Reservation($idReservation, null, null, null, null, null);
-
-        $infos = $reservation->getReservationById();
-
-
-
-          $view = new PhpRenderer(__DIR__ . '/../../templates', [
-            'title'   => 'Mon Rdv',
-            'infos' => $infos,
-        ]);
-        $view->setLayout('layout.php');
-
-        return $view->render($response, '/appointments/new.php');
-
-
-    }
+   
 }
