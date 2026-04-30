@@ -42,21 +42,22 @@ $group = $app->group('/reservations', function ($group) {
     $group->post('/add', [ReservationController::class, 'add']);
     $group->post('/{id}/edit', [ReservationController::class, 'editPost']);
     $group->get('/{id}/rdv', [ReservationController::class, 'showRdv']);
-   
+
     // $group->post('/{id}/delete', [ReservationController::class, 'delete']);
 });
 
 
-$gruop = $app->group('/rdv', function($group){
+$group = $app->group('/rdv', function ($group) {
 
     $group->get('/{id}', [RendezvousController::class, 'showRdv']);
     $group->post('/{id}/post', [RendezvousController::class, 'rdvPost']);
 });
 
-$gruop = $app->group('/admin', function($group){
 
+$group = $app->group('/admin', function($group){
     $group->get('/articles', ArticleController::class);
-
+    $group->get('/articles/{id}', [ArticleController::class, 'showDetails']);
+    
 });
 
 

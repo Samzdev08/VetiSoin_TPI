@@ -36,4 +36,23 @@ class ArticleController
         $view->setLayout('layout.php');
         return $view->render($response, '/admin/articles/list.php');
     }
+
+    public function showDetails(Request $request, Response $response, $args): Response
+    {
+
+        
+
+        $idArticle = $args['id'];
+
+        $articesObj = new Article($idArticle, null, null, null, null, null, null);
+
+        $article = $articesObj->getById();
+
+        $view = new PhpRenderer(__DIR__ . '/../../../templates', [
+            'title' => 'Page détails',
+            'article' => $article
+        ]);
+        $view->setLayout('layout.php');
+        return $view->render($response, '/admin/articles/details.php');
+    }
 }

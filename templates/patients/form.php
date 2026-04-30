@@ -6,6 +6,8 @@
  * Projet  : TPI VetiSoin
  * Role    : Formulaire creation/edition patient
  */
+
+/** @var int $id */
 ?>
 <h1><?= $id ? 'Modifier le patient' : 'Ajouter un patient' ?></h1>
 <form action="<?= $id ? "/patient/$id/update" : "/patient/add" ?>" method="post" novalidate>
