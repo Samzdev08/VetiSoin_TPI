@@ -51,7 +51,7 @@ $app->group('/rdv', function ($group) {
 
 
 $app->group('/admin', function ($group) {
-    // Articles
+    
     $group->get('/articles', ArticleController::class);
     $group->get('/articles/create', [ArticleController::class, 'showCreateForm']);
     $group->post('/articles/create', [ArticleController::class, 'createPost']);
@@ -60,10 +60,13 @@ $app->group('/admin', function ($group) {
     $group->post('/articles/{id}/edit', [ArticleController::class, 'editPost']);
     $group->post('/variantes/{id}/edit', [ArticleController::class, 'editVariante']);
 
-    // Soignants
+    
     $group->get('/soignants', UserController::class);
+    $group->get('/soignants/create', [UserController::class, 'showCreateForm']);
     $group->get('/soignants/{id}/edit', [UserController::class, 'showEditForm']);
     $group->post('/soignants/{id}/edit', [UserController::class, 'editPost']);
+    $group->post('/soignants/create', [UserController::class, 'createPost']);
+    $group->get('/soignants/{id}/reset-password', [UserController::class, 'resetPassword']);
     $group->get('/soignants/{id}/toggle', [UserController::class, 'toggleStatut']);
 });
 

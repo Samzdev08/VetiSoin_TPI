@@ -115,6 +115,7 @@ class AuthController
         }
 
         $soignant = new Soignant(
+            null,
             $data['nom'],
             $data['prenom'],
             $data['email'],
@@ -178,6 +179,7 @@ class AuthController
         }
 
         $soignant = new Soignant(
+            null,
             null,
             null,
             $data['email'],

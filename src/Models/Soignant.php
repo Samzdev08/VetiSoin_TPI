@@ -15,6 +15,7 @@ use PDO;
 
 class Soignant
 {
+    public $id;
     public $nom;
     public $prenom;
     public $email;
@@ -22,8 +23,9 @@ class Soignant
     public $service;
     public $telephone;
 
-    public function __construct($nom, $prenom, $email, $mot_de_passe, $service, $telephone)
+    public function __construct($id, $nom, $prenom, $email, $mot_de_passe, $service, $telephone)
     {
+        $this->id = $id;
         $this->nom = $nom;
         $this->prenom = $prenom;
         $this->email = $email;
@@ -101,12 +103,52 @@ class Soignant
     public function getAll()
     {
         $db = Database::getInstance()->getConnection();
-        
+
         $sql = "SELECT id, nom, prenom, email, service, telephone, role, statut 
             FROM soignant ORDER BY nom ASC";
 
         $stmt = $db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getById()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT id, nom, prenom, email, service, telephone, role, statut 
+                          FROM soignant 
+                          WHERE id = :id");
+        $stmt->execute([':id' => $this->id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function resetPassword()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE soignant SET mot_de_passe = :mdp WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([
+            ':mdp' => $this->mot_de_passe,
+            ':id' => $this->id,
+        ]);
+    }
+
+
+    public function update()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE soignant 
+            SET nom = :nom, prenom = :prenom, email = :email, 
+                service = :service, telephone = :telephone 
+            WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([
+            ':nom' => $this->nom,
+            ':prenom' => $this->prenom,
+            ':email' => $this->email,
+            ':service' => $this->service,
+            ':telephone' => $this->telephone,
+            ':id' => $this->id,
+        ]);
     }
 }

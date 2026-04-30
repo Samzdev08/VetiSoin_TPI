@@ -27,6 +27,10 @@ $badges = [
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Soignants</h1>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Soignants</h1>
+    <a href="/admin/soignants/create" class="btn btn-sm btn-dark">+ Ajouter</a>
+</div>
     </div>
 
     <?php if (empty($soignants)) : ?>
@@ -59,6 +63,14 @@ $badges = [
                         </td>
                         <td class="text-center">
                             <a href="/admin/soignants/<?= $soignant['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
+
+                            <?php if ($soignant['role'] === 'Soignant') : ?>
+                                <a href="/admin/soignants/<?= $soignant['id'] ?>/reset-password"
+                                    class="btn btn-outline-warning btn-sm"
+                                    onclick="return confirm('Réinitialiser le mot de passe de ce soignant ?')">
+                                    Reset MDP
+                                </a>
+                            <?php endif; ?>
 
                             <?php if ($_SESSION['user_id'] == $soignant['id'] || $soignant['role'] === 'Administrateur') : ?>
                                 <span class="text-muted">—</span>
