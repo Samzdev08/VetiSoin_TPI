@@ -102,8 +102,10 @@ class CategoryController
     }
     public function showEditForm(Request $request, Response $response, $args): Response
     {
-        $categorieObj = new Category($args['id'], null, null, null);
-        $categorie = $categorieObj->();
+
+        $idCategorie = $args['id'];
+        $categorieObj = new Category($idCategorie, null, null, null);
+        $categorie = $categorieObj->getById();
 
         if (!$categorie) {
             $_SESSION['flash']['error'] = 'Catégorie introuvable.';
@@ -112,5 +114,52 @@ class CategoryController
 
         Csrf::generate();
         return $this->renderResponse($response, $categorie, $args['id']);
+    }
+    public function editPost(Request $request, Response $response, $args): Response
+    {
+        $idCategorie = $args['id'];
+
+        $data = filter_input_array(INPUT_POST, [
+            'csrf_token'  => FILTER_SANITIZE_SPECIAL_CHARS,
+            'nom'         => FILTER_SANITIZE_SPECIAL_CHARS,
+            'description' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'type_taille' => FILTER_SANITIZE_SPECIAL_CHARS,
+        ]);
+
+        if (!Csrf::check($data['csrf_token'] ?? '')) {
+            $_SESSION['flash']['error'] = 'Jeton de sécurité invalide.';
+            return $this->renderResponse($response, $_POST, $idCategorie);
+        }
+
+        $errors = [];
+
+        if (!Validator::isNotEmpty($data['nom']) || !Validator::maxLength($data['nom'], 81)) {
+            $errors[] = 'Le nom est invalide (1 à 80 caractères).';
+        }
+        if (!in_array($data['type_taille'], ['habit', 'chaussure', 'unique'], true)) {
+            $errors[] = 'Le type de taille est invalide.';
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['flash']['error'] = $errors[0];
+            return $this->renderResponse($response, $_POST, $idCategorie);
+        }
+
+        $categorieObj = new Category(
+            $idCategorie,
+            trim($data['nom']),
+            $data['description'] ?? null,
+            $data['type_taille']
+        );
+
+        $success = $categorieObj->update();
+
+        if ($success) {
+            $_SESSION['flash']['success'] = 'Catégorie mise à jour avec succès.';
+            return $response->withHeader('Location', '/admin/categories')->withStatus(302);
+        }
+
+        $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour.';
+        return $this->renderResponse($response, $_POST, $idCategorie);
     }
 }
