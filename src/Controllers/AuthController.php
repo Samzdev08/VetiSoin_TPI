@@ -19,7 +19,7 @@ use App\Models\Soignant;
 
 class AuthController
 {
-    private Soignant $soignant;
+    
 
     public function __construct() {}
 

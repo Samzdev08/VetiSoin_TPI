@@ -16,6 +16,7 @@ use App\Controllers\PatientController;
 use App\Controllers\PanierController;
 use App\Controllers\ReservationController;
 use App\Controllers\RendezvousController;
+use App\Controllers\Admin\ArticleController;
 
 
 
@@ -50,8 +51,11 @@ $gruop = $app->group('/rdv', function($group){
 
     $group->get('/{id}', [RendezvousController::class, 'showRdv']);
     $group->post('/{id}/post', [RendezvousController::class, 'rdvPost']);
+});
 
+$gruop = $app->group('/admin', function($group){
 
+    $group->get('/articles', ArticleController::class);
 
 });
 

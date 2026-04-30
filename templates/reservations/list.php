@@ -71,9 +71,10 @@
                                     Annuler
                                 </a>
                                 <?php elseif ($reservation['statut'] === 'Confirmée') : ?>
+
                                     <button class="btn btn-outline-secondary btn-sm" disabled>Modifier</button>
                                 <?php elseif ($reservation['statut'] === 'Clôturée') : ?>
-                                    <button class="btn btn-outline-success btn-sm" disabled>Confirmer retour</button>
+                                    <button class="btn btn-outline-success btn-sm" disabled>Retrait confirmer</button>
                                 <?php elseif ($reservation['statut'] === 'Annulée') : ?>
                                     <button class="btn btn-outline-secondary btn-sm" disabled style="cursor: not-allowed;">Modifier</button>
                             <?php endif; ?>

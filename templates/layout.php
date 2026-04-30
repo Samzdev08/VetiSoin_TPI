@@ -39,11 +39,12 @@ unset($_SESSION['flash']);
 
                 <?php if (isset($_SESSION['user_id'])): ?>
 
-                    <?php if ($_SESSION['user_role'] === 'administrateur'): ?>
-                        <li><a href="/admin/dashboard">Dashboard Admin</a></li>
+                    <?php if ($_SESSION['user_role'] === 'Administrateur'): ?>
+
+
+                        <li><a href="/admin/articles">Articles</a></li>
                         <li><a href="/admin/stocks">Gestion des stocks</a></li>
                         <li><a href="/admin/reservations">Réservations</a></li>
-                        
                         <li><a href="/auth/logout">Déconnexion</a></li>
 
 
