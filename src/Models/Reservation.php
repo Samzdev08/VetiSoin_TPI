@@ -122,17 +122,7 @@ class Reservation
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function cancel()
-    {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("
-        UPDATE reservation
-        SET statut = 'Annulée'
-        WHERE id = :id
-        AND statut = 'En attente'
-    ");
-        return $stmt->execute([':id' => $this->id]);
-    }
+    
 
     public function update()
     {
@@ -164,6 +154,27 @@ class Reservation
         WHERE id     = :id
         AND   statut = 'En attente'
     ");
+        return $stmt->execute([':id' => $this->id]);
+    }
+
+
+    public function validerRetrait()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE reservation 
+            SET statut = 'Clôturée', date_retrait_effective = NOW() 
+            WHERE id = :id AND statut = 'Confirmée'";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([':id' => $this->id]);
+    }
+
+    public function cancel()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE reservation 
+            SET statut = 'Annulée' 
+            WHERE id = :id AND statut != 'Annulée'";
+        $stmt = $db->prepare($sql);
         return $stmt->execute([':id' => $this->id]);
     }
 }

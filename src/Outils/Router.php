@@ -19,6 +19,7 @@ use App\Controllers\RendezvousController;
 use App\Controllers\Admin\ArticleController;
 use App\Controllers\Admin\UserController;
 use App\Controllers\Admin\CategoryController;
+use App\Controllers\Admin\ReservationControllerAdmin;
 
 
 $app->get('/', AuthController::class);
@@ -73,11 +74,16 @@ $app->group('/admin', function ($group) {
 
 
 
-    $group->get('/categories', CategoryController::class);              
+    $group->get('/categories', CategoryController::class);
     $group->get('/categories/create', [CategoryController::class, 'showCreateForm']);
     $group->post('/categories/create', [CategoryController::class, 'createPost']);
     $group->get('/categories/{id}/edit', [CategoryController::class, 'showEditForm']);
     $group->post('/categories/{id}/edit', [CategoryController::class, 'editPost']);
+
+
+    $group->get('/reservations', ReservationController::class);
+    $group->get('/reservations/{id}/valider-retrait', [ReservationController::class, 'validerRetrait']);
+    $group->get('/reservations/{id}/annuler', [ReservationController::class, 'annuler']);
 });
 
 
