@@ -48,15 +48,30 @@ class ArticleVariant
     public function updateArticleVariante()
     {
         $db = Database::getInstance()->getConnection();
-        $sql = "UPDATE article_variante 
-            SET stock = :stock, photo = :photo 
-            WHERE id = :id";
+
+        if ($this->photo) {
+            $sql = "UPDATE article_variante 
+                SET stock = :stock, taille = :taille, photo = :photo 
+                WHERE id = :id";
+            $params = [
+                ':stock'  => $this->stock,
+                ':taille' => $this->taille,
+                ':photo'  => $this->photo,
+                ':id'     => $this->id,
+            ];
+        } else {
+            $sql = "UPDATE article_variante 
+                SET stock = :stock, taille = :taille 
+                WHERE id = :id";
+            $params = [
+                ':stock'  => $this->stock,
+                ':taille' => $this->taille,
+                ':id'     => $this->id,
+            ];
+        }
+
         $stmt = $db->prepare($sql);
-        return $stmt->execute([
-            ':stock' => $this->stock,
-            ':photo' => $this->photo,
-            ':id'    => $this->id,
-        ]);
+        return $stmt->execute($params);
     }
 
     public function getArticleId()

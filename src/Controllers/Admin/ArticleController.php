@@ -146,10 +146,10 @@ class ArticleController
     public function editVariante(Request $request, Response $response, $args): Response
     {
         $idArticleVariante = $args['id'];
-
         $data = filter_input_array(INPUT_POST, [
             'csrf_token' => FILTER_SANITIZE_SPECIAL_CHARS,
             'stock'      => FILTER_VALIDATE_INT,
+            'taille'     => FILTER_SANITIZE_SPECIAL_CHARS,
         ]);
 
         $idArticle = (new ArticleVariant($idArticleVariante, null, null, null, null, null))->getArticleId();
@@ -159,29 +159,40 @@ class ArticleController
             return $response->withHeader('Location', '/admin/articles/' . $idArticle . '/edit')->withStatus(302);
         }
 
-        $stock = $data['stock'] ?? 0;
-        $photo = null;
+        $stock  = $data['stock'] ?? 0;
+        $taille = $data['taille'] ?? '';
+        $photo  = null;
 
-        if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+
+        if (isset($_FILES['photo']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE) {
+
+
+            if ($_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
+                $_SESSION['flash']['error'] = 'Erreur lors de l\'upload : fichier trop volumineux ou invalide.';
+                return $response->withHeader('Location', '/admin/articles/' . $idArticle . '/edit')->withStatus(302);
+            }
+
 
             $result = FileManager::checkMedia($_FILES['photo']);
 
             if (!$result['success']) {
 
                 $_SESSION['flash']['error'] = $result['message'];
+
                 return $response->withHeader('Location', '/admin/articles/' . $idArticle . '/edit')->withStatus(302);
             }
+
             $photo = $result['filename'];
         }
 
-        $articleVariantObj = new ArticleVariant($idArticleVariante, null, null, null, $photo, $stock);
+        $articleVariantObj = new ArticleVariant($idArticleVariante, null, $taille, null, $photo, $stock);
         $success = $articleVariantObj->updateArticleVariante();
 
         if ($success) {
 
             $_SESSION['flash']['success'] = 'Variante mise à jour avec succès.';
         } else {
-
+            
             $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour de la variante.';
         }
 
@@ -246,7 +257,7 @@ class ArticleController
             $errors[] = 'Au moins une variante est requise.';
         }
 
-        
+
         $combinaisons = [];
         foreach ($variantes as $i => $v) {
             $cle = strtolower(trim($v['taille'] ?? '')) . '|' . strtolower(trim($v['couleur'] ?? ''));

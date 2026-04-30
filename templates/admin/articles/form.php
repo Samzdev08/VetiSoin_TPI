@@ -51,9 +51,12 @@ $genres = ['Femme', 'Homme', 'Mixte'];
             <tr>
                 <th>Catégorie</th>
                 <td>
-                    <select name="id_categorie" class="form-select" >
+                    <select name="id_categorie" id="select-categorie" class="form-select" onchange="setTaille()">
+                        <option value="">— Choisir —</option>
                         <?php foreach ($categories as $cat) : ?>
-                            <option value="<?= $cat['id'] ?>" <?= $article['id_categorie'] == $cat['id'] ? 'selected' : '' ?>>
+                            <option value="<?= $cat['id'] ?>"
+                                data-nom="<?= htmlspecialchars($cat['type_taille']) ?>"
+                                <?= $article['id_categorie'] == $cat['id'] ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($cat['nom']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -95,11 +98,15 @@ $genres = ['Femme', 'Homme', 'Mixte'];
                                     —
                                 <?php endif; ?>
                             </td>
-                            <td><?= htmlspecialchars($variante['taille']) ?></td>
+                            <td>
+                                <select name="taille" class="form-select select-taille" data-taille="<?= htmlspecialchars($variante['taille']) ?>">
+                                    <option value="">—</option>
+                                </select>
+                            </td>
                             <td><?= htmlspecialchars($variante['couleur']) ?></td>
                             <td>
                                 <input type="number" name="stock" value="<?= htmlspecialchars($variante['stock']) ?>"
-                                    min="0" class="form-control" style="max-width: 100px;" >
+                                    min="0" class="form-control" style="max-width: 100px;">
                             </td>
                             <td>
                                 <input type="file" name="photo" accept="image/*" class="form-control">
@@ -114,3 +121,30 @@ $genres = ['Femme', 'Homme', 'Mixte'];
         </table>
     <?php endif; ?>
 </div>
+<script>
+    const tailles = {
+        habit: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+        chaussure: ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'],
+        unique: ['Unique']
+    };
+
+    function setTaille() {
+        const selectCat = document.getElementById('select-categorie');
+        const type = selectCat.options[selectCat.selectedIndex].dataset.nom;
+        if (!type || !tailles[type]) return;
+
+        document.querySelectorAll('.select-taille').forEach(select => {
+            const tailleActuelle = select.dataset.taille;
+            select.innerHTML = '<option value="">—</option>';
+            tailles[type].forEach(taille => {
+                const option = document.createElement('option');
+                option.value = taille;
+                option.textContent = taille;
+                if (taille === tailleActuelle) option.selected = true;
+                select.appendChild(option);
+            });
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', setTaille);
+</script>

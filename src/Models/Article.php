@@ -86,7 +86,7 @@ class Article
     {
         $db = Database::getInstance()->getConnection();
 
-        $stmt = $db->prepare('SELECT v.id AS variante_id, a.id, a.nom, a.genre, a.matiere, a.marque, c.nom AS categorie, v.taille, v.couleur, v.stock, v.photo
+        $stmt = $db->prepare('SELECT v.id AS variante_id, a.id, a.nom, a.genre, a.matiere, a.marque, c.id AS id_categorie, c.nom AS categorie, v.taille, v.couleur, v.stock, v.photo
         FROM article a
         INNER JOIN categorie c ON a.id_categorie = c.id
         INNER JOIN article_variante v ON v.id_article = a.id
@@ -105,6 +105,7 @@ class Article
             'genre' => $rows[0]['genre'],
             'matiere' => $rows[0]['matiere'],
             'marque' => $rows[0]['marque'],
+            'id_categorie' => $rows[0]['id_categorie'],
             'categorie' => $rows[0]['categorie'],
             'variantes' => []
         ];
