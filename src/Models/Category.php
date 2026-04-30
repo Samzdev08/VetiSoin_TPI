@@ -19,13 +19,15 @@ class Category
     public $id;
     public $nom;
     public $description;
+    public $type_taille;
 
 
-    public function __construct($id, $nom, $description)
+    public function __construct($id, $nom, $description, $type_taille)
     {
         $this->id = $id;
         $this->nom = $nom;
         $this->description = $description;
+        $this->type_taille = $type_taille;
     }
 
     public function getCategroy()
@@ -33,7 +35,7 @@ class Category
 
         $db = Database::getInstance()->getConnection();
 
-        $sql = "SELECT id, nom, type_taille FROM categorie";
+        $sql = "SELECT id, nom, description, type_taille FROM categorie";
         $stmt = $db->prepare($sql);
         $stmt->execute();
 

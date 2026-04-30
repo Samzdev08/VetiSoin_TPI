@@ -18,6 +18,7 @@ use App\Controllers\ReservationController;
 use App\Controllers\RendezvousController;
 use App\Controllers\Admin\ArticleController;
 use App\Controllers\Admin\UserController;
+use App\Controllers\Admin\CategoryController;
 
 
 $app->get('/', AuthController::class);
@@ -33,6 +34,7 @@ $app->get('/panier/vider', [PanierController::class, 'clearCart']);
 
 
 $app->group('/reservations', function ($group) {
+
     $group->get('', ReservationController::class);
     $group->get('/checkout', [ReservationController::class, 'checkout']);
     $group->get('/{id}/annuler', [ReservationController::class, 'annuler']);
@@ -51,7 +53,7 @@ $app->group('/rdv', function ($group) {
 
 
 $app->group('/admin', function ($group) {
-    
+
     $group->get('/articles', ArticleController::class);
     $group->get('/articles/create', [ArticleController::class, 'showCreateForm']);
     $group->post('/articles/create', [ArticleController::class, 'createPost']);
@@ -60,7 +62,7 @@ $app->group('/admin', function ($group) {
     $group->post('/articles/{id}/edit', [ArticleController::class, 'editPost']);
     $group->post('/variantes/{id}/edit', [ArticleController::class, 'editVariante']);
 
-    
+
     $group->get('/soignants', UserController::class);
     $group->get('/soignants/create', [UserController::class, 'showCreateForm']);
     $group->get('/soignants/{id}/edit', [UserController::class, 'showEditForm']);
@@ -68,6 +70,14 @@ $app->group('/admin', function ($group) {
     $group->post('/soignants/create', [UserController::class, 'createPost']);
     $group->get('/soignants/{id}/reset-password', [UserController::class, 'resetPassword']);
     $group->get('/soignants/{id}/toggle', [UserController::class, 'toggleStatut']);
+
+
+
+    $group->get('/categories', CategoryController::class);              
+    $group->get('/categories/create', [CategoryController::class, 'showCreateForm']);
+    $group->post('/categories/create', [CategoryController::class, 'createPost']);
+    $group->get('/categories/{id}/edit', [CategoryController::class, 'showEditForm']);
+    $group->post('/categories/{id}/edit', [CategoryController::class, 'editPost']);
 });
 
 

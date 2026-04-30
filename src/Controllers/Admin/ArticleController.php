@@ -66,7 +66,7 @@ class ArticleController
         $articleObj = new Article($args['id'], null, null, null, null, null, null);
         $article = $articleObj->getById();
 
-        $categorieObj = new Category(null, null, null);
+        $categorieObj = new Category(null, null, null, null);
 
         $categories = $categorieObj->getCategroy();
 
@@ -203,7 +203,7 @@ class ArticleController
     {
 
 
-        $categorieObj = new Category(null, null, null);
+        $categorieObj = new Category(null, null, null, null);
 
         $categories = $categorieObj->getCategroy();
 
