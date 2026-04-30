@@ -72,7 +72,7 @@ $badges = [
                                 </a>
                             <?php endif; ?>
 
-                            <?php if ($_SESSION['user_id'] == $soignant['id'] || $soignant['role'] === 'Administrateur') : ?>
+                            <?php if ($_SESSION['user_id'] == $soignant['id'] ): ?>
                                 <span class="text-muted">—</span>
                             <?php else : ?>
                                 <?php if ($soignant['statut'] === 'Actif') : ?>

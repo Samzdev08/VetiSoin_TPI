@@ -151,4 +151,29 @@ class Soignant
             ':id' => $this->id,
         ]);
     }
+
+    public function isActive()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT statut FROM soignant WHERE id = :id");
+        $stmt->execute([':id' => $this->id]);
+        $statut = $stmt->fetchColumn();
+        return $statut === 'Actif';
+    }
+
+    public function activer()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE soignant SET statut = 'Actif' WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([':id' => $this->id]);
+    }
+
+    public function desactiver()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE soignant SET statut = 'Inactif' WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([':id' => $this->id]);
+    }
 }

@@ -262,4 +262,26 @@ class UserController
 
         return $response->withHeader('Location', '/admin/soignants')->withStatus(302);
     }
+
+
+    public function toggleStatut(Request $request, Response $response, $args): Response
+    {
+        $idUser = $args['id'];
+        $userObj = new Soignant($idUser, null, null, null, null, null, null);
+        $isActive = $userObj->isActive();
+
+        if ($isActive) {
+            $success = $userObj->desactiver();
+        } else {
+            $success = $userObj->activer();
+        }
+
+        if ($success) {
+            $_SESSION['flash']['success'] = $isActive ? 'Soignant désactivé.' : 'Soignant réactivé.';
+        } else {
+            $_SESSION['flash']['error'] = 'Erreur lors du changement de statut.';
+        }
+
+        return $response->withHeader('Location', '/admin/soignants')->withStatus(302);
+    }
 }
