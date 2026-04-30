@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : ArticleVariant.php
  * Auteur  : Samuel Tido Kaze
@@ -31,8 +32,9 @@ class ArticleVariant
         $this->stock = $stock;
     }
 
-    public function getStockById(){
-        
+    public function getStockById()
+    {
+
         $db = Database::getInstance()->getConnection();
 
         $sql = "SELECT stock FROM article_variante WHERE id = :id";
@@ -42,5 +44,26 @@ class ArticleVariant
         return $stmt->fetchColumn();
     }
 
-    
+
+    public function updateArticleVariante()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE article_variante 
+            SET stock = :stock, photo = :photo 
+            WHERE id = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([
+            ':stock' => $this->stock,
+            ':photo' => $this->photo,
+            ':id'    => $this->id,
+        ]);
+    }
+
+    public function getArticleId()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT id_article FROM article_variante WHERE id = :id");
+        $stmt->execute([':id' => $this->id]);
+        return $stmt->fetchColumn();
+    }
 }

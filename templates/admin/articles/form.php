@@ -1,8 +1,110 @@
 <?php
 /**
- * Fichier : form.php
+ * Fichier : edit.php
  * Auteur  : Samuel Tido Kaze
  * Date    : 22.04.2026
  * Projet  : TPI VetiSoin
- * Role    : Formulaire ajout/edition article
+ * Role    : Modification d'un article et de ses variantes (admin)
  */
+
+/** @var array $article */
+/** @var array $categories*/
+
+$genres = ['Femme', 'Homme', 'Mixte'];
+
+?>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Modifier <?= htmlspecialchars($article['nom']) ?></h1>
+        <a href="/admin/articles/<?= $article['id'] ?>" class="btn btn-sm btn-outline-dark">Retour</a>
+    </div>
+
+    <h2 class="h5 mb-3">Informations de l'article</h2>
+    <form action="/admin/articles/<?= $article['id'] ?>/edit" method="post" class="mb-5">
+        <table class="table table-bordered" style="max-width: 500px;">
+            <tr>
+                <th>Nom</th>
+                <td><input type="text" name="nom" value="<?= htmlspecialchars($article['nom']) ?>" class="form-control" required></td>
+            </tr>
+            <tr>
+                <th>Marque</th>
+                <td><input type="text" name="marque" value="<?= htmlspecialchars($article['marque']) ?>" class="form-control" required></td>
+            </tr>
+            <tr>
+                <th>Matière</th>
+                <td><input type="text" name="matiere" value="<?= htmlspecialchars($article['matiere']) ?>" class="form-control" required></td>
+            </tr>
+            <tr>
+                <th>Genre</th>
+                <td>
+                    <select name="genre" class="form-select" >
+                        <?php foreach ($genres as $g) : ?>
+                            <option value="<?= $g ?>" <?= $article['genre'] === $g ? 'selected' : '' ?>><?= $g ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>Catégorie</th>
+                <td>
+                    <select name="id_categorie" class="form-select" required>
+                        <?php foreach ($categories as $cat) : ?>
+                            <option value="<?= $cat['id'] ?>" <?= $article['id_categorie'] == $cat['id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($cat['nom']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <button type="submit" class="btn btn-dark">Enregistrer</button>
+    </form>
+
+    <h2 class="h5 mb-3">Variantes</h2>
+    <?php if (empty($article['variantes'])) : ?>
+        <div class="alert alert-info">Aucune variante.</div>
+    <?php else : ?>
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Photo</th>
+                    <th>Taille</th>
+                    <th>Couleur</th>
+                    <th>Stock</th>
+                    <th>Nouvelle photo</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($article['variantes'] as $variante) : ?>
+                    <tr>
+                        <form action="/admin/variantes/<?= $variante['id'] ?>/edit" method="post" enctype="multipart/form-data">
+                            <td>
+                                <?php if (!empty($variante['photo'])) : ?>
+                                    <img src="<?= htmlspecialchars($variante['photo']) ?>"
+                                         alt="photo" width="50" height="50"
+                                         style="object-fit: cover; border-radius: 4px;">
+                                <?php else : ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+                            <td><?= htmlspecialchars($variante['taille']) ?></td>
+                            <td><?= htmlspecialchars($variante['couleur']) ?></td>
+                            <td>
+                                <input type="number" name="stock" value="<?= htmlspecialchars($variante['stock']) ?>"
+                                       min="0" class="form-control" style="max-width: 100px;" required>
+                            </td>
+                            <td>
+                                <input type="file" name="photo" accept="image/*" class="form-control">
+                            </td>
+                            <td class="text-center">
+                                <button type="submit" class="btn btn-outline-primary btn-sm">Enregistrer</button>
+                            </td>
+                        </form>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+</div>

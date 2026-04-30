@@ -54,10 +54,12 @@ $group = $app->group('/rdv', function ($group) {
 });
 
 
-$group = $app->group('/admin', function($group){
+$group = $app->group('/admin', function ($group) {
     $group->get('/articles', ArticleController::class);
     $group->get('/articles/{id}', [ArticleController::class, 'showDetails']);
-    
+    $group->get('/articles/{id}/edit', [ArticleController::class, 'edit']);
+    $group->post('/articles/{id}/edit', [ArticleController::class, 'editPost']);
+    $group->post('/variantes/{id}/edit', [ArticleController::class, 'editVariante']);
 });
 
 
