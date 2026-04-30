@@ -33,7 +33,7 @@ class Category
 
         $db = Database::getInstance()->getConnection();
 
-        $sql = "SELECT id, nom FROM categorie";
+        $sql = "SELECT id, nom, type_taille FROM categorie";
         $stmt = $db->prepare($sql);
         $stmt->execute();
 

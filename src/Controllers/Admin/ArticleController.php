@@ -182,10 +182,28 @@ class ArticleController
 
             $_SESSION['flash']['success'] = 'Variante mise à jour avec succès.';
         } else {
-            
+
             $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour de la variante.';
         }
 
         return $response->withHeader('Location', '/admin/articles/' . $idArticle . '/edit')->withStatus(302);
+    }
+
+    public function showCreateForm(Request $request, Response $response, $args): Response
+    {
+        
+
+        $categorieObj = new Category(null, null, null);
+
+        $categories = $categorieObj->getCategroy();
+
+        Csrf::generate();
+
+        $view = new PhpRenderer(__DIR__ . '/../../../templates', [
+            'title'      => 'Création article',
+            'categories' => $categories,
+        ]);
+        $view->setLayout('layout.php');
+        return $view->render($response, '/admin/articles/create.php');
     }
 }

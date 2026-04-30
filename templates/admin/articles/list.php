@@ -31,7 +31,7 @@ $genreActif = $_GET['genre'] ?? '';
                     </button>
                 <?php endforeach; ?>
             </form>
-            <a href="" class="btn btn-sm btn-dark">+ Ajouter</a>
+            <a href="/admin/articles/create" class="btn btn-sm btn-dark">+ Ajouter</a>
         </div>
     </div>
 
