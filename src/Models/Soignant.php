@@ -79,22 +79,34 @@ class Soignant
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      
+
         if (!$user) {
             return ['success' => false, 'message' => 'Email ou mot de passe incorrect.'];
         }
 
-        
+
         if ($user['statut'] === 'Inactif') {
             return ['success' => false, 'message' => 'Compte inactif, vous ne pouvez pas vous connecter.'];
         }
 
-        
+
         if (!password_verify($this->mot_de_passe, $user['mot_de_passe'])) {
             return ['success' => false, 'message' => 'Email ou mot de passe incorrect.'];
         }
 
-        
+
         return ['success' => true, 'user' => $user, 'message' => 'Connexion réussie, bienvenue ' . $user['prenom']];
+    }
+
+    public function getAll()
+    {
+        $db = Database::getInstance()->getConnection();
+        
+        $sql = "SELECT id, nom, prenom, email, service, telephone, role, statut 
+            FROM soignant ORDER BY nom ASC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

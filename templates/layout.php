@@ -43,7 +43,7 @@ unset($_SESSION['flash']);
 
 
                         <li><a href="/admin/articles">Articles</a></li>
-                        <li><a href="/admin/stocks">Gestion des stocks</a></li>
+                        <li><a href="/admin/soignants">User</a></li>
                         <li><a href="/admin/reservations">Réservations</a></li>
                         <li><a href="/auth/logout">Déconnexion</a></li>
 
