@@ -45,12 +45,15 @@ unset($_SESSION['flash']);
                         <li><a href="/admin/articles">Articles</a></li>
                         <li><a href="/admin/soignants">User</a></li>
                         <li><a href="/admin/categories">Categories</a></li>
+                        <li><a href="/admin/rdv">Rendez-vous</a></li>
+                        <li><a href="/admin/reservations">Réservations</a></li>
                         <li><a href="/auth/logout">Déconnexion</a></li>
 
 
                     <?php else: ?>
                         <li><a href="/dashboard">Tableau de bord</a></li>
                         <li><a href="/patients">Patients</a></li>
+                        <li><a href="/rdv">Rendez-vous</a></li>
                         <li><a href="/reservations">Réservations</a></li>
                         <li><a href="/auth/logout">Déconnexion</a></li>
                     <?php endif; ?>

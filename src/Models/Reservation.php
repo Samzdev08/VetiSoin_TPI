@@ -109,20 +109,73 @@ class Reservation
             av.stock,
             ar.id AS article_reserve_id,
             ar.quantite,
+            ar.retour_demande,
             ar.est_retourne,
             ar.date_retour
         FROM reservation r
-        JOIN patient p           ON p.id  = r.id_patient
+        JOIN patient p ON p.id  = r.id_patient
         JOIN article_reserve ar  ON ar.id_reservation = r.id
         JOIN article_variante av ON av.id = ar.id_article_variante
-        JOIN article a           ON a.id  = av.id_article
+        JOIN article a ON a.id  = av.id_article
         WHERE r.id = :reservationId
     ");
         $stmt->execute([$this->id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    
+    public function getAllAdmin($service = null)
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $sql = "
+            SELECT 
+                r.id,
+                r.date_reservation,
+                r.date_retrait_effective,
+                r.statut,
+                r.is_archived,
+                p.nom AS patient_nom,
+                p.prenom AS patient_prenom,
+                p.service AS patient_service,
+                p.chambre,
+                s.id AS id_soignant,
+                s.nom AS soignant_nom,
+                s.prenom AS soignant_prenom,
+                s.service AS soignant_service
+            FROM reservation r
+            JOIN patient p   ON p.id = r.id_patient
+            JOIN soignant s  ON s.id = r.id_soignant
+            WHERE 1 = 1
+        ";
+
+        $params = [];
+
+        if ($this->statut) {
+            $sql .= " AND r.statut = :statut";
+            $params[':statut'] = $this->statut;
+        }
+
+        if ($this->soignant) {
+            $sql .= " AND r.id_soignant = :id_soignant";
+            $params[':id_soignant'] = $this->soignant;
+        }
+
+        if ($service) {
+            $sql .= " AND p.service = :service";
+            $params[':service'] = $service;
+        }
+
+        if ($this->date_retrait) {
+            $sql .= " AND DATE(r.date_retrait_effective) = :date";
+            $params[':date'] = $this->date_retrait;
+        }
+
+        $sql .= " ORDER BY r.date_retrait_effective DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function update()
     {
@@ -176,5 +229,39 @@ class Reservation
             WHERE id = :id AND statut != 'Annulée'";
         $stmt = $db->prepare($sql);
         return $stmt->execute([':id' => $this->id]);
+    }
+
+    public function demanderRetourItem(int $articleReserveId): bool
+    {
+        $db = Database::getInstance()->getConnection();
+
+       
+        $stmtCheck = $db->prepare("
+            SELECT ar.id
+            FROM article_reserve ar
+            JOIN reservation r ON r.id = ar.id_reservation
+            WHERE ar.id = :articleReserveId
+            AND   r.id = :reservationId
+            AND   r.id_soignant = :soignantId
+            AND   r.statut = 'Clôturée'
+            AND   ar.est_retourne = 0
+            AND   ar.retour_demande = 0
+        ");
+        $stmtCheck->execute([
+            ':articleReserveId' => $articleReserveId,
+            ':reservationId'    => $this->id,
+            ':soignantId'       => $this->soignant,
+        ]);
+
+        if (!$stmtCheck->fetch()) {
+            return false;
+        }
+
+        $stmt = $db->prepare("
+            UPDATE article_reserve
+            SET retour_demande = 1
+            WHERE id = :articleReserveId
+        ");
+        return $stmt->execute([':articleReserveId' => $articleReserveId]);
     }
 }

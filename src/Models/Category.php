@@ -72,13 +72,21 @@ class Category
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getTypeTaille()
+    {
+        $db   = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT type_taille FROM categorie WHERE id = :id");
+        $stmt->execute([':id' => $this->id]);
+        return $stmt->fetchColumn() ?: null;
+    }
+
     public function update()
     {
         $db = Database::getInstance()->getConnection();
         $sql = "UPDATE categorie 
             SET nom = :nom, description = :description, type_taille = :typeTaille 
             WHERE id = :id";
-            
+
         $stmt = $db->prepare($sql);
         return $stmt->execute([
             ':nom'         => $this->nom,

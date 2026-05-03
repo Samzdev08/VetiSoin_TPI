@@ -6,7 +6,8 @@
  * Projet  : TPI VetiSoin
  * Role    : Liste et recherche de patients
  */
-
+/** @var int|null $id */
+/** @var array|null $patients */
 
 ?>
 <h1>Liste des patients</h1>

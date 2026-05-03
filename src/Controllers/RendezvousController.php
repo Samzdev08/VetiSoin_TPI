@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Fichier : AppointmentController.php
+ * Fichier : RendezvousController.php
  * Auteur  : Samuel Tido Kaze
  * Date    : 22.04.2026
  * Projet  : TPI VetiSoin
- * Role    : Prise de RDV par le soignant
+ * Role    : Prise et consultation de RDV par le soignant
  */
 
 namespace App\Controllers;
@@ -20,6 +20,65 @@ use App\Models\RendezVous;
 class RendezvousController
 {
     public function __construct() {}
+
+   
+    public function __invoke(Request $request, Response $response): Response
+    {
+        $idSoignant = $_SESSION['user_id'] ?? null;
+        $statut     = $_GET['statut'] ?? null;
+
+        if (!$idSoignant) {
+            $_SESSION['flash']['error'] = 'Vous devez être connecté.';
+            return $response->withHeader('Location', '/auth/login')->withStatus(302);
+        }
+
+        $rendezVous = new RendezVous(null, null, null, null, null, $statut, $idSoignant);
+        $allRdv     = $rendezVous->getRendezVousBySoignantId();
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title'      => 'Mes rendez-vous',
+            'rendezVous' => $allRdv,
+        ]);
+        $view->setLayout('layout.php');
+
+        return $view->render($response, '/appointments/list.php');
+    }
+
+    /**
+     * Détail d'un rendez-vous du soignant connecté
+     */
+    public function detail(Request $request, Response $response, $args): Response
+    {
+        $idRdv      = $args['id'] ?? null;
+        $idSoignant = $_SESSION['user_id'] ?? null;
+
+        if (!$idSoignant) {
+            $_SESSION['flash']['error'] = 'Vous devez être connecté.';
+            return $response->withHeader('Location', '/auth/login')->withStatus(302);
+        }
+
+        if (!$idRdv) {
+            $_SESSION['flash']['error'] = 'ID de rendez-vous manquant.';
+            return $response->withHeader('Location', '/rdv')->withStatus(302);
+        }
+
+        $rendezVous = new RendezVous($idRdv, null, null, null, null);
+        $rdv        = $rendezVous->getRendezVousById();
+
+        // Le RDV doit appartenir au soignant connecté
+        if (empty($rdv) || (int)$rdv['id_soignant'] !== (int)$idSoignant) {
+            $_SESSION['flash']['error'] = 'Rendez-vous introuvable.';
+            return $response->withHeader('Location', '/rdv')->withStatus(302);
+        }
+
+        $view = new PhpRenderer(__DIR__ . '/../../templates', [
+            'title'      => 'Détail du rendez-vous',
+            'rendezVous' => $rdv,
+        ]);
+        $view->setLayout('layout.php');
+
+        return $view->render($response, '/appointments/detail.php');
+    }
 
     public function showRdv(Request $request, Response $response, $args): Response
     {
@@ -39,6 +98,7 @@ class RendezvousController
 
         return $view->render($response, '/appointments/new.php');
     }
+
     public function rdvPost(Request $request, Response $response, $args): Response
     {
         $data = $request->getParsedBody();
@@ -84,13 +144,10 @@ class RendezvousController
         }
 
 
-
-
-
         $rendezVous = new RendezVous(null, $idReservation, $dateRdv, $heureRdv, $data['lieu']);
 
 
-        if ($rendezVous->existsForReservation()) {
+        if (!$rendezVous->getIdByReservation()) {
             $_SESSION['flash']['error'] = 'Un rendez-vous existe déjà pour cette réservation.';
             return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
         }

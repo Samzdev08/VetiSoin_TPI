@@ -78,10 +78,10 @@ class ReservationItem
     {
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("
-        SELECT id FROM article_reserve
+        SELECT id, quantite FROM article_reserve
         WHERE id_reservation = :id ");
         $stmt->execute([':id' => $this->reservationId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function retourner(): bool
@@ -127,7 +127,7 @@ class ReservationItem
     {
         $db = Database::getInstance()->getConnection();
 
-        
+
         $stmt = $db->prepare("
         SELECT quantite, id_article_variante 
         FROM article_reserve 
@@ -137,7 +137,7 @@ class ReservationItem
         $stmt->execute([':id' => $this->id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        
+
 
         if (!$row) {
             return false;
@@ -146,11 +146,11 @@ class ReservationItem
         $ancienneQuantite = $row['quantite'];
         $idVariante = $row['id_article_variante'];
 
-       
-        $diff = $this->quantity - $ancienneQuantite;
-       
 
-        
+        $diff = $this->quantity - $ancienneQuantite;
+
+
+
         $stmtUpdate = $db->prepare("
         UPDATE article_reserve 
         SET quantite = :quantite 
@@ -162,7 +162,7 @@ class ReservationItem
             ':id'       => $this->id
         ]);
 
-       
+
         $stmtStock = $db->prepare("
         UPDATE article_variante 
         SET stock = stock - :diff 
@@ -172,5 +172,13 @@ class ReservationItem
             ':diff'        => $diff,
             ':id_variante' => $idVariante
         ]);
+    }
+
+    public function getById()
+    {
+        $db   = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT quantite, id_article_variante FROM article_reserve WHERE id = :id");
+        $stmt->execute([':id' => $this->id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }

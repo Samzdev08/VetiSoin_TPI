@@ -164,13 +164,13 @@ class ReservationController
             return $response->withHeader('Location', '/reservations')->withStatus(302);
         }
 
-        $reservationItems =   new ReservationItem(null, $idReservation, null, null);
+        $reservationItems = new ReservationItem(null, $idReservation, null, null);
 
         $items = $reservationItems->findById();
 
         foreach ($items as $i) {
 
-            $item = new ReservationItem($i, null, null, null);
+            $item = new ReservationItem($i['id'], null, null, $i['quantite']);
             $item->retourner();
         }
 
@@ -194,7 +194,7 @@ class ReservationController
         $reservation = new Reservation($idReservation, null, null, null, null, null);
         $reservationById = $reservation->getReservationById();
 
-        
+
         if (empty($reservationById) || $reservationById['statut'] !== 'En attente') {
             $_SESSION['flash']['error'] = 'Seules les réservations en attente peuvent être modifiées.';
             return $response
@@ -319,5 +319,27 @@ class ReservationController
             $_SESSION['flash']['error'] = 'Erreur technique lors de la modification.';
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
         }
+    }
+    public function demanderRetour(Request $request, Response $response, $args): Response
+    {
+        $idReservation  = $args['id'] ?? null;
+        $idArticleReserve = $args['itemId'] ?? null;
+        $idSoignant = $_SESSION['user_id'] ?? null;
+
+        if (!$idReservation || !$idArticleReserve || !$idSoignant) {
+            $_SESSION['flash']['error'] = 'Données manquantes.';
+            return $response->withHeader('Location', '/reservations')->withStatus(302);
+        }
+
+        $reservation = new Reservation($idReservation, $idSoignant, null, null, null, null);
+        $ok = $reservation->demanderRetourItem($idArticleReserve);
+
+        if (!$ok) {
+            $_SESSION['flash']['error'] = 'Impossible de signaler le retour (article déjà traité ou réservation non éligible).';
+        } else {
+            $_SESSION['flash']['success'] = 'Retour signalé, en attente de validation par l\'administrateur.';
+        }
+
+        return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
     }
 }
