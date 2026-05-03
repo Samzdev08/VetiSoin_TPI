@@ -77,7 +77,7 @@ $couleur = $badges[$row['statut']];
                         <th>Taille</th>
                         <th>Couleur</th>
                         <th>Qté</th>
-                        <?php if ($row['statut'] === 'Cloturée') : ?>
+                        <?php if ($row['statut'] === 'Clôturée') : ?>
                             <th>Actions</th>
                         <?php endif ?>
                         <th>Retourné</th>

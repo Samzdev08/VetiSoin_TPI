@@ -96,4 +96,16 @@ class ArticleVariant
             ':stock'     => $this->stock,
         ]);
     }
+    public function getCouleurs()
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $sql = "SELECT DISTINCT couleur 
+            FROM article_variante";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 }

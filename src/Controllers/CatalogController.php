@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\PhpRenderer;
 use App\Models\Article;
+use App\Models\ArticleVariant;
 
 class CatalogController
 {
@@ -21,13 +22,18 @@ class CatalogController
         $category = $_GET['categorie'] ?? null;
         $taille = $_GET['taille'] ?? null;
         $recherche = $_GET['recherche'] ?? null;
+        $couleur = $_GET['couleur'] ?? null;
 
-        $articles = new Article(null, $category, $recherche, $genre, null, null, $taille);
+        $articles = new Article(null, $category, $recherche, $genre, null, null, $taille, $couleur);
+        $articleVariants = new ArticleVariant(null, null, null, null, null, null);
+        
         $articlesItem = $articles->getAll();
+        $couleurs = $articleVariants->getCouleurs();
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title' => 'Accueil',
-            'articles' => $articlesItem
+            'articles' => $articlesItem,
+            'couleurs' => $couleurs
         ]);
         $view->setLayout('layout.php');
         return $view->render($response, '/catalog/list.php');
@@ -36,7 +42,7 @@ class CatalogController
     public function detail(Request $request, Response $response, array $args): Response
     {
         $id = $args['id'];
-        $article = new Article($id, null, null, null, null, null, null);
+        $article = new Article($id, null, null, null, null, null, null, null);
         $articleData = $article->getById();
 
         if (!$articleData) {
@@ -62,7 +68,7 @@ class CatalogController
         $id = $args['id'];
 
         
-        $article = new Article($id, null, null, null, null, null, null);
+        $article = new Article($id, null, null, null, null, null, null, null);
         $articleData = $article->getById();
 
         if (!$articleData) {

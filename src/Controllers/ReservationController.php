@@ -191,6 +191,17 @@ class ReservationController
     {
         $idReservation = $args['id'];
 
+        $reservation = new Reservation($idReservation, null, null, null, null, null);
+        $reservationById = $reservation->getReservationById();
+
+        
+        if (empty($reservationById) || $reservationById['statut'] !== 'En attente') {
+            $_SESSION['flash']['error'] = 'Seules les réservations en attente peuvent être modifiées.';
+            return $response
+                ->withHeader('Location', '/reservations/' . $idReservation)
+                ->withStatus(302);
+        }
+
         $nom = $_GET['recherche'] ?? null;
         $service = $_GET['service'] ?? null;
 
@@ -251,7 +262,7 @@ class ReservationController
         try {
             $db->beginTransaction();
 
-            var_dump($data['quantite']);
+
 
             if (!empty($data['quantite']) && is_array($data['quantite'])) {
 
@@ -309,6 +320,4 @@ class ReservationController
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
         }
     }
-
-   
 }

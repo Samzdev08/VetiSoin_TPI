@@ -117,7 +117,7 @@ class UserController
         if (!preg_match('/^[0-9]{10,11}$/', $data['telephone'])) {
             $errors[] = 'Entrez un numéro de téléphone valide (10 ou 11 chiffres).';
         }
-        if (!Validator::minLength($data['mot_de_passe'], 7)) {
+        if (!Validator::minLength($data['mot_de_passe'], 8)) {
             $errors[] = 'Min. 8 caractères pour le mot de passe.';
         }
         if (!preg_match('/^(?=.*[A-Z])(?=.*[0-9])(?=.*[\W])[^\s]{8,}$/', $data['mot_de_passe'])) {

@@ -23,8 +23,9 @@ class Article
     public $matiere;
     public $marque;
     public $taille;
+    public $couleur;
 
-    public function __construct($id, $idCategorie, $nom, $genre, $matiere, $marque, $taille)
+    public function __construct($id, $idCategorie, $nom, $genre, $matiere, $marque, $taille, $couleur )
     {
         $this->id = $id;
         $this->idCategorie = $idCategorie;
@@ -33,6 +34,7 @@ class Article
         $this->matiere = $matiere;
         $this->marque = $marque;
         $this->taille = $taille;
+        $this->couleur = $couleur;
     }
 
     public function getAll()
@@ -72,6 +74,11 @@ class Article
             $sql .= ' AND (a.marque LIKE :nom1 OR a.nom LIKE :nom)';
             $params[':nom1'] = "%$this->nom%";
             $params[':nom']  = "%$this->nom%";
+        }
+        if ($this->couleur) {
+
+            $sql .= ' AND (v.couleur = :couleur)';
+            $params[':couleur'] = "$this->couleur";
         }
 
         $sql .= ' GROUP BY a.id, a.nom, a.marque, a.genre, a.id_categorie';
@@ -158,4 +165,5 @@ class Article
         ]);
         return $success ? $db->lastInsertId() : false;
     }
+   
 }

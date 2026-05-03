@@ -39,7 +39,7 @@ class Soignant
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare('SELECT id FROM soignant WHERE email = ?');
         $stmt->execute([
-            $this->email
+            trim($this->email)
 
         ]);
 

@@ -56,7 +56,7 @@ class Patient
             p.chambre, 
             p.statut 
         FROM patient p
-        INNER JOIN reservation r 
+        LEFT JOIN reservation r 
             ON p.id = r.id_patient
         WHERE 1 = 1";
 

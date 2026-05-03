@@ -118,7 +118,7 @@ class Reservation
         JOIN article a           ON a.id  = av.id_article
         WHERE r.id = :reservationId
     ");
-        $stmt->execute([':reservationId' => $this->id]);
+        $stmt->execute([$this->id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

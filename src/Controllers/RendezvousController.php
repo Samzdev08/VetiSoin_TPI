@@ -59,6 +59,14 @@ class RendezvousController
             $_SESSION['flash']['error'] = 'Veuillez choisir une date, une heure et un lieu.';
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
         }
+        $horaires = ['08h00', '10h00', '11h30', '14h30', '16h00'];
+
+        $heureChoisie = date('H\hi', strtotime($data['date_rdv']));
+
+        if (!in_array($heureChoisie, $horaires)) {
+            $_SESSION['flash']['error'] = 'Cette heure n\'est pas disponible.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
 
 
         $timestamp = strtotime($data['date_rdv']);
@@ -74,6 +82,10 @@ class RendezvousController
             $_SESSION['flash']['error'] = 'Le rendez-vous doit être dans le futur.';
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
         }
+
+
+
+
 
         $rendezVous = new RendezVous(null, $idReservation, $dateRdv, $heureRdv, $data['lieu']);
 

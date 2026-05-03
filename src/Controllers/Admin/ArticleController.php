@@ -30,7 +30,7 @@ class ArticleController
         $genre = $_GET['genre'] ?? null;
 
 
-        $articesObj = new Article(null, null, null, $genre, null, null, null);
+        $articesObj = new Article(null, null, null, $genre, null, null, null, null);
 
         $articles = $articesObj->getAll();
 
@@ -49,7 +49,7 @@ class ArticleController
 
         $idArticle = $args['id'];
 
-        $articesObj = new Article($idArticle, null, null, null, null, null, null);
+        $articesObj = new Article($idArticle, null, null, null, null, null, null, null);
 
         $article = $articesObj->getById();
 
@@ -63,7 +63,7 @@ class ArticleController
 
     public function edit(Request $request, Response $response, $args): Response
     {
-        $articleObj = new Article($args['id'], null, null, null, null, null, null);
+        $articleObj = new Article($args['id'], null, null, null, null, null, null, null);
         $article = $articleObj->getById();
 
         $categorieObj = new Category(null, null, null, null);
@@ -130,6 +130,7 @@ class ArticleController
             $data['genre'],
             $data['matiere'],
             $data['marque'],
+            null,
             null
         );
         $success = $articleObj->update();
@@ -279,6 +280,7 @@ class ArticleController
             $data['genre'],
             $data['matiere'],
             $data['marque'],
+            null,
             null
         );
         $idArticle = $articleObj->create();

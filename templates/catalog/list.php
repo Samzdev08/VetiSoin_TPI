@@ -8,6 +8,7 @@
  * Role    : Catalogue d'articles avec filtres
  */
 /** @var array $articles */
+/** @var array $couleurs */
 
 ?>
 
@@ -29,7 +30,7 @@
     <button type="submit" onclick="setValue('categorie-hidden', '3')">Tuniques</button>
     <button type="submit" onclick="setValue('categorie-hidden', '4')">Casaques</button>
     <button type="submit" onclick="setValue('categorie-hidden', '5')">Chaussures</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '6')">Coifffes</button>
+    <button type="submit" onclick="setValue('categorie-hidden', '6')">Coiffes</button>
     <button type="submit" onclick="setValue('categorie-hidden', '7')">Vestes & Polaires</button>
 
     <p>Genre</p>
@@ -48,6 +49,15 @@
     <button type="submit" onclick="setValue('taille-hidden', 'XXL')">XXL</button>
 
     <br>
+
+   <select name="couleur" id="couleur" onchange="this.form.submit()">
+    <?php foreach ($couleurs as $couleur): ?>
+        <option value="<?= htmlspecialchars($couleur) ?>"
+            <?= ($_GET['couleur'] === $couleur) ? 'selected' : '' ?>>
+            <?= htmlspecialchars($couleur) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
     <a href="/catalogue" id="filter-form">Réinitialiser</a>
 
 </form>
@@ -77,7 +87,7 @@
     function setValue(input, value) {
 
         document.getElementById(input).value = value;
-        
+
     }
 
     const pagination = document.getElementById('pagination');
@@ -117,7 +127,7 @@
     Affichage(count);
     console.log(document.querySelectorAll('.articles'))
 
-    
+
     document.querySelectorAll('.articles').forEach(item => {
         item.addEventListener('click', () => {
             const id = item.getAttribute('data-id');

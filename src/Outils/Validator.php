@@ -24,11 +24,11 @@ class Validator
 
     public static function minLength($value, $length)
     {
-        return strlen($value) > $length;
+        return strlen($value) >= $length;
     }
     public static function maxLength($value, $length)
     {
-        return strlen($value) < $length;
+        return strlen($value) <= $length;
     }
 
     public static function isNumeric($value)

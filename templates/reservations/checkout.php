@@ -100,9 +100,7 @@
             <?php if (!empty($paniers)): ?>
                 <?php foreach ($paniers as $panier): ?>
                     <div class="recap-article">
-                        <div class="recap-article-icon">
-                            <?= htmlspecialchars($panier['photo']) ?>
-                        </div>
+                        <img src="  <?= htmlspecialchars($panier['photo']) ?>" alt="">
                         <div class="recap-article-text">
                             <?= htmlspecialchars($panier['nom']) ?> - <?= htmlspecialchars($panier['couleur']) ?>
                             × <?= htmlspecialchars($panier['quantite']) ?>
@@ -112,7 +110,7 @@
             <?php endif; ?>
         </div>
 
-        
+
 
 
         <div id="recapRdv" class="recap-rdv empty">
