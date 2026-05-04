@@ -138,13 +138,6 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
 
     
     <div class="d-flex gap-2 mb-4">
-        <?php /* if ($row['statut'] === 'Confirmée') : ?>
-            <a href="/admin/reservations/<?= $row['id'] ?>/valider-retrait"
-                class="btn btn-success btn-sm"
-                onclick="return confirm('Valider le retrait des articles ?')">
-                ✓ Valider retrait
-            </a>
-        <?php endif; */?>
 
         <?php if ($row['statut'] !== 'Annulée' && $row['statut'] !== 'Clôturée') : ?>
             <a href="/admin/reservations/<?= $row['id'] ?>/annuler"

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : edit.php
  * Auteur  : Samuel Tido Kaze
@@ -7,6 +8,7 @@
  * Role    : Modification d'un rendez-vous (admin)
  */
 /** @var array $rendezVous */
+
 $horaires = [
     '08:00:00' => '08:00',
     '10:00:00' => '10:00',
@@ -43,6 +45,8 @@ $dateMax = date('Y-m-d', strtotime('+7 days'));
         </div>
     </div>
     <form action="/admin/rdv/<?= $rendezVous['id'] ?>/edit" method="post" class="card card-body">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+
         <div class="mb-3">
             <label for="date_rdv" class="form-label">Date du rendez-vous</label>
             <input type="date"
@@ -51,8 +55,7 @@ $dateMax = date('Y-m-d', strtotime('+7 days'));
                 value="<?= htmlspecialchars($dateActuelle) ?>"
                 min="<?= $dateMin ?>"
                 max="<?= $dateMax ?>"
-                class="form-control"
-                >
+                class="form-control">
             <small class="text-muted">Date limite : <?= date('d.m.Y', strtotime($dateMax)) ?></small>
         </div>
         <div class="mb-3">

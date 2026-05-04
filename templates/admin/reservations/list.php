@@ -104,13 +104,7 @@ $dateActive    = $_GET['date']     ?? '';
                         <td class="text-center">
                             <a href="/admin/reservations/<?= $r['id'] ?>" class="btn btn-outline-primary btn-sm">Voir</a>
 
-                          <?php /* if ($r['statut'] === 'Confirmée') : ?>
-                                <a href="/admin/reservations/<?= $r['id'] ?>/valider-retrait"
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="return confirm('Valider le retrait des articles ?')">
-                                    Valider retrait
-                                </a>
-                            <?php endif; */?>
+                      
 
                             <?php if ($r['statut'] !== 'Annulée' && $r['statut'] !== 'Clôturée') : ?>
                                 <a href="/admin/reservations/<?= $r['id'] ?>/annuler"
