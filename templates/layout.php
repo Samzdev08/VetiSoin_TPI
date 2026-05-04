@@ -35,7 +35,9 @@ unset($_SESSION['flash']);
             <a href="/catalogue">VetiSoin</a>
 
             <ul>
+                
                 <li><a href="/catalogue">Catalogue</a></li>
+                <li><a href="/notifications">Notifications</a></li>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
 

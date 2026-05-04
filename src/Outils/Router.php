@@ -22,6 +22,7 @@ use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\AdminReservationController;
 use App\Controllers\Admin\AdminRendezVousController;
 use App\Controllers\SoignantController;
+use App\Controllers\NotificationController;
 
 
 $app->get('/', AuthController::class);
@@ -130,4 +131,10 @@ $app->group('/profil', function ($group) {
     $group->get('/', SoignantController::class);
     $group->post('/infos', [SoignantController::class, 'updateInfos']);
     $group->post('/password', [SoignantController::class, 'changePassword']);
+});
+
+$app->group('/notifications', function ($group) {
+    $group->get('', NotificationController::class);
+    $group->get('/lire-tout', [NotificationController::class, 'markAllRead']);
+    $group->get('/{id}/lire', [NotificationController::class, 'markRead']);
 });

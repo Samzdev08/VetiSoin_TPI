@@ -91,6 +91,7 @@ class Reservation
         SELECT 
             r.id,
             r.date_reservation,
+            r.id_soignant AS soignant_id,
             r.date_retrait_effective,
             r.statut,
             r.commentaire,

@@ -18,6 +18,9 @@ use App\Models\Patient;
 use App\Models\Reservation;
 use App\Models\ReservationItem;
 use App\Outils\Database;
+use App\Models\Notification;
+use App\Outils\Csrf;
+use App\Outils\Validator;
 
 class ReservationController
 {
@@ -235,7 +238,7 @@ class ReservationController
 
     public function editPost(Request $request, Response $response, $args): Response
     {
-        $data          = $request->getParsedBody();
+        $errors        = [];
         $idReservation = $args['id'] ?? null;
         $idSoignant    = $_SESSION['user_id'] ?? null;
 
@@ -249,35 +252,58 @@ class ReservationController
             return $response->withHeader('Location', '/reservations')->withStatus(302);
         }
 
-        $data['commentaire'] = !empty($data['commentaire'])
-            ? filter_var($data['commentaire'], FILTER_SANITIZE_SPECIAL_CHARS)
-            : null;
+        $data = $request->getParsedBody();
 
-        if (!isset($data['patient_id'], $data['date_retrait'])) {
-            $_SESSION['flash']['error'] = 'Données manquantes pour la modification.';
+
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $errors[] = 'Token invalide.';
+        }
+
+
+        if (
+            !Validator::isNotEmpty($data['patient_id'] ?? null) ||
+            !Validator::isNotEmpty($data['date_retrait'] ?? null)
+        ) {
+            $errors[] = 'Données manquantes pour la modification.';
+        }
+
+
+        if (empty($data['quantite']) || !is_array($data['quantite'])) {
+            $errors[] = 'Aucune quantité fournie.';
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['flash']['error'] = $errors[0];
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
         }
+
+
+        $commentaire = !empty($data['commentaire'])
+            ? trim(filter_var($data['commentaire'], FILTER_SANITIZE_SPECIAL_CHARS))
+            : null;
 
         $db = Database::getInstance()->getConnection();
         try {
             $db->beginTransaction();
 
 
+            foreach ($data['quantite'] as $idItem => $nouvelleQuantite) {
+                $nouvelleQuantite = (int)$nouvelleQuantite;
 
-            if (!empty($data['quantite']) && is_array($data['quantite'])) {
+                if ($nouvelleQuantite < 1) {
+                    $db->rollBack();
+                    $_SESSION['flash']['error'] = 'Les quantités doivent être au moins 1.';
+                    return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
+                }
 
-                foreach ($data['quantite'] as $idItem => $nouvelleQuantite) {
+                $item = new ReservationItem($idItem, null, null, null);
+                $stockDispo = $item->getStockById();
 
-                    $item = new ReservationItem($idItem, null, null, null);
-                    $stockDispo = $item->getStockById();
-
-                    if ((int)$nouvelleQuantite > $stockDispo) {
-
-                        $db->rollBack();
-
-                        $_SESSION['flash']['error'] = "Stock insuffisant (dispo : $stockDispo).";
-                        return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
-                    }
+                if ($nouvelleQuantite > $stockDispo) {
+                    $db->rollBack();
+                    $_SESSION['flash']['error'] = "Stock insuffisant (dispo : $stockDispo).";
+                    return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
                 }
             }
 
@@ -288,23 +314,19 @@ class ReservationController
                 $data['patient_id'],
                 $data['date_retrait'],
                 null,
-                $data['commentaire']
+                $commentaire
             );
 
             if (!$reservation->update()) {
-
                 $db->rollBack();
-
                 $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour de la réservation.';
                 return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
             }
 
 
             foreach ($data['quantite'] as $idItem => $nouvelleQuantite) {
-
-                $item = new ReservationItem($idItem, null, null, $nouvelleQuantite);
+                $item = new ReservationItem($idItem, null, null, (int)$nouvelleQuantite);
                 if (!$item->updateQuantite()) {
-
                     $db->rollBack();
                     $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour des quantités.';
                     return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
@@ -312,6 +334,14 @@ class ReservationController
             }
 
             $db->commit();
+
+
+            $titre   = 'Réservation modifiée';
+            $message = "Votre réservation #{$idReservation} a été modifiée. ";
+            $message .= "Nouvelle date de retrait : " . date('d.m.Y à H:i', strtotime($data['date_retrait'])) . ".";
+
+            (new Notification(null, $idSoignant, 'Réservation confirmée', $titre, $message))->create();
+
             $_SESSION['flash']['success'] = 'Réservation modifiée avec succès.';
             return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
         } catch (\Throwable $e) {
@@ -320,6 +350,7 @@ class ReservationController
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
         }
     }
+
     public function demanderRetour(Request $request, Response $response, $args): Response
     {
         $idReservation  = $args['id'] ?? null;
@@ -338,6 +369,16 @@ class ReservationController
             $_SESSION['flash']['error'] = 'Impossible de signaler le retour (article déjà traité ou réservation non éligible).';
         } else {
             $_SESSION['flash']['success'] = 'Retour signalé, en attente de validation par l\'administrateur.';
+
+            $titre   = 'Demande de retour';
+            $message = "Une demande de retour a été faite pour la réservation #{$idReservation}, ";
+            $message .= "article #{$idArticleReserve}. À valider.";
+
+            $idsAdmins = new Notification(null, null, null, null, null)->getAllAdminIds();
+
+            foreach ($idsAdmins as $idAdmin) {
+                (new Notification(null, $idAdmin, 'Retour attendu', $titre, $message))->create();
+            }
         }
 
         return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);

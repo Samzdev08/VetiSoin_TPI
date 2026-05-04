@@ -150,7 +150,7 @@ class RendezVous
                 rv.lieu,
                 rv.statut,
                 r.id AS id_reservation,
-                r.id_soignant,
+                r.id_soignant AS id_soignant,
                 r.date_reservation,
                 r.statut AS statut_reservation,
                 r.commentaire,

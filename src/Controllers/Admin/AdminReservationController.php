@@ -17,6 +17,7 @@ use Slim\Views\PhpRenderer;
 use App\Models\Reservation;
 use App\Models\ReservationItem;
 use App\Models\Soignant;
+use App\Models\Notification;
 
 class AdminReservationController
 {
@@ -92,6 +93,12 @@ class AdminReservationController
             return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
         }
 
+        
+        $reservationObj = new Reservation($idReservation, null, null, null, null, null);
+        $infos = $reservationObj->getReservationById();
+        $idSoignantConcerne = $infos['soignant_id'];
+
+
         $rdvObj = new RendezVous(null, $idReservation, null, null, null, null);
         $reservationItems = new ReservationItem(null, $idReservation, null, null);
 
@@ -99,7 +106,6 @@ class AdminReservationController
         $idRdv = $rdvObj->getIdByReservation();
 
         if (!$idRdv) {
-
             $_SESSION['flash']['error'] = 'Aucun rendez-vous pour cette réservation';
             return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
         }
@@ -109,19 +115,28 @@ class AdminReservationController
             $item->retourner();
         }
 
-        $rdvObj->cancel($idRdv);
-
-        $reservationObj = new Reservation($idReservation, null, null, null, null, null);
+        
         $success = $reservationObj->cancel();
+        $rdvObj->cancel($idRdv);
 
         if ($success) {
             $_SESSION['flash']['success'] = 'Réservation annulée.';
+
+           
+            if ($idSoignantConcerne) {
+                $titre   = 'Réservation annulée';
+                $message = "Votre réservation #{$idReservation} a été annulée par l'administrateur. ";
+                $message .= "Le stock a été restauré et le rendez-vous associé annulé.";
+
+                (new Notification(null, $idSoignantConcerne, 'Réservation annulée', $titre, $message))->create();
+            }
         } else {
             $_SESSION['flash']['error'] = 'Erreur lors de l\'annulation.';
         }
 
         return $response->withHeader('Location', '/admin/reservations/' . $idReservation)->withStatus(302);
     }
+
 
 
     public function validerRetour(Request $request, Response $response, $args): Response

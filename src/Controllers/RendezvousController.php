@@ -16,12 +16,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Models\Reservation;
 use App\Outils\Database;
 use App\Models\RendezVous;
+use App\Models\Notification;
+
 
 class RendezvousController
 {
     public function __construct() {}
 
-   
+
     public function __invoke(Request $request, Response $response): Response
     {
         $idSoignant = $_SESSION['user_id'] ?? null;
@@ -44,9 +46,7 @@ class RendezvousController
         return $view->render($response, '/appointments/list.php');
     }
 
-    /**
-     * Détail d'un rendez-vous du soignant connecté
-     */
+  
     public function detail(Request $request, Response $response, $args): Response
     {
         $idRdv      = $args['id'] ?? null;
@@ -63,10 +63,10 @@ class RendezvousController
         }
 
         $rendezVous = new RendezVous($idRdv, null, null, null, null);
-        $rdv        = $rendezVous->getRendezVousById();
+        $rdv = $rendezVous->getRendezVousById();
 
-        // Le RDV doit appartenir au soignant connecté
-        if (empty($rdv) || (int)$rdv['id_soignant'] !== (int)$idSoignant) {
+       
+        if (empty($rdv) || $rdv['id_soignant'] !== $idSoignant) {
             $_SESSION['flash']['error'] = 'Rendez-vous introuvable.';
             return $response->withHeader('Location', '/rdv')->withStatus(302);
         }
@@ -130,6 +130,8 @@ class RendezvousController
 
 
         $timestamp = strtotime($data['date_rdv']);
+
+        
         if ($timestamp === false) {
             $_SESSION['flash']['error'] = 'Date du rendez-vous invalide.';
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
@@ -147,7 +149,7 @@ class RendezvousController
         $rendezVous = new RendezVous(null, $idReservation, $dateRdv, $heureRdv, $data['lieu']);
 
 
-        if (!$rendezVous->getIdByReservation()) {
+        if ($rendezVous->getIdByReservation()) {
             $_SESSION['flash']['error'] = 'Un rendez-vous existe déjà pour cette réservation.';
             return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
         }
@@ -178,6 +180,15 @@ class RendezvousController
             }
 
             $db->commit();
+
+            $titre   = 'Réservation confirmée';
+            $message = "Votre réservation #{$idReservation} est confirmée. ";
+            $message .= "Rendez-vous le " . date('d.m.Y', strtotime($dateRdv));
+            $message .= " à " . substr($heureRdv, 0, 5) . " ({$data['lieu']}).";
+
+
+            (new Notification(null, $idSoignant, 'Réservation confirmée', $titre, $message))->create();
+
             $_SESSION['flash']['success'] = 'Rendez-vous planifié avec succès.';
             return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
         } catch (\Throwable $e) {

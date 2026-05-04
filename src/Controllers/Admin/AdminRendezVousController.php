@@ -18,6 +18,7 @@ use App\Models\Reservation;
 use App\Models\Soignant;
 use App\Outils\Csrf;
 use App\Outils\Validator;
+use App\Models\Notification;
 
 class AdminRendezVousController
 {
@@ -191,6 +192,21 @@ class AdminRendezVousController
         }
 
         $_SESSION['flash']['success'] = 'Rendez-vous modifié avec succès.';
+
+
+        if (!empty($current['id_soignant'])) {
+            $titre   = 'Rendez-vous modifié';
+            $message = "Votre rendez-vous #{$idRdv} a été modifié par l'administrateur. ";
+            $message .= "Nouvelle date : " . date('d.m.Y', strtotime($dateRdv));
+            $message .= " à " . substr($heureRdv, 0, 5);
+            $message .= " ({$data['lieu']}).";
+
+            (new Notification(null, $current['id_soignant'], 'Rappel rendez-vous', $titre, $message))->create();
+        }
+
+
+
+
         return $response->withHeader('Location', '/admin/rdv')->withStatus(302);
     }
 
@@ -204,10 +220,23 @@ class AdminRendezVousController
         }
 
         $rdvObj  = new RendezVous($idRdv, null, null, null, null);
+
+        $infos = $rdvObj->getRendezVousById();
+
         $success = $rdvObj->cancel($idRdv);
 
         if ($success) {
+
             $_SESSION['flash']['success'] = 'Rendez-vous annulé.';
+
+            if (!empty($infos['id_soignant'])) {
+                $titre   = 'Rendez-vous annulé';
+                $message = "Votre rendez-vous #{$idRdv} (réservation #{$infos['id_reservation']}) ";
+                $message .= "a été annulé par l'administrateur.";
+ 
+                (new Notification(null, $infos['id_soignant'], 'Rappel rendez-vous', $titre, $message))->create();
+            }
+
         } else {
             $_SESSION['flash']['error'] = 'Erreur lors de l\'annulation.';
         }
@@ -230,7 +259,7 @@ class AdminRendezVousController
         $idReservation = $rdvObj->getIdReservation();
         $success = $rdvObj->marquerRealise();
 
-        
+
 
         if ($success) {
 
@@ -254,10 +283,23 @@ class AdminRendezVousController
         }
 
         $rdvObj  = new RendezVous($idRdv, null, null, null, null);
+
+        $infos = $rdvObj->getRendezVousById();
+
         $success = $rdvObj->marquerNonHonore();
 
         if ($success) {
+
             $_SESSION['flash']['success'] = 'Rendez-vous marqué comme non honoré.';
+
+            if (!empty($infos['id_soignant'])) {
+                $titre   = 'Rendez-vous manqué';
+                $message = "Votre rendez-vous #{$idRdv} (réservation #{$infos['id_reservation']}) ";
+                $message .= "a été marqué comme non honoré.";
+ 
+                (new Notification(null, $infos['id_soignant'], 'Rappel rendez-vous', $titre, $message))->create();
+            }
+
         } else {
             $_SESSION['flash']['error'] = 'Action impossible (le RDV doit être au statut Planifié).';
         }
