@@ -54,6 +54,7 @@ unset($_SESSION['flash']);
                         <li><a href="/dashboard">Tableau de bord</a></li>
                         <li><a href="/patients">Patients</a></li>
                         <li><a href="/rdv">Rendez-vous</a></li>
+                         <li><a href="/profil/">Mon profil</a></li>
                         <li><a href="/reservations">Réservations</a></li>
                         <li><a href="/auth/logout">Déconnexion</a></li>
                     <?php endif; ?>

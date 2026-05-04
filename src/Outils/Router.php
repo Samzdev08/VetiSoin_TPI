@@ -21,6 +21,7 @@ use App\Controllers\Admin\UserController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\AdminReservationController;
 use App\Controllers\Admin\AdminRendezVousController;
+use App\Controllers\SoignantController;
 
 
 $app->get('/', AuthController::class);
@@ -87,12 +88,14 @@ $app->group('/admin', function ($group) {
 
 
     $group->get('/rdv', AdminRendezVousController::class);
-$group->get('/rdv/{id}', [AdminRendezVousController::class, 'detail']);
-$group->get('/rdv/{id}/edit', [AdminRendezVousController::class, 'edit']);
-$group->post('/rdv/{id}/edit', [AdminRendezVousController::class, 'editPost']);
-$group->get('/rdv/{id}/annuler', [AdminRendezVousController::class, 'annuler']);
-$group->get('/rdv/{id}/realise', [AdminRendezVousController::class, 'marquerRealise']);
-$group->get('/rdv/{id}/non-honore', [AdminRendezVousController::class, 'marquerNonHonore']);
+    $group->get('/rdv/{id}', [AdminRendezVousController::class, 'detail']);
+    $group->get('/rdv/{id}/edit', [AdminRendezVousController::class, 'edit']);
+    $group->post('/rdv/{id}/edit', [AdminRendezVousController::class, 'editPost']);
+    $group->get('/rdv/{id}/annuler', [AdminRendezVousController::class, 'annuler']);
+    $group->get('/rdv/{id}/realise', [AdminRendezVousController::class, 'marquerRealise']);
+    $group->get('/rdv/{id}/non-honore', [AdminRendezVousController::class, 'marquerNonHonore']);
+
+
 });
 
 
@@ -120,4 +123,11 @@ $app->group('/rdv', function ($group) {
     $group->get('/{id}/detail', [RendezvousController::class, 'detail']);     
     $group->get('/{id}', [RendezvousController::class, 'showRdv']);           
     $group->post('/{id}/post', [RendezvousController::class, 'rdvPost']);      
+});
+
+
+$app->group('/profil', function ($group) {
+    $group->get('/', SoignantController::class);
+    $group->post('/infos', [SoignantController::class, 'updateInfos']);
+    $group->post('/password', [SoignantController::class, 'changePassword']);
 });

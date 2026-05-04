@@ -176,4 +176,46 @@ class Soignant
         $stmt = $db->prepare($sql);
         return $stmt->execute([':id' => $this->id]);
     }
+
+    public function changePassword($newPwd)
+    {
+        $db = Database::getInstance()->getConnection();
+
+
+        $stmt = $db->prepare("SELECT mot_de_passe FROM soignant WHERE id = :id");
+        $stmt->execute([':id' => $this->id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return ['success' => false, 'message' => 'Utilisateur introuvable.'];
+        }
+
+
+        if (!password_verify($this->mot_de_passe, $row['mot_de_passe'])) {
+            return ['success' => false, 'message' => 'Le mot de passe actuel est incorrect.'];
+        }
+
+
+        if (password_verify($newPwd, $row['mot_de_passe'])) {
+            return ['success' => false, 'message' => 'Le nouveau mot de passe doit être différent de l\'ancien.'];
+        }
+
+        $hash = password_hash($newPwd, PASSWORD_ARGON2ID);
+
+        $stmtUpdate = $db->prepare("
+        UPDATE soignant 
+        SET mot_de_passe = :mdp 
+        WHERE id = :id
+    ");
+        $success = $stmtUpdate->execute([
+            ':mdp' => $hash,
+            ':id'  => $this->id,
+        ]);
+
+        if (!$success) {
+            return ['success' => false, 'message' => 'Erreur technique lors de la mise à jour.'];
+        }
+
+        return ['success' => true, 'message' => 'Mot de passe modifié.'];
+    }
 }

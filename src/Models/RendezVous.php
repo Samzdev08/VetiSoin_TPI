@@ -59,14 +59,28 @@ class RendezVous
         $stmt = $db->prepare("
         SELECT id 
         FROM rendez_vous 
-        WHERE id_reservation = :id
-    ");
+        WHERE id_reservation = :id ");
 
         $stmt->execute([
             ':id' => $this->idReservation
         ]);
 
-        return $stmt->fetchColumn(); 
+        return $stmt->fetchColumn();
+    }
+    public function getIdReservation()
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare("
+        SELECT id_reservation
+        FROM rendez_vous 
+        WHERE id = :id ");
+
+        $stmt->execute([
+            ':id' => $this->id
+        ]);
+
+        return $stmt->fetchColumn();
     }
 
     public function isCreneauPris()
@@ -74,14 +88,14 @@ class RendezVous
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("
             SELECT id FROM rendez_vous 
-            WHERE date_rdv  = :date_rdv 
+            WHERE date_rdv = :date_rdv 
             AND heure_rdv = :heure_rdv 
             AND lieu = :lieu
         ");
         $stmt->execute([
-            ':date_rdv'  => $this->dateRdv,
+            ':date_rdv' => $this->dateRdv,
             ':heure_rdv' => $this->heureRdv,
-            ':lieu'      => $this->lieu,
+            ':lieu' => $this->lieu,
         ]);
         return $stmt->fetchColumn() !== false;
     }
@@ -97,10 +111,10 @@ class RendezVous
                 rv.heure_rdv,
                 rv.lieu,
                 rv.statut,
-                r.id        AS id_reservation,
-                r.statut    AS statut_reservation,
-                p.nom       AS patient_nom,
-                p.prenom    AS patient_prenom,
+                r.id  AS id_reservation,
+                r.statut AS statut_reservation,
+                p.nom AS patient_nom,
+                p.prenom AS patient_prenom,
                 p.numero_dossier,
                 p.chambre
             FROM rendez_vous rv
@@ -135,22 +149,22 @@ class RendezVous
                 rv.heure_rdv,
                 rv.lieu,
                 rv.statut,
-                r.id              AS id_reservation,
+                r.id AS id_reservation,
                 r.id_soignant,
                 r.date_reservation,
-                r.statut          AS statut_reservation,
+                r.statut AS statut_reservation,
                 r.commentaire,
-                p.nom             AS patient_nom,
-                p.prenom          AS patient_prenom,
+                p.nom AS patient_nom,
+                p.prenom AS patient_prenom,
                 p.numero_dossier,
                 p.chambre,
-                p.service         AS patient_service,
-                s.nom             AS soignant_nom,
-                s.prenom          AS soignant_prenom
+                p.service AS patient_service,
+                s.nom AS soignant_nom,
+                s.prenom AS soignant_prenom
             FROM rendez_vous rv
             JOIN reservation r ON r.id = rv.id_reservation
-            JOIN patient p     ON p.id = r.id_patient
-            JOIN soignant s    ON s.id = r.id_soignant
+            JOIN patient p ON p.id = r.id_patient
+            JOIN soignant s ON s.id = r.id_soignant
             WHERE rv.id = :id
         ";
 
@@ -171,19 +185,19 @@ class RendezVous
                 rv.heure_rdv,
                 rv.lieu,
                 rv.statut,
-                r.id        AS id_reservation,
-                r.statut    AS statut_reservation,
-                p.nom       AS patient_nom,
-                p.prenom    AS patient_prenom,
-                p.service   AS patient_service,
+                r.id AS id_reservation,
+                r.statut AS statut_reservation,
+                p.nom AS patient_nom,
+                p.prenom AS patient_prenom,
+                p.service AS patient_service,
                 p.chambre,
-                s.id        AS id_soignant,
-                s.nom       AS soignant_nom,
-                s.prenom    AS soignant_prenom
+                s.id AS id_soignant,
+                s.nom AS soignant_nom,
+                s.prenom AS soignant_prenom
             FROM rendez_vous rv
             JOIN reservation r ON r.id = rv.id_reservation
-            JOIN patient p     ON p.id = r.id_patient
-            JOIN soignant s    ON s.id = r.id_soignant
+            JOIN patient p ON p.id = r.id_patient
+            JOIN soignant s ON s.id = r.id_soignant
             WHERE 1 = 1
         ";
 
@@ -226,8 +240,8 @@ class RendezVous
             UPDATE rendez_vous
             SET date_rdv  = :date_rdv,
                 heure_rdv = :heure_rdv,
-                lieu      = :lieu
-            WHERE id     = :id
+                lieu  = :lieu
+            WHERE id  = :id
             AND   statut = 'Planifié'
         ";
         $stmt = $db->prepare($sql);

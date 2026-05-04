@@ -190,10 +190,10 @@ class Reservation
     ";
         $stmt = $db->prepare($sql);
         return $stmt->execute([
-            ':id_patient'   => $this->patient_id,
+            ':id_patient' => $this->patient_id,
             ':date_retrait' => $this->date_retrait,
             ':commentaire'  => $this->commentaires,
-            ':id'           => $this->id,
+            ':id' => $this->id,
         ]);
     }
 
@@ -204,9 +204,20 @@ class Reservation
         $stmt = $db->prepare("
         UPDATE reservation 
         SET statut = 'Confirmée'
-        WHERE id     = :id
-        AND   statut = 'En attente'
-    ");
+        WHERE id = :id
+        AND   statut = 'En attente' ");
+        return $stmt->execute([':id' => $this->id]);
+    }
+
+
+    public function cloturee()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+        UPDATE reservation 
+        SET statut = 'Clôturée'
+        WHERE id = :id
+        AND  statut = 'Confirmée' ");
         return $stmt->execute([':id' => $this->id]);
     }
 
@@ -247,6 +258,7 @@ class Reservation
             AND   ar.est_retourne = 0
             AND   ar.retour_demande = 0
         ");
+
         $stmtCheck->execute([
             ':articleReserveId' => $articleReserveId,
             ':reservationId'    => $this->id,
@@ -264,4 +276,7 @@ class Reservation
         ");
         return $stmt->execute([':articleReserveId' => $articleReserveId]);
     }
+
+
+
 }

@@ -14,6 +14,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\PhpRenderer;
 use App\Models\RendezVous;
+use App\Models\Reservation;
 use App\Models\Soignant;
 
 class AdminRendezVousController
@@ -61,7 +62,7 @@ class AdminRendezVousController
         }
 
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
-            'title'      => 'Détail du rendez-vous',
+            'title' => 'Détail du rendez-vous',
             'rendezVous' => $rdv,
         ]);
         $view->setLayout('layout.php');
@@ -92,7 +93,7 @@ class AdminRendezVousController
         }
 
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
-            'title'      => 'Modifier le rendez-vous',
+            'title' => 'Modifier le rendez-vous',
             'rendezVous' => $rdv,
         ]);
         $view->setLayout('layout.php');
@@ -115,7 +116,7 @@ class AdminRendezVousController
             return $response->withHeader('Location', '/admin/rdv/' . $idRdv . '/edit')->withStatus(302);
         }
 
-        // Les values du <select> sont déjà au format H:i:s
+        
         $horaires = ['08:00:00', '10:00:00', '11:30:00', '14:30:00', '16:00:00'];
 
         if (!in_array($data['heure_rdv'], $horaires)) {
@@ -204,9 +205,15 @@ class AdminRendezVousController
         }
 
         $rdvObj  = new RendezVous($idRdv, null, null, null, null);
+
+        $idReservation = $rdvObj->getIdReservation();
         $success = $rdvObj->marquerRealise();
 
+        new Reservation($idReservation, null, null, null, null, null)->cloturee();
+
         if ($success) {
+
+
             $_SESSION['flash']['success'] = 'Rendez-vous marqué comme réalisé.';
         } else {
             $_SESSION['flash']['error'] = 'Action impossible (le RDV doit être au statut Planifié).';

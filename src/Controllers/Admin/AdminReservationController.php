@@ -23,10 +23,10 @@ class AdminReservationController
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $statut     = $_GET['statut']   ?? null;
+        $statut     = $_GET['statut'] ?? null;
         $idSoignant = $_GET['soignant'] ?? null;
         $service    = $_GET['service']  ?? null;
-        $date       = $_GET['date']     ?? null;
+        $date       = $_GET['date']  ?? null;
 
         $reservationObj = new Reservation(null, $idSoignant, null, $date, $statut, null);
         $reservations   = $reservationObj->getAllAdmin($service);
