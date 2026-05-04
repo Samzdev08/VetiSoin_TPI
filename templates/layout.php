@@ -35,7 +35,7 @@ unset($_SESSION['flash']);
             <a href="/catalogue">VetiSoin</a>
 
             <ul>
-                
+
                 <li><a href="/catalogue">Catalogue</a></li>
                 <li><a href="/notifications">Notifications</a></li>
 
@@ -49,6 +49,7 @@ unset($_SESSION['flash']);
                         <li><a href="/admin/categories">Categories</a></li>
                         <li><a href="/admin/rdv">Rendez-vous</a></li>
                         <li><a href="/admin/reservations">Réservations</a></li>
+                        <li><a href="/admin/stats">Statistiques</a></li>
                         <li><a href="/auth/logout">Déconnexion</a></li>
 
 

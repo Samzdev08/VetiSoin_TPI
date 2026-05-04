@@ -23,6 +23,7 @@ use App\Controllers\Admin\AdminReservationController;
 use App\Controllers\Admin\AdminRendezVousController;
 use App\Controllers\SoignantController;
 use App\Controllers\NotificationController;
+use App\Controllers\Admin\StatsController;
 
 
 $app->get('/', AuthController::class);
@@ -95,6 +96,9 @@ $app->group('/admin', function ($group) {
     $group->get('/rdv/{id}/annuler', [AdminRendezVousController::class, 'annuler']);
     $group->get('/rdv/{id}/realise', [AdminRendezVousController::class, 'marquerRealise']);
     $group->get('/rdv/{id}/non-honore', [AdminRendezVousController::class, 'marquerNonHonore']);
+
+
+    $group->get('/stats', StatsController::class);
 
 
 });
