@@ -16,6 +16,7 @@ use Slim\Views\PhpRenderer;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\ArticleVariant;
+use App\Models\Notification;
 use App\Outils\FileManager;
 use App\Outils\Validator;
 use App\Outils\Csrf;
@@ -146,6 +147,7 @@ class ArticleController
 
     public function editVariante(Request $request, Response $response, $args): Response
     {
+
         $idArticleVariante = $args['id'];
         $data = filter_input_array(INPUT_POST, [
             'csrf_token' => FILTER_SANITIZE_SPECIAL_CHARS,
@@ -191,9 +193,25 @@ class ArticleController
 
         if ($success) {
 
+            if ($stock <= 5) {
+
+                $info =  new ArticleVariant($idArticleVariante, null, null, null, null, null)->getInfosVariante();
+
+                $titre   = 'Stock bas';
+                $message = "L'article \"{$info['article_nom']}\" ";
+                $message .= "(taille {$info['taille']}, couleur {$info['couleur']}) ";
+                $message .= "n'a plus que {$stock} unité(s) en stock.";
+
+                $idsAdmins = new Notification(null, null, null, null, null)->getAllAdminIds();
+
+                foreach ($idsAdmins as $idAdmin) {
+                    (new Notification(null, $idAdmin, 'Stock bas', $titre, $message))->create();
+                }
+            }
+
             $_SESSION['flash']['success'] = 'Variante mise à jour avec succès.';
         } else {
-            
+
             $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour de la variante.';
         }
 

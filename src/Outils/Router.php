@@ -115,7 +115,7 @@ $app->group('/auth', function ($group) {
     $group->get('/register', [AuthController::class, 'showRegisterForm']);
     $group->get('/login', [AuthController::class, 'showLoginForm']);
     $group->post('/create', [AuthController::class, 'create']);
-    $group->post('/login/post', [AuthController::class, 'login']);
+    $group->post('/login', [AuthController::class, 'login']);
     $group->get('/logout', [AuthController::class, 'logout']);
 });
 

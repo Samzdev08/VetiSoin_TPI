@@ -20,10 +20,14 @@ use App\Models\ReservationItem;
 use App\Outils\Database;
 use App\Models\Notification;
 use App\Outils\Csrf;
+use App\Models\ArticleVariant;
 use App\Outils\Validator;
 
 class ReservationController
 {
+    /** Seuil pour déclencher la notification "Stock bas" */
+    private const SEUIL_STOCK_BAS = 3;
+
     public function __construct() {}
 
     public function __invoke(Request $request, Response $response): Response
@@ -118,10 +122,14 @@ class ReservationController
             $db->beginTransaction();
 
             $stmtLock = $db->prepare("SELECT stock FROM article_variante WHERE id = ? FOR UPDATE");
+
             foreach ($_SESSION['cart'] as $item) {
+
                 $stmtLock->execute([$item['variante_id']]);
                 $stockReel = (int)$stmtLock->fetchColumn();
+
                 if ($stockReel < $item['quantite']) {
+
                     $db->rollBack();
                     $_SESSION['flash']['error'] = "Stock insuffisant pour « {$item['nom']} » (dispo : $stockReel).";
                     return $response->withHeader('Location', '/panier')->withStatus(302);
@@ -133,14 +141,19 @@ class ReservationController
             $reservationId = $reservation->create();
 
             if (!$reservationId) {
+
                 $db->rollBack();
                 $_SESSION['flash']['error'] = 'Erreur lors de la création de la réservation.';
                 return $response->withHeader('Location', '/reservations/checkout')->withStatus(302);
             }
 
             foreach ($_SESSION['cart'] as $item) {
+
                 $reservationItem = new ReservationItem(null, $reservationId, $item['variante_id'], $item['quantite']);
+
+
                 if (!$reservationItem->create() || !$reservationItem->updateStock()) {
+
                     $db->rollBack();
                     $_SESSION['flash']['error'] = 'Erreur lors de l\'ajout d\'un article à la réservation.';
                     return $response->withHeader('Location', '/reservations/checkout')->withStatus(302);
@@ -148,8 +161,14 @@ class ReservationController
             }
 
             $db->commit();
+
+
+            $idsVariantes = array_column($_SESSION['cart'], 'variante_id');
+            $this->verifStockBas($idsVariantes);
+
             $_SESSION['cart'] = [];
             $_SESSION['flash']['success'] = 'Réservation créée avec succès.';
+
             return $response->withHeader('Location', '/catalogue')->withStatus(302);
         } catch (\Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
@@ -198,7 +217,8 @@ class ReservationController
         $reservationById = $reservation->getReservationById();
 
 
-        if (empty($reservationById) || $reservationById['statut'] !== 'En attente') {
+
+        if (empty($reservationById) || $reservationById[0]['statut'] !== 'En attente') {
             $_SESSION['flash']['error'] = 'Seules les réservations en attente peuvent être modifiées.';
             return $response
                 ->withHeader('Location', '/reservations/' . $idReservation)
@@ -292,7 +312,9 @@ class ReservationController
                 $nouvelleQuantite = (int)$nouvelleQuantite;
 
                 if ($nouvelleQuantite < 1) {
+
                     $db->rollBack();
+
                     $_SESSION['flash']['error'] = 'Les quantités doivent être au moins 1.';
                     return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
                 }
@@ -301,7 +323,9 @@ class ReservationController
                 $stockDispo = $item->getStockById();
 
                 if ($nouvelleQuantite > $stockDispo) {
+
                     $db->rollBack();
+
                     $_SESSION['flash']['error'] = "Stock insuffisant (dispo : $stockDispo).";
                     return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
                 }
@@ -318,19 +342,29 @@ class ReservationController
             );
 
             if (!$reservation->update()) {
+
                 $db->rollBack();
+
                 $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour de la réservation.';
                 return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
             }
 
 
+            $idsVariantes = [];
+
             foreach ($data['quantite'] as $idItem => $nouvelleQuantite) {
                 $item = new ReservationItem($idItem, null, null, (int)$nouvelleQuantite);
+
                 if (!$item->updateQuantite()) {
+
                     $db->rollBack();
                     $_SESSION['flash']['error'] = 'Erreur lors de la mise à jour des quantités.';
+
                     return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
                 }
+
+
+                $idsVariantes[] = (new ReservationItem($idItem, null, null, null))->getVarianteId();
             }
 
             $db->commit();
@@ -341,6 +375,9 @@ class ReservationController
             $message .= "Nouvelle date de retrait : " . date('d.m.Y à H:i', strtotime($data['date_retrait'])) . ".";
 
             (new Notification(null, $idSoignant, 'Réservation confirmée', $titre, $message))->create();
+
+
+            $this->verifStockBas($idsVariantes);
 
             $_SESSION['flash']['success'] = 'Réservation modifiée avec succès.';
             return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
@@ -382,5 +419,31 @@ class ReservationController
         }
 
         return $response->withHeader('Location', '/reservations/' . $idReservation)->withStatus(302);
+    }
+
+
+    private function verifStockBas(array $idsVariantes): void
+    {
+
+
+        $idsAdmins = new Notification(null, null, null, null, null)->getAllAdminIds();
+
+        foreach ($idsVariantes as $idVariante) {
+
+            $info = new ArticleVariant($idVariante, null, null, null, null, null)->getInfosVariante();
+
+            if ((int)$info['stock'] <= self::SEUIL_STOCK_BAS) {
+
+
+                $titre   = 'Stock bas';
+                $message = "L'article \"{$info['article_nom']}\" ";
+                $message .= "(taille {$info['taille']}, couleur {$info['couleur']}) ";
+                $message .= "n'a plus que {$info['stock']} unité(s) en stock.";
+
+                foreach ($idsAdmins as $idAdmin) {
+                    (new Notification(null, $idAdmin, 'Stock bas', $titre, $message))->create();
+                }
+            }
+        }
     }
 }

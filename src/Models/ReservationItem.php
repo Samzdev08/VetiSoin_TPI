@@ -181,4 +181,12 @@ class ReservationItem
         $stmt->execute([':id' => $this->id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function getVarianteId()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT id_article_variante FROM article_reserve WHERE id = :id");
+        $stmt->execute([':id' => $this->id]);
+        return $stmt->fetchColumn();
+    }
 }

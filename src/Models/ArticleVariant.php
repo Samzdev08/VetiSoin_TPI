@@ -108,4 +108,18 @@ class ArticleVariant
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+
+    public function getInfosVariante()
+    {
+
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+            SELECT a.nom AS article_nom, av.taille, av.couleur, av.stock
+            FROM article_variante av
+            JOIN article a ON a.id = av.id_article
+            WHERE av.id = :id
+        ");
+        $stmt->execute([':id' => $this->id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 }

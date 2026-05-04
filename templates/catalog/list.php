@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fichier : list.php
  * Auteur  : Samuel Tido Kaze
@@ -9,129 +8,118 @@
  */
 /** @var array $articles */
 /** @var array $couleurs */
-
+/** @var string | null $title */
+$flash = $_SESSION['flash'] ?? [];
+unset($_SESSION['flash']);
 ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($title) ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../assets/css/catalogue.css" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex">
 
-<h1>Catalogue</h1>
+        <aside class="sidebar">
+            <form action="/catalogue" method="GET" id="filtreForm">
 
-<form action="/catalogue" method="GET">
+                <input type="hidden" name="genre" id="genre-hidden" value="<?= htmlspecialchars($_GET['genre'] ?? '') ?>">
+                <input type="hidden" name="taille" id="taille-hidden" value="<?= htmlspecialchars($_GET['taille'] ?? '') ?>">
+                <input type="hidden" name="categorie" id="categorie-hidden" value="<?= htmlspecialchars($_GET['categorie'] ?? '') ?>">
 
-    <input type="hidden" name="genre" id="genre-hidden" value="<?= htmlspecialchars($_GET['genre'] ?? '')  ?>">
-    <input type="hidden" name="taille" id="taille-hidden" value="<?= htmlspecialchars($_GET['taille'] ?? '')  ?>">
-    <input type="hidden" name="categorie" id="categorie-hidden" value="<?= htmlspecialchars($_GET['categorie'] ?? '')  ?>">
-
-    <label for="recherche">Recherche</label>
-    <input type="text" id="recherche" name="recherche" placeholder="Nom de l'article" onchange="this.form.submit()" value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>">
-
-    <p>Catégorie</p>
-    <button type="submit" onclick="setValue('categorie-hidden', '')">Toutes</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '1')">Blouses</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '2')">Pantalons</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '3')">Tuniques</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '4')">Casaques</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '5')">Chaussures</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '6')">Coiffes</button>
-    <button type="submit" onclick="setValue('categorie-hidden', '7')">Vestes & Polaires</button>
-
-    <p>Genre</p>
-    <button type="submit" onclick="setValue('genre-hidden', '')">Tous</button>
-    <button type="submit" onclick="setValue('genre-hidden', 'Homme')">Homme</button>
-    <button type="submit" onclick="setValue('genre-hidden', 'Femme')">Femme</button>
-    <button type="submit" onclick="setValue('genre-hidden', 'Mixte')">Mixte</button>
-
-    <p>Taille</p>
-    <button type="submit" onclick="setValue('taille-hidden', '')">Toutes</button>
-    <button type="submit" onclick="setValue('taille-hidden', 'XS')">XS</button>
-    <button type="submit" onclick="setValue('taille-hidden', 'S')">S</button>
-    <button type="submit" onclick="setValue('taille-hidden', 'M')">M</button>
-    <button type="submit" onclick="setValue('taille-hidden', 'L')">L</button>
-    <button type="submit" onclick="setValue('taille-hidden', 'XL')">XL</button>
-    <button type="submit" onclick="setValue('taille-hidden', 'XXL')">XXL</button>
-
-    <br>
-
-   <select name="couleur" id="couleur" onchange="this.form.submit()">
-    <?php foreach ($couleurs as $couleur): ?>
-        <option value="<?= htmlspecialchars($couleur) ?>"
-            <?= ($_GET['couleur'] === $couleur) ? 'selected' : '' ?>>
-            <?= htmlspecialchars($couleur) ?>
-        </option>
-    <?php endforeach; ?>
-</select>
-    <a href="/catalogue" id="filter-form">Réinitialiser</a>
-
-</form>
-
-<?php if ($articles): ?>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 container-articles">
-        <?php foreach ($articles as $article): ?>
-            <div class="col articles" data-id="<?= $article['id'] ?>">
-                <div class="card h-100 shadow-sm article-item" style="cursor: pointer;">
-                    <div class="card-body text-center position-relative">
-
-                        <img src="<?= $article['photo'] ?>" alt="<?= htmlspecialchars($article['nom']) ?>" class="card-img-top mb-3" style="height: 200px; object-fit: cover;">
-                        <h5 class="card-title fw-bold"><?= htmlspecialchars($article['nom']) ?></h5>
-                        <p class="card-text text-muted"><?= htmlspecialchars($article['marque']) ?></p>
+                <div class="mb-3">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text" style="background-color: #E8F3FA; border-color: #E2E5EA; color: #1A5C8A;">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="recherche" class="form-control form-control-sm"
+                            placeholder="Rechercher..."
+                            value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>"
+                            onchange="this.form.submit()">
                     </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
+
+                <p class="sidebar-title">Catégorie</p>
+                <button type="submit" class="btn-filtre <?= empty($_GET['categorie']) ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '')">Toutes</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['categorie'] ?? '') === '1' ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '1')">Blouses</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['categorie'] ?? '') === '2' ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '2')">Pantalons</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['categorie'] ?? '') === '3' ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '3')">Tuniques</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['categorie'] ?? '') === '4' ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '4')">Casaques</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['categorie'] ?? '') === '5' ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '5')">Chaussures</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['categorie'] ?? '') === '6' ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '6')">Coiffes</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['categorie'] ?? '') === '7' ? 'actif' : '' ?>" onclick="setValue('categorie-hidden', '7')">Vestes & Polaires</button>
+
+                <p class="sidebar-title">Genre</p>
+                <button type="submit" class="btn-filtre <?= empty($_GET['genre']) ? 'actif' : '' ?>" onclick="setValue('genre-hidden', '')">Tous</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['genre'] ?? '') === 'Homme' ? 'actif' : '' ?>" onclick="setValue('genre-hidden', 'Homme')">Homme</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['genre'] ?? '') === 'Femme' ? 'actif' : '' ?>" onclick="setValue('genre-hidden', 'Femme')">Femme</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['genre'] ?? '') === 'Mixte' ? 'actif' : '' ?>" onclick="setValue('genre-hidden', 'Mixte')">Mixte</button>
+
+                <p class="sidebar-title">Taille</p>
+                <button type="submit" class="btn-filtre <?= empty($_GET['taille']) ? 'actif' : '' ?>" onclick="setValue('taille-hidden', '')">Toutes</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['taille'] ?? '') === 'XS' ? 'actif' : '' ?>" onclick="setValue('taille-hidden', 'XS')">XS</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['taille'] ?? '') === 'S' ? 'actif' : '' ?>" onclick="setValue('taille-hidden', 'S')">S</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['taille'] ?? '') === 'M' ? 'actif' : '' ?>" onclick="setValue('taille-hidden', 'M')">M</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['taille'] ?? '') === 'L' ? 'actif' : '' ?>" onclick="setValue('taille-hidden', 'L')">L</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['taille'] ?? '') === 'XL' ? 'actif' : '' ?>" onclick="setValue('taille-hidden', 'XL')">XL</button>
+                <button type="submit" class="btn-filtre <?= ($_GET['taille'] ?? '') === 'XXL' ? 'actif' : '' ?>" onclick="setValue('taille-hidden', 'XXL')">XXL</button>
+
+                <p class="sidebar-title">Couleur</p>
+                <select name="couleur" id="couleur" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Toutes</option>
+                    <?php foreach ($couleurs as $couleur): ?>
+                        <option value="<?= htmlspecialchars($couleur) ?>"
+                            <?= ($_GET['couleur'] ?? '') === $couleur ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($couleur) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <a href="/catalogue" class="lien-reset">
+                    <i class="bi bi-x-circle me-1"></i>Réinitialiser les filtres
+                </a>
+
+            </form>
+        </aside>
+
+        <div class="main-content">
+            <h1 class="page-titre">Catalogue</h1>
+
+            <?php if ($articles): ?>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                    <?php foreach ($articles as $article): ?>
+                        <div class="col">
+                            <div class="article-card" data-id="<?= $article['id'] ?>">
+                                <img src="../<?= htmlspecialchars($article['photo']) ?>"
+                                    alt="<?= htmlspecialchars($article['nom']) ?>">
+                                <div class="card-body">
+                                    <h5 class="card-title"><?= htmlspecialchars($article['nom']) ?></h5>
+                                    <p class="card-text"><?= htmlspecialchars($article['marque']) ?></p>
+
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <div id="pagination" class="mt-4"></div>
+
+            <?php else: ?>
+                <div class="text-center py-5" style="color: #9aa0af;">
+                    <i class="bi bi-box-seam fs-1 d-block mb-3"></i>
+                    <p class="mb-0">Aucun article trouvé pour ces filtres.</p>
+                </div>
+            <?php endif; ?>
+        </div>
+
     </div>
-<?php else: ?>
-    <p>Aucune article disponible pour le moment.</p>
-<?php endif; ?>
 
-<div id="pagination"></div>
-
-<script>
-    function setValue(input, value) {
-
-        document.getElementById(input).value = value;
-
-    }
-
-    const pagination = document.getElementById('pagination');
-
-    const articles = document.querySelectorAll('.articles');
-
-    let pages = Math.ceil(articles.length / 12)
-
-    let count = 0;
-
-    function Affichage(page) {
-
-        articles.forEach((item, index) => {
-            item.style.display = Math.floor(index / 12) === page ? '' : 'none';
-        });
-
-        pagination.innerHTML = '';
-
-        for (let i = 0; i < pages; i++) {
-            let btn = document.createElement('button');
-            btn.textContent = i + 1;
-            btn.classList.add('btn', 'btn-outline-primary', 'm-1');
-
-            btn.addEventListener('click', () => {
-
-                count = i
-                Affichage(count);
-
-            })
-
-            pagination.appendChild(btn);
-        }
-
-    }
-
-
-    Affichage(count);
-    console.log(document.querySelectorAll('.articles'))
-
-
-    document.querySelectorAll('.articles').forEach(item => {
-        item.addEventListener('click', () => {
-            const id = item.getAttribute('data-id');
-            window.location.href = `/catalogue/${id}`;
-        });
-    });
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/catalogue.js"></script>
+</body>
+</html>

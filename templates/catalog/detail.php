@@ -63,7 +63,7 @@ $stockInitial = $variantesFiltrees[0]['stock'] ?? 0;
     <div class="card shadow-sm mb-4">
         <div class="row g-0">
             <div class="col-md-5">
-                <img src="<?= htmlspecialchars($photoActive) ?>"
+                <img src="../<?= htmlspecialchars($photoActive) ?>"
                     alt="<?= htmlspecialchars($article['nom'] ?? '') ?>"
                     class="img-fluid rounded-start w-100"
                     style="height: 100%; object-fit: cover; background:#f5f5f5;">

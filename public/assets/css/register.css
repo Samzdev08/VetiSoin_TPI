@@ -1,0 +1,104 @@
+:root {
+    --primary-dark: #1A5C8A;
+    --primary-mid: #2E7BB5;
+    --primary-light: #E8F3FA;
+    --text-dark: #1a1a2e;
+    --text-mid: #5a6072;
+    --text-light: #9aa0af;
+    --success: #2D8A5F;
+    --success-bg: #E6F5EE;
+    --danger: #C0392B;
+    --danger-bg: #FCEAE9;
+    --bg: #F4F5F7;
+    --border: #E2E5EA;
+}
+
+body {
+    background-color: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 40px 0;
+}
+
+.card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-mid));
+    border-radius: 12px 12px 0 0 !important;
+    padding: 28px 25px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group-text {
+    background-color: var(--primary-light);
+    border-color: var(--border);
+    color: var(--primary-dark);
+}
+
+.form-control,
+.form-select {
+    border-color: var(--border);
+    font-size: 14px;
+    color: var(--text-dark);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-mid);
+    box-shadow: 0 0 0 3px rgba(46,123,181,0.15);
+}
+
+.btn-register {
+    background-color: var(--primary-dark);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.btn-register:hover {
+    background-color: var(--primary-mid);
+    color: white;
+}
+
+.alert-success {
+    background-color: var(--success-bg);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+.alert-danger {
+    background-color: var(--danger-bg);
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.lien-login {
+    font-size: 14px;
+    color: var(--text-mid);
+}
+
+.lien-login a {
+    color: var(--primary-mid);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.separateur {
+    border-color: var(--border);
+    opacity: 1;
+}
