@@ -16,10 +16,12 @@ use Slim\Views\PhpRenderer;
 use App\Outils\Csrf;
 use App\Outils\Validator;
 use App\Models\Soignant;
+use App\Models\RendezVous;
+use App\Models\Notification;
 
 class AuthController
 {
-    
+
 
     public function __construct() {}
 
@@ -197,7 +199,7 @@ class AuthController
             $_SESSION['user_id'] = $result['user']['id'];
             $_SESSION['user_statut'] = $result['user']['statut'];
 
-            
+            $this->envoyerRappelsRdv($_SESSION['user_id']);
 
             $_SESSION['flash']['success'] = $result['message'];
 
@@ -217,5 +219,29 @@ class AuthController
         session_start(); // Relancer pour que le flash survive à la redirection
         $_SESSION['flash']['success'] = 'Vous avez été déconnecté avec succès.';
         return $response->withHeader('Location', '/auth/login')->withStatus(302);
+    }
+
+    private function envoyerRappelsRdv(int $idSoignant): void
+    {
+        $rdvObj = new RendezVous(null, null, null, null, null, 'Planifié', $idSoignant);
+        $rdvs = $rdvObj->getRendezVousBySoignantId();
+
+        $dans24h = strtotime('+24 hours');
+
+        foreach ($rdvs as $rdv) {
+            $timestampRdv = strtotime($rdv['date_rdv'] . ' ' . $rdv['heure_rdv']);
+
+
+            if ($timestampRdv > time() && $timestampRdv <= $dans24h) {
+
+                $titre   = 'Rappel rendez-vous';
+                $message = "Rappel : votre rendez-vous #{$rdv['id_reservation']} est prévu demain le ";
+                $message .= date('d.m.Y', $timestampRdv);
+                $message .= " à " . substr($rdv['heure_rdv'], 0, 5);
+                $message .= " ({$rdv['lieu']}).";
+
+                (new Notification(null, $idSoignant, 'Rappel rendez-vous', $titre, $message))->create();
+            }
+        }
     }
 }
