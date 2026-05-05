@@ -1,5 +1,5 @@
-const gridHorraire = document.querySelector('.horraire-grid');
-    const labelHorraire = document.querySelector('.horraire-label');
+const gridHorraire = document.querySelector('#gridHorraire');
+    const labelHorraire = document.querySelector('#horraireLabel');
 
     const HORAIRES = ['08h00', '10h00', '11h30', '14h30', '16h00'];
 

@@ -223,7 +223,7 @@ class ReservationController
         $reservation = new Reservation($idReservation, null, null, null, null, null);
         $reservationById = $reservation->getReservationById();
 
-
+        Csrf::generate();
 
         if (empty($reservationById) || $reservationById[0]['statut'] !== 'En attente') {
             $_SESSION['flash']['error'] = 'Seules les réservations en attente peuvent être modifiées.';

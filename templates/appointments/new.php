@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : new.php
  * Auteur  : Samuel Tido Kaze
@@ -10,65 +11,100 @@
 
 $row = $infos[0];
 
+
+
 $dateActuelle  = date('Y-m-d', strtotime($row['date_retrait_effective']));
 $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
-               . 'h'
-               . date('i', strtotime($row['date_retrait_effective']));
+    . 'h'
+    . date('i', strtotime($row['date_retrait_effective']));
 ?>
 
-<div>
-    <h1>Confirmation de réservation #<?= $row['id'] ?></h1>
+<div class="container mt-4">
 
-    <a href="/reservations/<?= $row['id'] ?>">← Retour</a>
+    <h1 class="h4 fw-bold mb-3">
+        Confirmation de réservation #<?= $row['id'] ?>
+    </h1>
+
+    <a href="/reservations/<?= $row['id'] ?>" class="btn btn-link mb-3 px-0">
+        ← Retour
+    </a>
 
     <form action="/rdv/<?= $row['id'] ?>/post" method="post" id="form-rdv">
 
-        <div>
-            <h2>Choisir la date de retrait</h2>
+        <div class="row g-4">
 
-            <div id="calendarContainer"></div>
+            <div class="col-lg-8">
 
-            <h3 id="horraireLabel">Créneaux disponibles</h3>
-            <div id="horraireGrid"></div>
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
 
-            <label for="lieu">Lieu de retrait</label>
-            <select id="lieu" name="lieu">
-                <option value="Vestiaire principal">Vestiaire principal</option>
-                <option value="Secrétariat">Secrétariat</option>
-            </select>
+                        <h5 class="fw-bold mb-3">Choisir la date de retrait</h5>
 
-            <input type="hidden" name="date_rdv" id="input-date-rdv"
-                value="<?= htmlspecialchars($row['date_retrait_effective']) ?>">
+                        <div id="calendarContainer" class="mb-3"></div>
+
+                        <h6 class="text-muted mb-2" id="horraireLabel">
+                            Créneaux disponibles
+                        </h6>
+
+                        <div id="horraireGrid" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+                        <label for="lieu" class="form-label">Lieu de retrait</label>
+                        <select id="lieu" name="lieu" class="form-select">
+                            <option value="Vestiaire principal">Vestiaire principal</option>
+                            <option value="Secrétariat">Secrétariat</option>
+                        </select>
+
+                        <input type="hidden" name="date_rdv" id="input-date-rdv"
+                            value="<?= htmlspecialchars($row['date_retrait_effective']) ?>">
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-3">Récapitulatif</h5>
+
+                        <div class="mb-3">
+                            <div class="fw-semibold">Patient</div>
+                            <div class="text-muted">
+                                <?= htmlspecialchars($row['patient_nom'] . ' ' . $row['patient_prenom']) ?>
+                            </div>
+                            <small class="text-muted">
+                                Dossier <?= htmlspecialchars($row['numero_dossier']) ?> —
+                                Chambre <?= htmlspecialchars($row['chambre']) ?> —
+                                <?= htmlspecialchars($row['patient_service']) ?>
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="fw-semibold">Rendez-vous</div>
+                            <div id="recapRdv" class="text-muted">
+                                <?= htmlspecialchars($row['date_retrait_effective']) ?>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Confirmer la réservation 
+                        </button>
+
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <aside>
-            <h2>Récapitulatif de la réservation</h2>
-
-            <div>
-                <p><strong>Patient :</strong>
-                    <?= htmlspecialchars($row['patient_nom'] . ' ' . $row['patient_prenom']) ?>
-                </p>
-                <p>
-                    Dossier : <?= htmlspecialchars($row['numero_dossier']) ?>
-                    — Chambre <?= htmlspecialchars($row['chambre']) ?>
-                    — <?= htmlspecialchars($row['patient_service']) ?>
-                </p>
-            </div>
-            <div>
-                <p>Rendez-vous sélectionné</p>
-                <p id="recapRdv">
-                    <?= htmlspecialchars($row['date_retrait_effective']) ?>
-                </p>
-            </div>
-
-            <button type="submit">Confirmer la réservation ✓</button>
-        </aside>
-
     </form>
-</div>
 
+</div>
 <script>
-    const gridHorraire  = document.getElementById('horraireGrid');
+       const gridHorraire  = document.getElementById('horraireGrid');
     const labelHorraire = document.getElementById('horraireLabel');
     const HORAIRES      = ['08h00', '10h00', '11h30', '14h30', '16h00'];
 

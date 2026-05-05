@@ -50,7 +50,7 @@
 
     <div class="row g-3">
 
-        
+
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
@@ -88,42 +88,59 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    const articles = <?php echo json_encode($articlesTop); ?>;
+    const categories = <?php echo json_encode($categoriesTop); ?>;
 
-const articles = <?php echo json_encode($articlesTop); ?>;
-const categories = <?php echo json_encode($categoriesTop); ?>;
+    if (articles.length > 0) {
+        const labelsArticles = articles.map(a => a.nom);
+        const dataArticles = articles.map(a => a.total);
 
-if (articles.length > 0) {
-    const labelsArticles = articles.map(a => a.nom);
-    const dataArticles = articles.map(a => a.total);
-
-    new Chart(document.getElementById('articlesChart'), {
-        type: 'bar',
-        data: {
-            labels: labelsArticles,
-            datasets: [{
-                label: 'Quantité',
-                data: dataArticles
-            }]
-        }
-    });
-}
-
-
-if (categories.length > 0) {
-    const labelsCategories = categories.map(c => c.nom);
-    const dataCategories = categories.map(c => c.total);
-
-    new Chart(document.getElementById('categoriesChart'), {
-        type: 'bar',
-        data: {
-            labels: labelsCategories,
-            datasets: [{
-                 label: 'Catégorie ayant le plus été réservée',
-                data: dataCategories
-            }]
-        }
-    });
-}
+        new Chart(document.getElementById('articlesChart'), {
+            type: 'bar',
+            data: {
+                labels: labelsArticles,
+                datasets: [{
+                    label: 'Quantité',
+                    data: dataArticles,
+                    backgroundColor: '#2E7BB5',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
 
 
+    if (categories.length > 0) {
+        const labelsCategories = categories.map(c => c.nom);
+        const dataCategories = categories.map(c => c.total);
+
+        new Chart(document.getElementById('categoriesChart'), {
+            type: 'bar',
+            data: {
+                labels: labelsCategories,
+                datasets: [{
+                    label: 'Quantité',
+                    data: dataCategories,
+                    backgroundColor: '#2E7BB5',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+
+        });
+
+    }
 </script>

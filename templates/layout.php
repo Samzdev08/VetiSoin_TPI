@@ -106,11 +106,7 @@ $isAdmin    = $isLoggedIn && $_SESSION['user_role'] === 'Administrateur';
 
             <?php else: ?>
 
-                <li class="nav-item">
-                    <a href="/dashboard" class="nav-link sidebar-link ">
-                        <i class="bi bi-speedometer2"></i> Tableau de bord
-                    </a>
-                </li>
+             
                 <li class="nav-item">
                     <a href="/patients" class="nav-link sidebar-link ">
                         <i class="bi bi-person-heart"></i> Patients

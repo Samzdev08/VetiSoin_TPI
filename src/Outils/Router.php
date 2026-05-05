@@ -48,7 +48,7 @@ $app->group('/reservations', function ($group) {
     $group->get('/{id}/updateForm', [ReservationController::class, 'updateForm']);
     $group->post('/add', [ReservationController::class, 'add']);
     $group->post('/{id}/edit', [ReservationController::class, 'editPost']);
-    $group->get('/{id}/rdv', [ReservationController::class, 'showRdv']);
+    $group->get('/{id}/rdv', [RendezvousController::class, 'showRdv']);
     $group->get('/{id}/items/{itemId}/demander-retour', [ReservationController::class, 'demanderRetour']);
 });
 

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fichier : detail.php
  * Auteur  : Samuel Tido Kaze
@@ -7,48 +6,105 @@
  * Projet  : TPI VetiSoin
  * Role    : Fiche detaillee d'un patient
  */
-
-
 ?>
-<h1>Détails du patient</h1>
 
-<p><strong>Nom :</strong> <?= htmlspecialchars($patient['nom']) ?></p>
-<p><strong>Prénom :</strong> <?= htmlspecialchars($patient['prenom']) ?></p>
-<p><strong>Date de naissance :</strong>
-    <?= htmlspecialchars((new DateTime($patient['date_naissance']))->format('d-m-Y')) ?>
-</p>
-<p><strong>Genre :</strong> <?= htmlspecialchars(ucfirst($patient['genre'][0])) ?></p>
-<p><strong>Numéro de dossier :</strong> <?= htmlspecialchars($patient['numero_dossier']) ?></p>
-<p><strong>Statut :</strong> <?= htmlspecialchars($patient['statut']) ?></p>
-<p><strong>Service :</strong> <?= htmlspecialchars($patient['service']) ?></p>
-<p><strong>Chambre :</strong> <?= htmlspecialchars($patient['chambre'] ?? '-') ?></p>
+<div class="container mt-4">
 
-<h2>Réservations</h2>
+    <h1 class="h4 fw-bold mb-3">Détails du patient</h1>
 
-<?php if (!empty($patient['reservations'])): ?>
-    <?php foreach ($patient['reservations'] as $reservation): ?>
+    <a href="/patients" class="btn btn-link mb-3 px-0">← Retour à la liste</a>
 
-        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+    <div class="row g-4">
 
+        <div class="col-lg-8">
 
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
 
-            <p><strong>Soignant :</strong>
-                <?= htmlspecialchars($reservation['soignant_nom'] ?? '') ?>
-                <?= htmlspecialchars($reservation['soignant_prenom'] ?? '') ?>
-            </p>
+                    <h5 class="fw-bold mb-3">Informations</h5>
 
-            <p><strong>Date de réservation :</strong>
-                <?= htmlspecialchars((new DateTime($reservation['date_reservation']))->format('d-m-Y')) ?>
-            </p>
+                    <div class="row g-2">
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Nom</div>
+                            <div class="text-muted"><?= htmlspecialchars($patient['nom']) ?></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Prénom</div>
+                            <div class="text-muted"><?= htmlspecialchars($patient['prenom']) ?></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Date de naissance</div>
+                            <div class="text-muted">
+                                <?= htmlspecialchars((new DateTime($patient['date_naissance']))->format('d-m-Y')) ?>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Genre</div>
+                            <div class="text-muted"><?= htmlspecialchars(ucfirst($patient['genre'][0])) ?></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Numéro de dossier</div>
+                            <div class="text-muted"><?= htmlspecialchars($patient['numero_dossier']) ?></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Statut</div>
+                            <div class="text-muted"><?= htmlspecialchars($patient['statut']) ?></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Service</div>
+                            <div class="text-muted"><?= htmlspecialchars($patient['service']) ?></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="fw-semibold">Chambre</div>
+                            <div class="text-muted"><?= htmlspecialchars($patient['chambre'] ?? '-') ?></div>
+                        </div>
+                    </div>
 
-            <p><strong>Statut :</strong> <?= htmlspecialchars($reservation['reservation_statut'] ?? '') ?></p>
-            <p><strong>Commentaire :</strong> <?= htmlspecialchars($reservation['reservation_commentaire'] ?? '-') ?></p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-3">Réservations</h5>
+
+                    <?php if (!empty($patient['reservations'])): ?>
+                        <?php foreach ($patient['reservations'] as $reservation): ?>
+                            <div class="card border mb-3">
+                                <div class="card-body">
+                                    <p class="mb-1">
+                                        <span class="fw-semibold">Soignant :</span>
+                                        <span class="text-muted">
+                                            <?= htmlspecialchars($reservation['soignant_nom'] ?? '') ?>
+                                            <?= htmlspecialchars($reservation['soignant_prenom'] ?? '') ?>
+                                        </span>
+                                    </p>
+                                    <p class="mb-1">
+                                        <span class="fw-semibold">Date de réservation :</span>
+                                        <span class="text-muted">
+                                            <?= htmlspecialchars((new DateTime($reservation['date_reservation']))->format('d-m-Y')) ?>
+                                        </span>
+                                    </p>
+                                    <p class="mb-1">
+                                        <span class="fw-semibold">Statut :</span>
+                                        <span class="text-muted"><?= htmlspecialchars($reservation['reservation_statut'] ?? '') ?></span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <span class="fw-semibold">Commentaire :</span>
+                                        <span class="text-muted"><?= htmlspecialchars($reservation['reservation_commentaire'] ?? '-') ?></span>
+                                    </p>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-muted">Aucune réservation</p>
+                    <?php endif; ?>
+
+                </div>
+            </div>
 
         </div>
 
-    <?php endforeach; ?>
-<?php else: ?>
-    <p>Aucune réservation</p>
-<?php endif; ?>
+    </div>
 
-<a href="/patients">Retour à la liste</a>
+</div>
