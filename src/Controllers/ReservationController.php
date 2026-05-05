@@ -25,7 +25,7 @@ use App\Outils\Validator;
 
 class ReservationController
 {
-    
+
     private const SEUIL_STOCK_BAS = 3;
 
     public function __construct() {}
@@ -165,6 +165,13 @@ class ReservationController
 
             $idsVariantes = array_column($_SESSION['cart'], 'variante_id');
             $this->verifStockBas($idsVariantes);
+            (new Notification(
+                null,
+                $idSoignant,
+                'Réservation confirmée',
+                'Réservation créée',
+                "Votre réservation #{$reservationId} est en attente de confirmation."
+            ))->create();
 
             $_SESSION['cart'] = [];
             $_SESSION['flash']['success'] = 'Réservation créée avec succès.';

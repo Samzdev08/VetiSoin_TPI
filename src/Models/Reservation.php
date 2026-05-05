@@ -86,7 +86,7 @@ class Reservation
 
     public function getReservationById()
     {
-      
+
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("
         SELECT 
@@ -315,51 +315,65 @@ class Reservation
         ]);
     }
     public function expireOld()
-{
-    $db   = Database::getInstance()->getConnection();
+    {
+        $db   = Database::getInstance()->getConnection();
 
-    
-    $stmt = $db->prepare("
+
+        $stmt = $db->prepare("
         SELECT id FROM reservation
         WHERE statut = 'En attente'
           AND is_archived = 0
           AND date_reservation <= NOW() - INTERVAL 48 HOUR
     ");
-    $stmt->execute();
-    $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute();
+        $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $expireesIds = [];
+        $expireesIds = [];
 
-    foreach ($reservations as $r) {
-        
-        $items = $db->prepare("
+        foreach ($reservations as $r) {
+
+            $items = $db->prepare("
             SELECT id, id_article_variante, quantite 
             FROM article_reserve 
             WHERE id_reservation = :id
         ");
-        $items->execute([':id' => $r['id']]);
-        $lignes = $items->fetchAll(PDO::FETCH_ASSOC);
+            $items->execute([':id' => $r['id']]);
+            $lignes = $items->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach ($lignes as $ligne) {
-            $db->prepare("
+            foreach ($lignes as $ligne) {
+                $db->prepare("
                 UPDATE article_variante 
                 SET stock = stock + :quantite 
                 WHERE id = :id
             ")->execute([
-                ':quantite' => $ligne['quantite'],
-                ':id' => $ligne['id_article_variante'],
-            ]);
-        }
+                    ':quantite' => $ligne['quantite'],
+                    ':id' => $ligne['id_article_variante'],
+                ]);
+            }
 
-      
-        $db->prepare("
+
+            $db->prepare("
             UPDATE reservation 
             SET statut = 'Annulée', is_archived = 1 
             WHERE id = :id ")->execute([':id' => $r['id']]);
 
-        $expireesIds[] = $r['id'];
-    }
+            $expireesIds[] = $r['id'];
+        }
 
-    return $expireesIds;
-}
+        $soignantStmt = $db->prepare("SELECT id_soignant FROM reservation WHERE id = :id");
+        $soignantStmt->execute([':id' => $r['id']]);
+        $idSoignant = $soignantStmt->fetchColumn();
+
+        if ($idSoignant) {
+            (new Notification(
+                null,
+                $idSoignant,
+                'Réservation confirmée',
+                'Réservation expirée',
+                "Votre réservation #{$r['id']} a été annulée automatiquement (délai 48h dépassé)."
+            ))->create();
+        }
+
+        return $expireesIds;
+    }
 }
