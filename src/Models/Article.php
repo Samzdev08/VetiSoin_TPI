@@ -105,7 +105,7 @@ class Article
     {
         $db = Database::getInstance()->getConnection();
 
-        $stmt = $db->prepare('SELECT v.id AS variante_id, a.id, a.nom, a.genre, a.matiere, a.marque, c.id AS id_categorie, c.nom AS categorie, v.taille, v.couleur, v.stock, v.photo
+        $stmt = $db->prepare('SELECT v.id AS variante_id, a.id, a.nom, a.genre, a.matiere, a.marque, c.id AS id_categorie, c.nom AS categorie, v.taille, v.couleur, v.stock, v.photo AS photo
         FROM article a
         INNER JOIN categorie c ON a.id_categorie = c.id
         INNER JOIN article_variante v ON v.id_article = a.id
@@ -176,5 +176,18 @@ class Article
             ':marque' => $this->marque,
         ]);
         return $success ? $db->lastInsertId() : false;
+    }
+
+    public function delete(): bool
+    {
+        $db  = Database::getInstance()->getConnection();
+        $sql = 'DELETE FROM article WHERE id = :id';
+        $stmt = $db->prepare($sql);
+        try {
+            return $stmt->execute([':id' => $this->id]);
+        } catch (\PDOException $e) {
+            
+            return false;
+        }
     }
 }

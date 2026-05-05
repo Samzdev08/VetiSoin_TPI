@@ -29,12 +29,12 @@ class ArticleController
     {
 
         $genre = $_GET['genre'] ?? null;
-        $stockBas = $_GET['stock_bas'] ? true : false; 
+        $stockBas = $_GET['stock_bas'] ? true : false;
 
 
         $articesObj = new Article(null, null, null, $genre, null, null, null, null);
 
-         $articesObj->setStockBas($stockBas);
+        $articesObj->setStockBas($stockBas);
         $articles = $articesObj->getAll();
 
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
@@ -148,6 +148,44 @@ class ArticleController
         return $response->withHeader('Location', '/admin/articles/' . $idArticle . '/edit')->withStatus(302);
     }
 
+    public function delete(Request $request, Response $response, $args): Response
+    {
+        $idArticle = $args['id'] ?? null;
+
+        if (!$idArticle) {
+            $_SESSION['flash']['error'] = 'ID article manquant.';
+            return $response->withHeader('Location', '/admin/articles')->withStatus(302);
+        }
+
+        $articleObj = new Article($idArticle, null, null, null, null, null, null, null);
+        $article = $articleObj->getById();
+
+        if (empty($article)) {
+            $_SESSION['flash']['error'] = 'Article introuvable.';
+            return $response->withHeader('Location', '/admin/articles')->withStatus(302);
+        }
+
+
+        foreach ($article as $variante) {
+            if (!empty($variante['photo'])) {
+                $chemin = __DIR__ . '/../../../../public/' . $variante['photo'];
+                if (file_exists($chemin)) {
+                    unlink($chemin);
+                }
+            }
+        }
+
+        $success = $articleObj->delete();
+
+        if ($success) {
+            $_SESSION['flash']['success'] = 'Article supprimé avec succès.';
+        } else {
+            $_SESSION['flash']['error'] = 'Suppression impossible : l\'article est lié à une réservation confirmée.';
+        }
+
+        return $response->withHeader('Location', '/admin/articles')->withStatus(302);
+    }
+
     public function editVariante(Request $request, Response $response, $args): Response
     {
 
@@ -186,6 +224,17 @@ class ArticleController
                 $_SESSION['flash']['error'] = $result['message'];
 
                 return $response->withHeader('Location', '/admin/articles/' . $idArticle . '/edit')->withStatus(302);
+            }
+
+
+            $ancienneVariante = new ArticleVariant($idArticleVariante, null, null, null, null, null);
+            $anciennePhoto = $ancienneVariante->getPhoto(); 
+
+            if (!($anciennePhoto)) {
+                $chemin = __DIR__ . '/../../../../public' . $anciennePhoto['photo'];
+                if (file_exists($chemin)) {
+                    unlink($chemin);
+                }
             }
 
             $photo = $result['filename'];

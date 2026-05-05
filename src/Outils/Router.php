@@ -62,6 +62,7 @@ $app->group('/admin', function ($group) {
     $group->get('/articles/{id}', [ArticleController::class, 'showDetails']);
     $group->get('/articles/{id}/edit', [ArticleController::class, 'edit']);
     $group->post('/articles/{id}/edit', [ArticleController::class, 'editPost']);
+    $group->get('/articles/{id}/delete', [ArticleController::class, 'delete']);
     $group->post('/variantes/{id}/edit', [ArticleController::class, 'editVariante']);
 
 

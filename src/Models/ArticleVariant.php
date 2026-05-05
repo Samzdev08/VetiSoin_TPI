@@ -121,5 +121,14 @@ class ArticleVariant
         ");
         $stmt->execute([':id' => $this->id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
-}
+    }
+
+    public function getPhoto()
+    {
+        $db   = Database::getInstance()->getConnection();
+        $stmt = $db->prepare('SELECT photo FROM article_variante WHERE id = :id');
+        $stmt->execute([':id' => $this->id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+        
+    }
 }
