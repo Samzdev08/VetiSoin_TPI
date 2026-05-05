@@ -199,7 +199,7 @@ class AuthController
             $_SESSION['user_id'] = $result['user']['id'];
             $_SESSION['user_statut'] = $result['user']['statut'];
 
-            $this->envoyerRappelsRdv($_SESSION['user_id']);
+            $this->envoyerRappel($_SESSION['user_id']);
 
             $_SESSION['flash']['success'] = $result['message'];
 
@@ -221,7 +221,7 @@ class AuthController
         return $response->withHeader('Location', '/auth/login')->withStatus(302);
     }
 
-    private function envoyerRappelsRdv(int $idSoignant): void
+    private function envoyerRappel(int $idSoignant): void
     {
         $rdvObj = new RendezVous(null, null, null, null, null, 'Planifié', $idSoignant);
         $rdvs = $rdvObj->getRendezVousBySoignantId();

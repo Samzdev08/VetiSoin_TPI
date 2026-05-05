@@ -88,6 +88,9 @@ $app->group('/admin', function ($group) {
     $group->get('/reservations/{id}/items/{itemId}/retour', [AdminReservationController::class, 'validerRetour']);
     $group->get('/reservations/{id}/valider-retrait', [AdminReservationController::class, 'validerRetrait']);
     $group->get('/reservations/{id}/annuler', [AdminReservationController::class, 'annuler']);
+    $group->get('/reservations/{id}/edit',  [AdminReservationController::class, 'edit']);
+    $group->post('/reservations/{id}/edit', [AdminReservationController::class, 'editPost']);
+
 
 
     $group->get('/rdv', AdminRendezVousController::class);
@@ -100,8 +103,6 @@ $app->group('/admin', function ($group) {
 
 
     $group->get('/stats', StatsController::class);
-
-
 });
 
 
@@ -125,10 +126,10 @@ $app->group('/auth', function ($group) {
 });
 
 $app->group('/rdv', function ($group) {
-    $group->get('', RendezvousController::class);                              
-    $group->get('/{id}/detail', [RendezvousController::class, 'detail']);     
-    $group->get('/{id}', [RendezvousController::class, 'showRdv']);           
-    $group->post('/{id}/post', [RendezvousController::class, 'rdvPost']);      
+    $group->get('', RendezvousController::class);
+    $group->get('/{id}/detail', [RendezvousController::class, 'detail']);
+    $group->get('/{id}', [RendezvousController::class, 'showRdv']);
+    $group->post('/{id}/post', [RendezvousController::class, 'rdvPost']);
 });
 
 

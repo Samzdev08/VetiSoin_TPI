@@ -103,8 +103,7 @@ $dateActive    = $_GET['date']     ?? '';
                         </td>
                         <td class="text-center">
                             <a href="/admin/reservations/<?= $r['id'] ?>" class="btn btn-outline-primary btn-sm">Voir</a>
-
-                      
+                            <a href="/admin/reservations/<?= $r['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
 
                             <?php if ($r['statut'] !== 'Annulée' && $r['statut'] !== 'Clôturée') : ?>
                                 <a href="/admin/reservations/<?= $r['id'] ?>/annuler"

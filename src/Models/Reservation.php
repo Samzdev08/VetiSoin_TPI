@@ -86,6 +86,7 @@ class Reservation
 
     public function getReservationById()
     {
+      
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("
         SELECT 
@@ -115,12 +116,12 @@ class Reservation
             ar.date_retour
         FROM reservation r
         JOIN patient p ON p.id  = r.id_patient
-        JOIN article_reserve ar  ON ar.id_reservation = r.id
-        JOIN article_variante av ON av.id = ar.id_article_variante
-        JOIN article a ON a.id  = av.id_article
+        LEFT JOIN article_reserve ar  ON ar.id_reservation = r.id
+        LEFT JOIN article_variante av ON av.id = ar.id_article_variante
+        LEFT JOIN article a ON a.id  = av.id_article
         WHERE r.id = :reservationId
     ");
-        $stmt->execute([$this->id]);
+        $stmt->execute([':reservationId' => $this->id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -206,7 +207,7 @@ class Reservation
         UPDATE reservation 
         SET statut = 'Confirmée'
         WHERE id = :id
-        AND   statut = 'En attente' ");
+        AND statut = 'En attente' ");
         return $stmt->execute([':id' => $this->id]);
     }
 
@@ -218,7 +219,7 @@ class Reservation
         UPDATE reservation 
         SET statut = 'Clôturée'
         WHERE id = :id
-        AND  statut = 'Confirmée' ");
+        AND statut = 'Confirmée' ");
         return $stmt->execute([':id' => $this->id]);
     }
 
@@ -294,4 +295,71 @@ class Reservation
         $stmt = $db->prepare($sql);
         return $stmt->execute([':id' => $this->soignant]);
     }
+
+
+    public function updateAdmin()
+    {
+        $db   = Database::getInstance()->getConnection();
+        $stmt = $db->prepare('
+        UPDATE reservation
+        SET statut = :statut,
+            date_retrait_effective = :date_retrait,
+            commentaire = :commentaire
+        WHERE id = :id
+    ');
+        return $stmt->execute([
+            ':statut'        => $this->statut,
+            ':date_retrait'  => $this->date_retrait,
+            ':commentaire'   => $this->commentaires,
+            ':id'            => $this->id,
+        ]);
+    }
+    public function expireOld()
+{
+    $db   = Database::getInstance()->getConnection();
+
+    
+    $stmt = $db->prepare("
+        SELECT id FROM reservation
+        WHERE statut = 'En attente'
+          AND is_archived = 0
+          AND date_reservation <= NOW() - INTERVAL 48 HOUR
+    ");
+    $stmt->execute();
+    $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $expireesIds = [];
+
+    foreach ($reservations as $r) {
+        
+        $items = $db->prepare("
+            SELECT id, id_article_variante, quantite 
+            FROM article_reserve 
+            WHERE id_reservation = :id
+        ");
+        $items->execute([':id' => $r['id']]);
+        $lignes = $items->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($lignes as $ligne) {
+            $db->prepare("
+                UPDATE article_variante 
+                SET stock = stock + :quantite 
+                WHERE id = :id
+            ")->execute([
+                ':quantite' => $ligne['quantite'],
+                ':id' => $ligne['id_article_variante'],
+            ]);
+        }
+
+      
+        $db->prepare("
+            UPDATE reservation 
+            SET statut = 'Annulée', is_archived = 1 
+            WHERE id = :id ")->execute([':id' => $r['id']]);
+
+        $expireesIds[] = $r['id'];
+    }
+
+    return $expireesIds;
+}
 }

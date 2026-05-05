@@ -27,9 +27,14 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
         <span class="badge bg-<?= $couleur ?> fs-6"><?= htmlspecialchars($row['statut']) ?></span>
     </div>
 
-    <a href="/admin/reservations" class="btn btn-sm btn-outline-secondary mb-4">← Retour</a>
+    <div class="d-flex align-items-center ">
+        <a href="/admin/reservations" class="btn btn-sm btn-outline-secondary mb-4 ">← Retour</a>
+        <a href="/admin/reservations/<?= $row['id'] ?>/edit" class="btn btn-outline-secondary btn-sm mb-4">
+            Modifier la réservation
+        </a>
+    </div>
 
-    
+
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-subtitle text-muted mb-2">Patient</h6>
@@ -46,7 +51,7 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
         </div>
     </div>
 
-   
+
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-subtitle text-muted mb-2">Dates</h6>
@@ -61,7 +66,7 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
         </div>
     </div>
 
-    
+
     <div class="card mb-3">
         <div class="card-body">
             <h6 class="card-subtitle text-muted mb-2">Articles réservés</h6>
@@ -91,7 +96,7 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
                             <td><?= htmlspecialchars($ligne['couleur']) ?></td>
                             <td><?= htmlspecialchars($ligne['quantite']) ?></td>
 
-                            
+
                             <td>
                                 <?php if ($ligne['est_retourne']) : ?>
                                     <span class="badge bg-success">
@@ -105,7 +110,7 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
                                 <?php endif; ?>
                             </td>
 
-                           
+
                             <?php if ($row['statut'] === 'Clôturée') : ?>
                                 <td class="text-center">
                                     <?php if ($ligne['retour_demande'] && !$ligne['est_retourne']) : ?>
@@ -126,7 +131,7 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
         </div>
     </div>
 
-    
+
     <?php if (!empty($row['commentaire'])) : ?>
         <div class="card mb-3">
             <div class="card-body">
@@ -136,7 +141,7 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
         </div>
     <?php endif; ?>
 
-    
+
     <div class="d-flex gap-2 mb-4">
 
         <?php if ($row['statut'] !== 'Annulée' && $row['statut'] !== 'Clôturée') : ?>
