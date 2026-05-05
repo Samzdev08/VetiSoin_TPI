@@ -93,10 +93,15 @@ class AdminReservationController
             return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
         }
 
-        
+
         $reservationObj = new Reservation($idReservation, null, null, null, null, null);
         $infos = $reservationObj->getReservationById();
-        $idSoignantConcerne = $infos['soignant_id'];
+
+        if (empty($infos)) {
+            $_SESSION['flash']['error'] = 'Réservation introuvable.';
+            return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
+        }
+   
 
 
         $rdvObj = new RendezVous(null, $idReservation, null, null, null, null);
@@ -115,21 +120,13 @@ class AdminReservationController
             $item->retourner();
         }
 
-        
+
         $success = $reservationObj->cancel();
         $rdvObj->cancel($idRdv);
 
         if ($success) {
             $_SESSION['flash']['success'] = 'Réservation annulée.';
 
-           
-            if ($idSoignantConcerne) {
-                $titre   = 'Réservation annulée';
-                $message = "Votre réservation #{$idReservation} a été annulée par l'administrateur. ";
-                $message .= "Le stock a été restauré et le rendez-vous associé annulé.";
-
-                (new Notification(null, $idSoignantConcerne, 'Réservation annulée', $titre, $message))->create();
-            }
         } else {
             $_SESSION['flash']['error'] = 'Erreur lors de l\'annulation.';
         }

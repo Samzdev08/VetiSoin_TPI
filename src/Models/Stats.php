@@ -50,7 +50,7 @@ class Stats
             WHERE DATE(r.date_reservation) BETWEEN :debut AND :fin
             GROUP BY a.id, a.nom
             ORDER BY total DESC
-            LIMIT 10
+            LIMIT 5
         ");
         $stmt->execute([':debut' => $this->dateDebut, ':fin' => $this->dateFin]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -70,7 +70,7 @@ class Stats
             WHERE DATE(r.date_reservation) BETWEEN :debut AND :fin
             GROUP BY c.id, c.nom
             ORDER BY total DESC
-            LIMIT 10
+            LIMIT 5
         ");
         $stmt->execute([':debut' => $this->dateDebut, ':fin' => $this->dateFin]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

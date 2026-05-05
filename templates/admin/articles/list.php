@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : list.php
  * Auteur  : Samuel Tido Kaze
@@ -31,6 +32,10 @@ $genreActif = $_GET['genre'] ?? '';
                     </button>
                 <?php endforeach; ?>
             </form>
+            <a href="/admin/articles?stock_bas=1"
+                class="btn btn-sm <?= isset($_GET['stock_bas']) ? 'btn-warning' : 'btn-outline-warning' ?>">
+                 Stock bas
+            </a>
             <a href="/admin/articles/create" class="btn btn-sm btn-dark">+ Ajouter</a>
         </div>
     </div>
@@ -54,9 +59,9 @@ $genreActif = $_GET['genre'] ?? '';
                         <td>
                             <?php if (!empty($article['photo'])) : ?>
                                 <img src="<?= htmlspecialchars($article['photo']) ?>"
-                                     alt="<?= htmlspecialchars($article['nom']) ?>"
-                                     width="50" height="50"
-                                     style="object-fit: cover; border-radius: 4px;">
+                                    alt="<?= htmlspecialchars($article['nom']) ?>"
+                                    width="50" height="50"
+                                    style="object-fit: cover; border-radius: 4px;">
                             <?php else : ?>
                                 —
                             <?php endif; ?>
@@ -72,8 +77,8 @@ $genreActif = $_GET['genre'] ?? '';
                             <a href="/admin/articles/<?= $article['id'] ?>" class="btn btn-outline-primary btn-sm">Voir</a>
                             <a href="/admin/articles/<?= $article['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
                             <a href="/admin/articles/<?= $article['id'] ?>/delete"
-                               class="btn btn-outline-danger btn-sm"
-                               onclick="return confirm('Supprimer cet article ?')">
+                                class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Supprimer cet article ?')">
                                 Supprimer
                             </a>
                         </td>

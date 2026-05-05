@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : form.php
  * Auteur  : Samuel Tido Kaze
@@ -17,42 +18,51 @@
 
     <div class="form-group">
         <label for="nom">Nom</label>
-        <input type="text" id="nom" name="nom" class="form-control" required
-               value="<?= htmlspecialchars($soignant['nom'] ?? '') ?>">
+        <input type="text" id="nom" name="nom" class="form-control"
+            value="<?= htmlspecialchars($soignant['nom'] ?? '') ?>">
     </div>
 
     <div class="form-group">
         <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" name="prenom" class="form-control" required
-               value="<?= htmlspecialchars($soignant['prenom'] ?? '') ?>">
+        <input type="text" id="prenom" name="prenom" class="form-control"
+            value="<?= htmlspecialchars($soignant['prenom'] ?? '') ?>">
     </div>
 
     <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" class="form-control" required
-               value="<?= htmlspecialchars($soignant['email'] ?? '') ?>">
+        <input type="email" id="email" name="email" class="form-control"
+            value="<?= htmlspecialchars($soignant['email'] ?? '') ?>">
     </div>
 
     <div class="form-group">
         <label for="telephone">Téléphone</label>
         <input type="text" id="telephone" name="telephone" class="form-control"
-               value="<?= htmlspecialchars($soignant['telephone'] ?? '') ?>">
+            value="<?= htmlspecialchars($soignant['telephone'] ?? '') ?>">
     </div>
 
     <?php if (!$id) : ?>
         <div class="form-group">
             <label for="mot_de_passe">Mot de passe</label>
-            <input type="password" id="mot_de_passe" name="mot_de_passe" class="form-control" required minlength="8">
+            <input type="password" id="mot_de_passe" name="mot_de_passe" class="form-control" minlength="8">
         </div>
     <?php endif; ?>
 
     <div class="form-group">
         <label for="service">Service</label>
-        <select id="service" name="service" class="form-control" required>
+        <select id="service" name="service" class="form-control">
             <option value="">Sélectionnez un service</option>
-            <option value="Urgences" <?= (isset($soignant['service']) && $soignant['service'] === 'Urgences')          ? 'selected' : '' ?>>Urgences</option>
-            <option value="Chirurgie" <?= (isset($soignant['service']) && $soignant['service'] === 'Chirurgie')         ? 'selected' : '' ?>>Chirurgie</option>
+            <option value="Urgences" <?= (isset($soignant['service']) && $soignant['service'] === 'Urgences') ? 'selected' : '' ?>>Urgences</option>
+            <option value="Chirurgie" <?= (isset($soignant['service']) && $soignant['service'] === 'Chirurgie') ? 'selected' : '' ?>>Chirurgie</option>
             <option value="Médecine interne" <?= (isset($soignant['service']) && $soignant['service'] === 'Médecine interne')  ? 'selected' : '' ?>>Médecine interne</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" class="form-control">
+            <option value="">Sélectionnez un role</option>
+            <option value="Administrateur" <?= (isset($soignant['role']) && $soignant['role'] === 'Administrateur') ? 'selected' : '' ?>>Administrateur</option>
+            <option value="Soignant" <?= (isset($soignant['role']) && $soignant['role'] === 'Soignant')       ? 'selected' : '' ?>>Soignant</option>
         </select>
     </div>
 

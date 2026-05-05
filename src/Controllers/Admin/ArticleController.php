@@ -29,10 +29,12 @@ class ArticleController
     {
 
         $genre = $_GET['genre'] ?? null;
+        $stockBas = $_GET['stock_bas'] ? true : false; 
 
 
         $articesObj = new Article(null, null, null, $genre, null, null, null, null);
 
+         $articesObj->setStockBas($stockBas);
         $articles = $articesObj->getAll();
 
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
@@ -88,12 +90,13 @@ class ArticleController
         $idArticle = $args['id'];
 
         $data = filter_input_array(INPUT_POST, [
-            'csrf_token'   => FILTER_SANITIZE_SPECIAL_CHARS,
-            'nom'          => FILTER_SANITIZE_SPECIAL_CHARS,
+
+            'csrf_token'  => FILTER_SANITIZE_SPECIAL_CHARS,
+            'nom' => FILTER_SANITIZE_SPECIAL_CHARS,
             'id_categorie' => FILTER_VALIDATE_INT,
-            'genre'        => FILTER_SANITIZE_SPECIAL_CHARS,
-            'marque'       => FILTER_SANITIZE_SPECIAL_CHARS,
-            'matiere'      => FILTER_SANITIZE_SPECIAL_CHARS,
+            'genre' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'marque' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'matiere' => FILTER_SANITIZE_SPECIAL_CHARS,
         ]);
 
         if (!Csrf::check($data['csrf_token'] ?? '')) {

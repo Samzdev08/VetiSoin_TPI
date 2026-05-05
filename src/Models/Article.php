@@ -25,7 +25,9 @@ class Article
     public $taille;
     public $couleur;
 
-    public function __construct($id, $idCategorie, $nom, $genre, $matiere, $marque, $taille, $couleur )
+    private bool $stockBas = false;
+
+    public function __construct($id, $idCategorie, $nom, $genre, $matiere, $marque, $taille, $couleur)
     {
         $this->id = $id;
         $this->idCategorie = $idCategorie;
@@ -35,6 +37,11 @@ class Article
         $this->marque = $marque;
         $this->taille = $taille;
         $this->couleur = $couleur;
+    }
+
+    public function setStockBas(bool $val): void
+    {
+        $this->stockBas = $val;
     }
 
     public function getAll()
@@ -75,6 +82,11 @@ class Article
             $params[':nom1'] = "%$this->nom%";
             $params[':nom']  = "%$this->nom%";
         }
+
+        if ($this->stockBas) {
+            $sql .= ' AND v.stock <= 5';
+        }
+
         if ($this->couleur) {
 
             $sql .= ' AND (v.couleur = :couleur)';
@@ -165,5 +177,4 @@ class Article
         ]);
         return $success ? $db->lastInsertId() : false;
     }
-   
 }

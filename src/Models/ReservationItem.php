@@ -78,7 +78,7 @@ class ReservationItem
     {
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("
-        SELECT id, quantite FROM article_reserve
+        SELECT id, quantite, id_article_variante FROM article_reserve
         WHERE id_reservation = :id ");
         $stmt->execute([':id' => $this->reservationId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

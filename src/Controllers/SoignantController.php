@@ -117,7 +117,7 @@ class SoignantController
 
         $soignantObj = new Soignant($id, $nom, $prenom, $email, null, $service, $telephone);
 
-        if ($soignantObj->isUnique()) {
+        if (!$soignantObj->isUnique()) {
             $_SESSION['flash']['error'] = 'Cet email est déjà utilisé par un autre compte.';
             return $response->withHeader('Location', '/profil/')->withStatus(302);
         }

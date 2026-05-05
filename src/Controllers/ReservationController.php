@@ -25,7 +25,7 @@ use App\Outils\Validator;
 
 class ReservationController
 {
-    /** Seuil pour déclencher la notification "Stock bas" */
+    
     private const SEUIL_STOCK_BAS = 3;
 
     public function __construct() {}
@@ -370,11 +370,6 @@ class ReservationController
             $db->commit();
 
 
-            $titre   = 'Réservation modifiée';
-            $message = "Votre réservation #{$idReservation} a été modifiée. ";
-            $message .= "Nouvelle date de retrait : " . date('d.m.Y à H:i', strtotime($data['date_retrait'])) . ".";
-
-            (new Notification(null, $idSoignant, 'Réservation confirmée', $titre, $message))->create();
 
 
             $this->verifStockBas($idsVariantes);

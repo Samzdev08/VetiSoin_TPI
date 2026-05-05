@@ -237,8 +237,8 @@ class Reservation
     {
         $db = Database::getInstance()->getConnection();
         $sql = "UPDATE reservation 
-            SET statut = 'Annulée' 
-            WHERE id = :id AND statut != 'Annulée'";
+        SET statut = 'Annulée', is_archived = 1 
+        WHERE id = :id AND statut != 'Annulée'";
         $stmt = $db->prepare($sql);
         return $stmt->execute([':id' => $this->id]);
     }
@@ -247,7 +247,7 @@ class Reservation
     {
         $db = Database::getInstance()->getConnection();
 
-       
+
         $stmtCheck = $db->prepare("
             SELECT ar.id
             FROM article_reserve ar
@@ -279,5 +279,19 @@ class Reservation
     }
 
 
+    public function activer()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE reservation SET is_archived = 0 WHERE id_soignant = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([':id' => $this->soignant]);
+    }
 
+    public function desactiver()
+    {
+        $db = Database::getInstance()->getConnection();
+        $sql = "UPDATE reservation SET is_archived = 1 WHERE id_soignant = :id";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([':id' => $this->soignant]);
+    }
 }

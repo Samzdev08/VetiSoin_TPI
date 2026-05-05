@@ -47,13 +47,13 @@ class Soignant
     }
 
 
-    public function createSoignant()
+    public function createSoignant($role = 'Soignant')
     {
         $db = Database::getInstance()->getConnection();
 
         $stmt = $db->prepare(
-            "INSERT INTO soignant (nom, prenom, email, mot_de_passe, service, telephone)
-         VALUES (?, ?, ?, ?, ?, ?)"
+            "INSERT INTO soignant (nom, prenom, email, mot_de_passe, service,telephone, role)
+         VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
 
         $success = $stmt->execute([
@@ -62,7 +62,8 @@ class Soignant
             trim($this->email),
             password_hash($this->mot_de_passe, PASSWORD_ARGON2ID),
             $this->service,
-            $this->telephone
+            $this->telephone,
+            $role
         ]);
 
         if ($success) {
@@ -134,12 +135,12 @@ class Soignant
     }
 
 
-    public function update()
+    public function update($role = 'Soignant')
     {
         $db = Database::getInstance()->getConnection();
         $sql = "UPDATE soignant 
             SET nom = :nom, prenom = :prenom, email = :email, 
-                service = :service, telephone = :telephone 
+                service = :service, telephone = :telephone, role = :role
             WHERE id = :id";
         $stmt = $db->prepare($sql);
         return $stmt->execute([
@@ -149,6 +150,7 @@ class Soignant
             ':service' => $this->service,
             ':telephone' => $this->telephone,
             ':id' => $this->id,
+            ':role' => $role
         ]);
     }
 

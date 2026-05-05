@@ -16,6 +16,7 @@ use Slim\Views\PhpRenderer;
 use App\Models\Soignant;
 use App\Outils\Csrf;
 use App\Outils\Validator;
+use App\Models\Reservation;
 
 
 class UserController
@@ -79,13 +80,14 @@ class UserController
     public function createPost(Request $request, Response $response): Response
     {
         $data = filter_input_array(INPUT_POST, [
-            'csrf_token'   => FILTER_SANITIZE_SPECIAL_CHARS,
-            'nom'          => FILTER_SANITIZE_SPECIAL_CHARS,
-            'prenom'       => FILTER_SANITIZE_SPECIAL_CHARS,
-            'email'        => FILTER_SANITIZE_EMAIL,
+            'csrf_token' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'nom' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'prenom' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'email' => FILTER_SANITIZE_EMAIL,
             'mot_de_passe' => FILTER_UNSAFE_RAW,
-            'service'      => FILTER_SANITIZE_SPECIAL_CHARS,
-            'telephone'    => FILTER_SANITIZE_SPECIAL_CHARS,
+            'service' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'role' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'telephone' => FILTER_SANITIZE_SPECIAL_CHARS,
         ]);
 
         if (!Csrf::check($data['csrf_token'] ?? '')) {
@@ -101,6 +103,7 @@ class UserController
             !Validator::isNotEmpty($data['mot_de_passe']) ||
             !Validator::isNotEmpty($data['email']) ||
             !Validator::isNotEmpty($data['service']) ||
+            !Validator::isNotEmpty($data['role']) ||
             !Validator::isNotEmpty($data['telephone'])
         ) {
             $errors[] = 'Tous les champs sont obligatoires.';
@@ -126,6 +129,9 @@ class UserController
         if (!in_array($data['service'], ['Urgences', 'Chirurgie', 'Médecine interne'], true)) {
             $errors[] = 'Le service est invalide.';
         }
+        if (!in_array($data['role'], ['Administrateur', 'Soignant'], true)) {
+            $errors[] = 'Le role est invalide.';
+        }
 
         if (!empty($errors)) {
             $_SESSION['flash']['error'] = $errors[0];
@@ -147,7 +153,7 @@ class UserController
             return $this->renderResponse($response, $_POST);
         }
 
-        $lastInsertId = $soignant->createSoignant();
+        $lastInsertId = $soignant->createSoignant($data['role']);
 
         if ($lastInsertId) {
             $_SESSION['flash']['success'] = 'Soignant créé avec succès.';
@@ -164,10 +170,11 @@ class UserController
 
         $data = filter_input_array(INPUT_POST, [
             'csrf_token' => FILTER_SANITIZE_SPECIAL_CHARS,
-            'nom'        => FILTER_SANITIZE_SPECIAL_CHARS,
-            'prenom'     => FILTER_SANITIZE_SPECIAL_CHARS,
-            'email'      => FILTER_SANITIZE_EMAIL,
-            'service'    => FILTER_SANITIZE_SPECIAL_CHARS,
+            'nom' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'prenom' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'email' => FILTER_SANITIZE_EMAIL,
+            'service'  => FILTER_SANITIZE_SPECIAL_CHARS,
+            'role' => FILTER_SANITIZE_SPECIAL_CHARS,
             'telephone'  => FILTER_SANITIZE_SPECIAL_CHARS,
         ]);
 
@@ -203,6 +210,12 @@ class UserController
             $errors[] = 'Le service est invalide.';
         }
 
+        if (!in_array($data['role'], ['Administrateur', 'Soignant'], true)) {
+            $errors[] = 'Le role est invalide.';
+        }
+
+        
+
         if (!empty($errors)) {
             $_SESSION['flash']['error'] = $errors[0];
             return $this->renderResponse($response, $_POST, $idUser);
@@ -218,7 +231,7 @@ class UserController
             $data['telephone']
         );
 
-        $success = $soignant->update();
+        $success = $soignant->update($data['role']);
 
         if ($success) {
             $_SESSION['flash']['success'] = 'Soignant mis à jour avec succès.';
@@ -267,13 +280,17 @@ class UserController
     public function toggleStatut(Request $request, Response $response, $args): Response
     {
         $idUser = $args['id'];
-        $userObj = new Soignant($idUser, null, null, null, null, null, null);
-        $isActive = $userObj->isActive();
+        $reservationObj = new Soignant($idUser, null, null, null, null, null, null);
+         $userObj = new Reservation(null, $idUser,null, null, null, null);
+        $isActive = $reservationObj->isActive();
 
         if ($isActive) {
             $success = $userObj->desactiver();
+            $reservationObj->desactiver();
+
         } else {
             $success = $userObj->activer();
+            $reservationObj->activer();
         }
 
         if ($success) {

@@ -58,6 +58,7 @@ CREATE TABLE categorie (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nom         VARCHAR(80) NOT NULL,
     description TEXT        NULL,
+    type_taille ENUM('habit', 'chaussure', 'unique') NOT NULL DEFAULT 'Lettres',
 
     CONSTRAINT uk_categorie_nom UNIQUE (nom)
 ) ENGINE=InnoDB;
@@ -103,7 +104,6 @@ CREATE TABLE article_variante (
 
 -- =====================================================================
 -- 6. RESERVATION
-
 -- =====================================================================
 CREATE TABLE reservation (
     id                       INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -136,6 +136,7 @@ CREATE TABLE article_reserve (
     quantite              INT UNSIGNED NOT NULL,
     est_retourne          BOOLEAN      NOT NULL DEFAULT FALSE,
     date_retour           DATETIME     NULL,
+    retour_demande        BOOLEAN      NOT NULL DEFAULT FALSE,
 
     CONSTRAINT fk_ar_reservation
         FOREIGN KEY (id_reservation) REFERENCES reservation(id)
@@ -190,5 +191,3 @@ CREATE TABLE notification (
         FOREIGN KEY (id_soignant) REFERENCES soignant(id)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
-
