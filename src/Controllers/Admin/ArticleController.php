@@ -48,8 +48,6 @@ class ArticleController
     public function showDetails(Request $request, Response $response, $args): Response
     {
 
-
-
         $idArticle = $args['id'];
 
         $articesObj = new Article($idArticle, null, null, null, null, null, null, null);

@@ -34,12 +34,13 @@ class Soignant
         $this->telephone = $telephone;
     }
 
-    public function isUnique()
+    public function isUnique($id = null)
     {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare('SELECT id FROM soignant WHERE email = ?');
+        $stmt = $db->prepare('SELECT id FROM soignant WHERE email = :email AND id != :id');
         $stmt->execute([
-            trim($this->email)
+            ':email' => trim($this->email),
+            ':id' => $id
 
         ]);
 

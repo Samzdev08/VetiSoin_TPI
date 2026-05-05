@@ -48,7 +48,8 @@ class PatientController
     {
         $id = $args['id'];
         $patient = new Patient($id, null, null, null, null, null, null, null, null);
-        $patientData = $patient->getById();
+        $statutPatient = $patient->getStatut();
+        $patientData = $patient->getById($statutPatient);
 
         if (!$patientData) {
             $response->getBody()->write('Patient non trouvé');
@@ -161,20 +162,5 @@ class PatientController
         return $response->withHeader('Location', '/patients')->withStatus(302);
     }
 
-    public function delete(Request $request, Response $response, array $args): Response
-    {
-        $id = $args['id'];
-        $patient = new Patient($id, null, null, null, null, null, null, null, null);
-
-        if($patient->hasReservations()) {
-            $_SESSION['flash']['error'] = 'Impossible de supprimer un patient avec des réservations associées.';
-            return $response->withHeader('Location', '/patients')->withStatus(302);
-        }
-
-
-        $patient->delete();
-
-        $_SESSION['flash']['success'] = 'Patient supprimé avec succès.';
-        return $response->withHeader('Location', '/patients')->withStatus(302);
-    }
+  
 }

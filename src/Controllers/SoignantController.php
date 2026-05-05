@@ -73,11 +73,11 @@ class SoignantController
             $errors[] = 'Token invalide.';
         }
 
-        // Trim pour respecter A14 (espaces inutiles)
-        $nom       = trim($data['nom']       ?? '');
-        $prenom    = trim($data['prenom']    ?? '');
-        $email     = trim($data['email']     ?? '');
-        $service   = trim($data['service']   ?? '');
+       
+        $nom       = trim($data['nom'] ?? '');
+        $prenom    = trim($data['prenom'] ?? '');
+        $email     = trim($data['email'] ?? '');
+        $service   = trim($data['service'] ?? '');
         $telephone = trim($data['telephone'] ?? '');
 
         if (
@@ -117,7 +117,7 @@ class SoignantController
 
         $soignantObj = new Soignant($id, $nom, $prenom, $email, null, $service, $telephone);
 
-        if (!$soignantObj->isUnique()) {
+        if (!$soignantObj->isUnique($id)) {
             $_SESSION['flash']['error'] = 'Cet email est déjà utilisé par un autre compte.';
             return $response->withHeader('Location', '/profil/')->withStatus(302);
         }

@@ -90,11 +90,6 @@
                                         <?php if ($patient['statut'] === 'Hospitalisé'): ?>
                                             <a href="/patient/<?= $patient['id'] ?>" class="btn btn-sm btn-primary">Voir plus</a>
                                             <a href="/patient/form/<?= $patient['id'] ?>/edit" class="btn btn-sm btn-secondary">Modifier</a>
-                                            <form method="POST" action="/patient/<?= $patient['id'] ?>/delete"
-                                                  onsubmit="return confirm('Supprimer ce patient ?');"
-                                                  style="display:inline;">
-                                                <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
-                                            </form>
                                         <?php else: ?>
                                             <a href="/patient/<?= $patient['id'] ?>" class="btn btn-sm btn-secondary">Historique</a>
                                         <?php endif; ?>

@@ -56,9 +56,9 @@ class Article
         a.genre,
         a.id_categorie,
         MIN(v.photo) AS photo
-    FROM article a
-    INNER JOIN article_variante v ON v.id_article = a.id
-    WHERE v.stock > 0';
+        FROM article a
+        INNER JOIN article_variante v ON v.id_article = a.id
+        WHERE v.stock > 0';
 
         if ($this->genre) {
             $sql .= ' AND a.genre = :genre';
@@ -84,7 +84,8 @@ class Article
         }
 
         if ($this->stockBas) {
-            $sql .= ' AND v.stock <= 5';
+            
+            $sql .= ' AND v.stock >= 0 AND v.stock <= 5';
         }
 
         if ($this->couleur) {

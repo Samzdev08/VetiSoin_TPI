@@ -30,7 +30,7 @@ class FileManager
         $extension   = strtolower(pathinfo($finalName, PATHINFO_EXTENSION));
 
 
-        $allowed = ['jpg', 'jpeg', 'png'];
+        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
 
         if (!in_array($extension, $allowed)) {
             return ['success' => false, 'message' => 'Extension non autorisée. Formats acceptés :JPG, PNG'];

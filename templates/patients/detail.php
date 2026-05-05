@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fichier : detail.php
  * Auteur  : Samuel Tido Kaze
@@ -6,6 +7,7 @@
  * Projet  : TPI VetiSoin
  * Role    : Fiche detaillee d'un patient
  */
+/** @var array|null $patient */
 ?>
 
 <div class="container mt-4">
@@ -93,6 +95,11 @@
                                         <span class="fw-semibold">Commentaire :</span>
                                         <span class="text-muted"><?= htmlspecialchars($reservation['reservation_commentaire'] ?? '-') ?></span>
                                     </p>
+
+                                    
+                                    <a href="/reservations/<?= $reservation['id_reservation'] ?>" class="btn btn-outline-primary btn-sm mt-2">
+                                        Voir la réservation
+                                    </a>
                                 </div>
                             </div>
                         <?php endforeach; ?>

@@ -31,11 +31,14 @@ $genreActif = $_GET['genre'] ?? '';
                         <?= $g ?>
                     </button>
                 <?php endforeach; ?>
+
+                <button type="submit" name="stock_bas" value="1"
+                    class="btn btn-sm <?= isset($_GET['stock_bas']) ? 'btn-warning' : 'btn-outline-warning' ?>">
+                    Stock bas
+                </button>
             </form>
-            <a href="/admin/articles?stock_bas=1"
-                class="btn btn-sm <?= isset($_GET['stock_bas']) ? 'btn-warning' : 'btn-outline-warning' ?>">
-                 Stock bas
-            </a>
+
+
             <a href="/admin/articles/create" class="btn btn-sm btn-dark">+ Ajouter</a>
         </div>
     </div>

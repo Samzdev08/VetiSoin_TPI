@@ -85,6 +85,12 @@ $isAdmin    = $isLoggedIn && $_SESSION['user_role'] === 'Administrateur';
                     </a>
                 </li>
 
+                 <li class="nav-item">
+                    <a href="/notifications" class="nav-link sidebar-link ">
+                        <i class="bi bi-bell"></i> Notifications
+                    </a>
+                </li>
+
                 <li class="nav-item px-2 pt-3">
                     <small class="text-muted text-uppercase fw-bold" style="font-size:.68rem">Gestion</small>
                 </li>

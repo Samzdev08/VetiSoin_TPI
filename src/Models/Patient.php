@@ -38,7 +38,7 @@ class Patient
         $this->statut = $statut;
     }
 
-    public function getAll()
+    public function getAll($statut = null)
     {
 
         $params = [];
@@ -66,9 +66,15 @@ class Patient
             $sql .= ' AND (nom LIKE :nom1 OR prenom LIKE :nom OR numero_dossier LIKE :nom2)';
             $params[':nom1'] = "%$this->nom%";
             $params[':nom'] = "%$this->nom%";
-            $params[':nom2'] = "%$this->nom%";  
+            $params[':nom2'] = "%$this->nom%";
         }
-        
+
+        if ($statut) {
+
+            $sql .= ' AND p.statut = :statut';
+            $params[':statut'] = $statut;
+        }
+
         if ($this->service) {
             $sql .= ' AND service = :service';
             $params[':service'] = $this->service;
@@ -80,12 +86,11 @@ class Patient
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getById()
+    public function getById($statut = false)
     {
-
-
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("
+
+        $sql = "
         SELECT 
             p.id, 
             p.nom, 
@@ -99,22 +104,40 @@ class Patient
 
             s.nom AS soignant_nom,
             s.prenom AS soignant_prenom,
+            r.id AS id_reservation, 
             r.date_reservation, 
             r.statut AS reservation_statut, 
             r.is_archived AS reservation_archived, 
             r.commentaire
 
-            FROM patient p  
-            INNER JOIN reservation r 
+            FROM patient p
+            LEFT JOIN reservation r 
                 ON p.id = r.id_patient
-            INNER JOIN soignant s 
+            LEFT JOIN soignant s 
                 ON r.id_soignant = s.id
-            WHERE p.id = ?
-            ORDER BY r.date_reservation DESC
-        ");
-        $stmt->execute([$this->id]);
+            WHERE p.id = :id
+        ";
+
+        $params = [':id' => $this->id];
+
+        if ($statut) {
+            $sql .= " AND r.statut IN ('Clôturée', 'Annulée')";
+        } else {
+            $sql .= " AND r.statut IN ('En attente', 'Confirmée')";
+        }
+
+        $sql .= " ORDER BY r.date_reservation DESC";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        
+
+        if (!$rows) {
+            return null;
+        }
 
         $patient = [
             "id" => $rows[0]['id'],
@@ -130,15 +153,19 @@ class Patient
         ];
 
         foreach ($rows as $row) {
-            $patient['reservations'][] = [
-                "soignant_nom" => $row['soignant_nom'],
-                "soignant_prenom" => $row['soignant_prenom'],
-                "date_reservation" => $row['date_reservation'],
-                "reservation_statut" => $row['reservation_statut'],
-                "reservation_archived" => $row['reservation_archived'],
-                "reservation_commentaire" => $row['commentaire']
-            ];
+            if ($row['id_reservation']) {
+                $patient['reservations'][] = [
+                    "soignant_nom" => $row['soignant_nom'],
+                    "soignant_prenom" => $row['soignant_prenom'],
+                    "id_reservation" => $row['id_reservation'],
+                    "date_reservation" => $row['date_reservation'],
+                    "reservation_statut" => $row['reservation_statut'],
+                    "reservation_archived" => $row['reservation_archived'],
+                    "reservation_commentaire" => $row['commentaire']
+                ];
+            }
         }
+
         return $patient;
     }
 
@@ -174,22 +201,6 @@ class Patient
             $this->id
         ]);
     }
-
-    public function delete()
-    {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare('DELETE FROM patient WHERE id = ?');
-        return $stmt->execute([$this->id]);
-    }
-
-    public function hasReservations()
-    {
-        $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare('SELECT id FROM reservation WHERE id_patient = ?');
-        $stmt->execute([$this->id]);
-        return $stmt->fetch() !== false;
-    }
-
     public function isNumeroDossierUnique()
     {
         $db = Database::getInstance()->getConnection();
@@ -198,5 +209,14 @@ class Patient
         return $stmt->fetch() === false;
     }
 
-   
+    public function getStatut()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT statut FROM patient WHERE id = ?");
+        $stmt->execute([$this->id]);
+
+        $statut = $stmt->fetchColumn();
+
+        return $statut === 'Sorti';
+    }
 }

@@ -87,7 +87,7 @@ class ReservationController
             null,
             null
         );
-        $patients = $patient->getAll();
+        $patients = $patient->getAll('Hospitalisé');
 
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
@@ -164,6 +164,10 @@ class ReservationController
 
 
             $idsVariantes = array_column($_SESSION['cart'], 'variante_id');
+            $_SESSION['cart'] = [];
+            $_SESSION['flash']['success'] = 'Réservation créée avec succès.';
+
+
             $this->verifStockBas($idsVariantes);
             (new Notification(
                 null,
@@ -173,10 +177,7 @@ class ReservationController
                 "Votre réservation #{$reservationId} est en attente de confirmation."
             ))->create();
 
-            $_SESSION['cart'] = [];
-            $_SESSION['flash']['success'] = 'Réservation créée avec succès.';
-
-            return $response->withHeader('Location', '/catalogue')->withStatus(302);
+            return $response->withHeader('Location', '/reservations')->withStatus(302);
         } catch (\Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
             $_SESSION['flash']['error'] = 'Erreur technique lors de la création de la réservation.';
@@ -247,7 +248,7 @@ class ReservationController
             null
         );
 
-        $patients = $patient->getAll();
+        $patients = $patient->getAll('Hospitalisé');
 
         $reservation = new Reservation($idReservation, null, null, null, null, null);
 
@@ -424,26 +425,21 @@ class ReservationController
     }
 
 
+
     private function verifStockBas(array $idsVariantes): void
     {
-
+        if (empty($idsVariantes)) return;
 
         $idsAdmins = new Notification(null, null, null, null, null)->getAllAdminIds();
 
         foreach ($idsVariantes as $idVariante) {
+            $info = (new ArticleVariant($idVariante, null, null, null, null, null))->getInfosVariante();
+            if ($info['stock'] <= self::SEUIL_STOCK_BAS) {
 
-            $info = new ArticleVariant($idVariante, null, null, null, null, null)->getInfosVariante();
-
-            if ((int)$info['stock'] <= self::SEUIL_STOCK_BAS) {
-
-
-                $titre   = 'Stock bas';
-                $message = "L'article \"{$info['article_nom']}\" ";
-                $message .= "(taille {$info['taille']}, couleur {$info['couleur']}) ";
-                $message .= "n'a plus que {$info['stock']} unité(s) en stock.";
-
+                $message = "L'article \"{$info['article_nom']}\" " . "(taille {$info['taille']}, couleur {$info['couleur']}) " . "n'a plus que {$info['stock']} unité(s) en stock.";
                 foreach ($idsAdmins as $idAdmin) {
-                    (new Notification(null, $idAdmin, 'Stock bas', $titre, $message))->create();
+
+                    (new Notification(null, $idAdmin, 'Stock bas', 'Stock bas', $message))->create();
                 }
             }
         }

@@ -114,7 +114,6 @@ $app->group('/patient', function ($group) {
     $group->get('/{id}', [PatientController::class, 'read']);
     $group->post('/add', [PatientController::class, 'createUpdate']);
     $group->post('/{id}/update', [PatientController::class, 'createUpdate']);
-    $group->post('/{id}/delete', [PatientController::class, 'delete']);
 });
 
 $app->group('/auth', function ($group) {

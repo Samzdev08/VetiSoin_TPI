@@ -36,17 +36,16 @@ class PanierController
                 $errors[] = 'La quantité de l\'article "' . $item['nom'] . '" a été ajustée (stock actuel : ' . $stockReel . ').';
                 $item['quantite'] = $stockReel;
             }
-            
+
 
             $item['maxStock'] = $stockReel;
-            
         }
 
-    
+
         $_SESSION['cart'] = array_values($cart);
 
         if (!empty($errors)) {
-            $_SESSION['flash']['error'] = $errors; 
+            $_SESSION['flash']['error'] = $errors;
         }
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
@@ -99,6 +98,28 @@ class PanierController
             'maxStock' => $data['maxStock']
         ];
 
+
+        $combinaisons = [];
+        foreach ($_SESSION['cart'] as $i => $v) {
+
+            $cle =  strtolower(trim($v['taille'] ?? '')) . '|' . strtolower(trim($v['couleur'] ?? '')) . '|' . ($v['variante_id'] ?? '');
+
+            if (in_array($cle, $combinaisons, true)) {
+
+                $_SESSION['flash']['error'] = "Article deja présent dans le panier";
+                
+                unset($_SESSION['cart'][$i]);
+                $_SESSION['cart'] = array_values($_SESSION['cart']);
+
+                return $response->withHeader('Location', '/catalogue/' . $data['article_id'])->withStatus(302);
+            }
+            $combinaisons[] = $cle;
+        }
+
+
+
+
+
         $_SESSION['flash']['success'] = 'Article ajouté au panier avec succès.';
         return $response->withHeader('Location', '/panier')->withStatus(302);
     }
@@ -133,10 +154,10 @@ class PanierController
         }
 
 
-        foreach ($_SESSION['cart'] as &$item) {
 
-            $_SESSION['cart'][$id]['quantite'] = $data['quantite'];
-        }
+
+        $_SESSION['cart'][$id]['quantite'] = $data['quantite'];
+
 
         $_SESSION['flash']['success'] = 'Quantité mise à jour avec succès.';
         return $response->withHeader('Location', '/panier')->withStatus(302);

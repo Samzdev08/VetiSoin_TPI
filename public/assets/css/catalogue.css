@@ -84,9 +84,12 @@ select {
 
 }
 
-.main-content{
-
+.main-content {
     padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 10vh;
 }
 
 .page-titre {
@@ -133,6 +136,15 @@ select {
     font-size: 14px;
     color: var(--text-light);
     margin: 0;
+}
+
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: start;
 }
 
 
