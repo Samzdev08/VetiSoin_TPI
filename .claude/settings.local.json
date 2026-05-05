@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(tree -L 3 \"//wsl.localhost/Ubuntu-22.04/var/www/html/VetiSoin_TPI\" -I 'vendor|.git')",
-      "Read(///wsl.localhost/Ubuntu-22.04/var/www/html/**)",
-      "PowerShell(wsl -d Ubuntu-22.04 -- php --version 2>&1)"
-    ]
-  }
-}
