@@ -28,11 +28,11 @@ use App\Middleware\RoleMiddleware;
 use App\Middleware\GuestMiddleware;
 
 
-// ── Public ────────────────────────────────────────────
+
 $app->get('/', AuthController::class);
 
 
-// ── Guest (déjà connecté → redirigé) ─────────────────
+
 $app->group('/auth', function ($group) {
     $group->get('/register', [AuthController::class, 'showRegisterForm']);
     $group->get('/login',    [AuthController::class, 'showLoginForm']);
@@ -43,7 +43,7 @@ $app->group('/auth', function ($group) {
 $app->get('/auth/logout', [AuthController::class, 'logout']);
 
 
-// ── Connecté (soignant + admin) ───────────────────────
+
 $app->get('/catalogue',      CatalogController::class)->add(new AuthMiddleware());
 $app->get('/catalogue/{id}', [CatalogController::class, 'detail'])->add(new AuthMiddleware());
 $app->get('/patients',       PatientController::class)->add(new AuthMiddleware());
@@ -97,7 +97,7 @@ $app->group('/patient', function ($group) {
 })->add(new AuthMiddleware());
 
 
-// ── Admin uniquement ──────────────────────────────────
+
 $app->group('/admin', function ($group) {
 
     $group->get('/articles',                ArticleController::class);
