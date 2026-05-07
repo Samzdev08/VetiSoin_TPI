@@ -199,7 +199,7 @@ INSERT INTO article_variante (id_article, taille, couleur, photo, stock) VALUES
 -- =====================================================================
 -- RESERVATIONS
 -- =====================================================================
-INSERT INTO reservation (id_soignant, id_patient, date_reservation, date_retrait_effective, statut, commentaire) VALUES
+INSERT INTO reservation (id_soignant, id_patient, date_reservation, date_retrait_previsionelle, statut, commentaire) VALUES
 (2, 1, '2026-04-15 09:12:00', '2026-04-15 14:30:00', 'Clôturée',  'Retrait effectue au vestiaire principal'),
 (3, 2, '2026-04-18 10:05:00', NULL,                  'Confirmée', 'Retrait prevu le 24.04'),
 (4, 3, '2026-04-20 08:40:00', NULL,                  'En attente',NULL),

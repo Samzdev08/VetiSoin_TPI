@@ -14,7 +14,9 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\PhpRenderer;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Models\Reservation;
+use App\Outils\Csrf;
 use App\Outils\Database;
+use App\Outils\Validator;
 use App\Models\RendezVous;
 use App\Models\Notification;
 
@@ -88,7 +90,7 @@ class RendezvousController
 
         $infos = $reservation->getReservationById();
 
-
+        Csrf::generate();
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title'   => 'Mon Rdv',
@@ -115,7 +117,13 @@ class RendezvousController
             return $response->withHeader('Location', '/reservations')->withStatus(302);
         }
 
-        if (empty($data['date_rdv']) || empty($data['lieu'])) {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide, veuillez réessayer.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
+
+        if (!Validator::isNotEmpty($data['date_rdv'] ?? null) || !Validator::isNotEmpty($data['lieu'] ?? null)) {
             $_SESSION['flash']['error'] = 'Veuillez choisir une date, une heure et un lieu.';
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
         }
@@ -142,6 +150,11 @@ class RendezvousController
 
         if ($timestamp < time()) {
             $_SESSION['flash']['error'] = 'Le rendez-vous doit être dans le futur.';
+            return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
+        }
+
+        if ($timestamp > strtotime('+7 days')) {
+            $_SESSION['flash']['error'] = 'Le rendez-vous ne peut pas être planifié à plus de 7 jours.';
             return $response->withHeader('Location', '/reservations/' . $idReservation . '/rdv')->withStatus(302);
         }
 

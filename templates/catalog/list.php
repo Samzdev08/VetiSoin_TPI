@@ -10,8 +10,7 @@
 /** @var array $articles */
 /** @var array $couleurs */
 /** @var string | null $title */
-$flash = $_SESSION['flash'] ?? [];
-unset($_SESSION['flash']);
+
 ?>
 
 <link href="../assets/css/catalogue.css" rel="stylesheet">

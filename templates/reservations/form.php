@@ -12,10 +12,10 @@
 
 $row = $reservations[0];
 
-$dateActuelle  = date('Y-m-d', strtotime($row['date_retrait_effective']));
-$heureActuelle = date('H', strtotime($row['date_retrait_effective']))
+$dateActuelle  = date('Y-m-d', strtotime($row['date_retrait_previsionelle']));
+$heureActuelle = date('H', strtotime($row['date_retrait_previsionelle']))
     . 'h'
-    . date('i', strtotime($row['date_retrait_effective']));
+    . date('i', strtotime($row['date_retrait_previsionelle']));
 ?>
 <style>
     .patient-list {
@@ -54,16 +54,17 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                         <h5 class="fw-bold mb-3">Patient</h5>
 
 
-                        <div>
-                            <button type="submit" form="filter-form" onclick="setValue('service_patient', '')">Tous</button>
-                            <button type="submit" form="filter-form" onclick="setValue('service_patient', 'Urgences')">Urgences</button>
-                            <button type="submit" form="filter-form" onclick="setValue('service_patient', 'Chirurgie')">Chirurgie</button>
-                            <button type="submit" form="filter-form" onclick="setValue('service_patient', 'Médecine interne')">Médecine interne</button>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <button type="submit" form="filter-form" class="btn btn-sm btn-outline-primary" onclick="setValue('service_patient', '')">Tous</button>
+                            <button type="submit" form="filter-form" class="btn btn-sm btn-outline-primary" onclick="setValue('service_patient', 'Urgences')">Urgences</button>
+                            <button type="submit" form="filter-form" class="btn btn-sm btn-outline-primary" onclick="setValue('service_patient', 'Chirurgie')">Chirurgie</button>
+                            <button type="submit" form="filter-form" class="btn btn-sm btn-outline-primary" onclick="setValue('service_patient', 'Médecine interne')">Médecine interne</button>
                         </div>
 
                         <input type="text"
                             name="recherche"
                             form="filter-form"
+                            class="form-control form-control-sm mb-3 w-50"
                             placeholder="Rechercher un patient..."
                             onchange="this.form.submit()"
                             value="<?= htmlspecialchars($_GET['recherche'] ?? '') ?>">
@@ -103,7 +104,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                         <div id="horraireGrid" class="d-flex flex-wrap gap-2 mb-3"></div>
 
                         <input type="hidden" name="date_retrait" id="input-date-retrait"
-                            value="<?= htmlspecialchars($row['date_retrait_effective']) ?>">
+                            value="<?= htmlspecialchars($row['date_retrait_previsionelle']) ?>">
 
                     </div>
                 </div>
@@ -180,7 +181,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                         <div class="mb-3">
                             <div class="fw-semibold">Rendez-vous</div>
                             <div id="recapRdv" class="text-muted">
-                                <?= htmlspecialchars($row['date_retrait_effective']) ?>
+                                <?= htmlspecialchars($row['date_retrait_previsionelle']) ?>
                             </div>
                         </div>
 
@@ -290,12 +291,12 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
     }
 
     function patientSelected(li, patientId, nom, chambre, service, prenom, numeroDossier) {
-    document.querySelectorAll('.patient-list li').forEach(l => l.style.backgroundColor = '');
-    li.style.backgroundColor = '#cfe9ff';
-    document.getElementById('input-patient-id').value = patientId;
+        document.querySelectorAll('.patient-list li').forEach(l => l.style.backgroundColor = '');
+        li.style.backgroundColor = '#cfe9ff';
+        document.getElementById('input-patient-id').value = patientId;
 
-    document.getElementById('recapPatientNom').textContent = nom + ' ' + prenom;
-    document.getElementById('recapPatientInfo').textContent =
-        `Dossier ${numeroDossier} — Chambre ${chambre} — ${service}`;
-}
+        document.getElementById('recapPatientNom').textContent = nom + ' ' + prenom;
+        document.getElementById('recapPatientInfo').textContent =
+            `Dossier ${numeroDossier} — Chambre ${chambre} — ${service}`;
+    }
 </script>

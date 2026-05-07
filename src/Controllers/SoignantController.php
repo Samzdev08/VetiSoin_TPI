@@ -60,10 +60,10 @@ class SoignantController
         }
 
         $data = filter_input_array(INPUT_POST, [
-            'nom'       => FILTER_SANITIZE_SPECIAL_CHARS,
-            'prenom'    => FILTER_SANITIZE_SPECIAL_CHARS,
-            'email'     => FILTER_SANITIZE_EMAIL,
-            'service'   => FILTER_SANITIZE_SPECIAL_CHARS,
+            'nom' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'prenom' => FILTER_SANITIZE_SPECIAL_CHARS,
+            'email' => FILTER_SANITIZE_EMAIL,
+            'service' => FILTER_SANITIZE_SPECIAL_CHARS,
             'telephone' => FILTER_SANITIZE_SPECIAL_CHARS,
         ]);
 
@@ -74,10 +74,10 @@ class SoignantController
         }
 
        
-        $nom       = trim($data['nom'] ?? '');
-        $prenom    = trim($data['prenom'] ?? '');
-        $email     = trim($data['email'] ?? '');
-        $service   = trim($data['service'] ?? '');
+        $nom = trim($data['nom'] ?? '');
+        $prenom = trim($data['prenom'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $service = trim($data['service'] ?? '');
         $telephone = trim($data['telephone'] ?? '');
 
         if (
@@ -144,7 +144,7 @@ class SoignantController
 
         $data = filter_input_array(INPUT_POST, [
             'current_password' => FILTER_SANITIZE_SPECIAL_CHARS,
-            'new_password'     => FILTER_SANITIZE_SPECIAL_CHARS,
+            'new_password'  => FILTER_SANITIZE_SPECIAL_CHARS,
             'confirm_password' => FILTER_SANITIZE_SPECIAL_CHARS,
         ]);
 

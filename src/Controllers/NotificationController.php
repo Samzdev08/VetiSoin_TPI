@@ -33,7 +33,7 @@ class NotificationController
         $notifications = $notifObj->getByDestinataire();
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
-            'title'         => 'Mes notifications',
+            'title' => 'Mes notifications',
             'notifications' => $notifications,
         ]);
         $view->setLayout('layout.php');

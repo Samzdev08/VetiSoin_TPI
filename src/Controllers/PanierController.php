@@ -14,6 +14,8 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\PhpRenderer;
 use App\Models\ArticleVariant;
+use App\Outils\Csrf;
+use App\Outils\Validator;
 
 class PanierController
 {
@@ -48,6 +50,8 @@ class PanierController
             $_SESSION['flash']['error'] = $errors;
         }
 
+        Csrf::generate();
+
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title'   => 'Panier',
             'paniers' => $_SESSION['cart'],
@@ -63,13 +67,24 @@ class PanierController
 
         $data = $request->getParsedBody();
 
-
-        if (!isset($data['variante_id'], $data['quantite'], $data['taille'], $data['nom'], $data['couleur'], $data['photo'], $data['marque'])) {
-            $_SESSION['flash']['error'] = 'Données manquantes pour ajouter l\'article au panier.';
-            return $response->withHeader('Location', '/catalogue/' . $data['article_id'])->withStatus(302);
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide, veuillez réessayer.';
+            return $response->withHeader('Location', '/catalogue/' . ($data['article_id'] ?? ''))->withStatus(302);
         }
 
-
+        if (
+            !Validator::isNotEmpty($data['variante_id'] ?? null) ||
+            !Validator::isNotEmpty($data['quantite'] ?? null) ||
+            !Validator::isNotEmpty($data['taille'] ?? null) ||
+            !Validator::isNotEmpty($data['nom'] ?? null) ||
+            !Validator::isNotEmpty($data['couleur'] ?? null) ||
+            !Validator::isNotEmpty($data['photo'] ?? null) ||
+            !Validator::isNotEmpty($data['marque'] ?? null)
+        ) {
+            $_SESSION['flash']['error'] = 'Données manquantes pour ajouter l\'article au panier.';
+            return $response->withHeader('Location', '/catalogue/' . ($data['article_id'] ?? ''))->withStatus(302);
+        }
 
         if ($data['quantite'] <= 0) {
 
@@ -77,9 +92,9 @@ class PanierController
             return $response->withHeader('Location', '/catalogue/' . $data['article_id'])->withStatus(302);
         }
 
-        if ($data['taille'] === null) {
+        if (!Validator::isNotEmpty($data['taille'] ?? null)) {
             $_SESSION['flash']['error'] = 'Veuillez sélectionner une taille.';
-            return $response->withHeader('Location', '/catalogue/' . $data['article_id'])->withStatus(302);
+            return $response->withHeader('Location', '/catalogue/' . ($data['article_id'] ?? ''))->withStatus(302);
         }
 
         if ($data['quantite'] > $data['maxStock']) {
@@ -126,6 +141,12 @@ class PanierController
 
     public function removeFromCart(Request $request, Response $response, array $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide, veuillez réessayer.';
+            return $response->withHeader('Location', '/panier')->withStatus(302);
+        }
+
         $index = $args['id'];
 
         if (isset($_SESSION['cart'][$index])) {
@@ -141,7 +162,11 @@ class PanierController
 
     public function updateCart(Request $request, Response $response, array $args): Response
     {
-
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide, veuillez réessayer.';
+            return $response->withHeader('Location', '/panier')->withStatus(302);
+        }
 
         $id = $args['id'];
 
@@ -166,7 +191,11 @@ class PanierController
 
     public function clearCart(Request $request, Response $response, array $args): Response
     {
-
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide, veuillez réessayer.';
+            return $response->withHeader('Location', '/panier')->withStatus(302);
+        }
 
         $_SESSION['cart'] = [];
         $_SESSION['flash']['success'] = 'Panier vidé avec succès.';

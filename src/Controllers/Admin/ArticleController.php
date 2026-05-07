@@ -37,6 +37,8 @@ class ArticleController
         $articesObj->setStockBas($stockBas);
         $articles = $articesObj->getAll();
 
+        Csrf::generate();
+
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
             'title' => 'Accueil',
             'articles' => $articles
@@ -148,6 +150,12 @@ class ArticleController
 
     public function delete(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/articles')->withStatus(302);
+        }
+
         $idArticle = $args['id'] ?? null;
 
         if (!$idArticle) {
@@ -228,7 +236,7 @@ class ArticleController
             $ancienneVariante = new ArticleVariant($idArticleVariante, null, null, null, null, null);
             $anciennePhoto = $ancienneVariante->getPhoto(); 
 
-            if (!($anciennePhoto)) {
+            if ($anciennePhoto && !empty($anciennePhoto['photo'])) {
                 $chemin = __DIR__ . '/../../../../public' . $anciennePhoto['photo'];
                 if (file_exists($chemin)) {
                     unlink($chemin);

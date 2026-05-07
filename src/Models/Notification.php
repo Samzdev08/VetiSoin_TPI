@@ -23,11 +23,11 @@ class Notification
 
     public function __construct($id, $idDestinataire, $type, $titre, $message)
     {
-        $this->id             = $id;
+        $this->id = $id;
         $this->idDestinataire = $idDestinataire;
-        $this->type           = $type;
-        $this->titre          = $titre;
-        $this->message        = $message;
+        $this->type = $type;
+        $this->titre = $titre;
+        $this->message  = $message;
     }
 
    

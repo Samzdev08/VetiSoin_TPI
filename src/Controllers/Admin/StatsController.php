@@ -22,17 +22,23 @@ class StatsController
     public function __invoke(Request $request, Response $response): Response
     {
         $dateDebut = $_GET['debut'] ?? date('Y-m-d', strtotime('-30 days'));
-        $dateFin   = $_GET['fin']   ?? date('Y-m-d');
+        $dateFin  = $_GET['fin']   ?? date('Y-m-d');
 
         $stats = new Stats($dateDebut, $dateFin);
 
+        $nbReservations = $stats->getNbReservations();
+        $articlesTop = $stats->getArticlesTop();
+        $categoriesTop = $stats->getCategoriesTop();
+
+        $stats->save();
+
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
-            'title'          => 'Statistiques',
-            'dateDebut'      => $dateDebut,
-            'dateFin'        => $dateFin,
-            'nbReservations' => $stats->getNbReservations(),
-            'articlesTop'    => $stats->getArticlesTop(),
-            'categoriesTop'  => $stats->getCategoriesTop(),
+            'title' => 'Statistiques',
+            'dateDebut'=> $dateDebut,
+            'dateFin' => $dateFin,
+            'nbReservations' => $nbReservations,
+            'articlesTop' => $articlesTop,
+            'categoriesTop'=> $categoriesTop,
         ]);
         $view->setLayout('layout.php');
         return $view->render($response, '/admin/stats/dashboard.php');

@@ -201,7 +201,7 @@ class AuthController
             $_SESSION['user_statut'] = $result['user']['statut'];
 
             $this->envoyerRappel($_SESSION['user_id']);
-            $expireesIds = (new Reservation(null, null, null, null, null, null))->expireOld();
+            new Reservation(null, null, null, null, null, null)->expireOld();
 
             $_SESSION['flash']['success'] = $result['message'];
 

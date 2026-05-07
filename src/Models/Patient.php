@@ -204,8 +204,13 @@ class Patient
     public function isNumeroDossierUnique()
     {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare('SELECT id FROM patient WHERE numero_dossier = ? AND id != ?');
-        $stmt->execute([$this->numeroDossier, $this->id]);
+        if ($this->id === null) {
+            $stmt = $db->prepare('SELECT id FROM patient WHERE numero_dossier = ?');
+            $stmt->execute([$this->numeroDossier]);
+        } else {
+            $stmt = $db->prepare('SELECT id FROM patient WHERE numero_dossier = ? AND id != ?');
+            $stmt->execute([$this->numeroDossier, $this->id]);
+        }
         return $stmt->fetch() === false;
     }
 

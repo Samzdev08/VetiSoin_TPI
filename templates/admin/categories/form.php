@@ -24,7 +24,7 @@ $typesTailles = ['habit', 'chaussure', 'unique'];
 
             <form action="<?= $id ? "/admin/categories/$id/edit" : "/admin/categories/create" ?>" method="post" novalidate >
                 
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                 
                 <div class="mb-3">

@@ -88,6 +88,7 @@ $stockInitial = $variantesFiltrees[0]['stock'] ?? 0;
                             <form action="/setColor/<?= $couleur ?>/<?= $article['id'] ?>"
                                 method="POST"
                                 class="color-form">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                 <button type="submit"
                                     class="color-option rounded-circle border-black"
                                     style="background-color: <?= $hex ?>;"
@@ -98,6 +99,7 @@ $stockInitial = $variantesFiltrees[0]['stock'] ?? 0;
 
 
                     <form action="/panier/add" method="post" id="form-panier">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                         <input type="hidden" name="variante_id" value="" id="variante_article-input">
                         <input type="hidden" name="nom" value="<?= $article['nom'] ?>">
                         <input type="hidden" name="article_id" value="<?= $article['id'] ?>">

@@ -25,16 +25,18 @@ class AdminReservationController
 
     public function __invoke(Request $request, Response $response): Response
     {
-        $statut     = $_GET['statut'] ?? null;
+        $statut = $_GET['statut'] ?? null;
         $idSoignant = $_GET['soignant'] ?? null;
-        $service    = $_GET['service']  ?? null;
-        $date       = $_GET['date']  ?? null;
+        $service  = $_GET['service']  ?? null;
+        $date  = $_GET['date']  ?? null;
 
         $reservationObj = new Reservation(null, $idSoignant, null, $date, $statut, null);
         $reservations   = $reservationObj->getAllAdmin($service);
 
         $soignantObj = new Soignant(null, null, null, null, null, null, null);
         $soignants   = $soignantObj->getAll();
+
+        Csrf::generate();
 
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
             'title'        => 'Réservations',
@@ -62,6 +64,8 @@ class AdminReservationController
             return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
         }
 
+        Csrf::generate();
+
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
             'title'        => 'Détail de la réservation',
             'reservations' => $reservations,
@@ -72,6 +76,12 @@ class AdminReservationController
 
     public function validerRetrait(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/reservations/' . $args['id'])->withStatus(302);
+        }
+
         $reservationObj = new Reservation($args['id'], null, null, null, null, null);
         $success = $reservationObj->validerRetrait();
 
@@ -87,6 +97,12 @@ class AdminReservationController
 
     public function annuler(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
+        }
+
         $idReservation = $args['id'] ?? null;
 
         if (!$idReservation) {
@@ -103,16 +119,23 @@ class AdminReservationController
             return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
         }
 
-
-
         $rdvObj = new RendezVous(null, $idReservation, null, null, null, null);
         $reservationItems = new ReservationItem(null, $idReservation, null, null);
 
         $items = $reservationItems->findById();
         $idRdv = $rdvObj->getIdByReservation();
 
-        if (!$idRdv) {
-            $_SESSION['flash']['error'] = 'Aucun rendez-vous pour cette réservation';
+
+        $ok = true;
+
+        if ($idRdv) {
+
+            $ok = $rdvObj->cancel($idRdv);
+        }
+
+        if (!$ok) {
+
+            $_SESSION['flash']['error'] = 'Erreur lors de l\'annulation du rendez-vous.';
             return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
         }
 
@@ -123,7 +146,7 @@ class AdminReservationController
 
 
         $success = $reservationObj->cancel();
-        $rdvObj->cancel($idRdv);
+        
 
         if ($success) {
             $_SESSION['flash']['success'] = 'Réservation annulée.';
@@ -138,6 +161,12 @@ class AdminReservationController
 
     public function validerRetour(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/reservations')->withStatus(302);
+        }
+
         $idItem = $args['itemId'] ?? null;
         $idReservation = $args['id'] ?? null;
 
@@ -178,7 +207,7 @@ class AdminReservationController
         }
 
         $reservationObj = new Reservation($idReservation, null, null, null, null, null);
-        $reservation    = $reservationObj->getReservationById();
+        $reservation = $reservationObj->getReservationById();
 
         if (empty($reservation)) {
             $_SESSION['flash']['error'] = 'Réservation introuvable.';
@@ -188,7 +217,7 @@ class AdminReservationController
         Csrf::generate();
 
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
-            'title'       => 'Modifier la réservation',
+            'title' => 'Modifier la réservation',
             'reservation' => $reservation,
         ]);
         $view->setLayout('layout.php');

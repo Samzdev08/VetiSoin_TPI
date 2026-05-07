@@ -64,28 +64,34 @@ $badges = [
                             <a href="/admin/soignants/<?= $soignant['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
 
                             <?php if ($soignant['role'] === 'Soignant') : ?>
-                                <a href="/admin/soignants/<?= $soignant['id'] ?>/reset-password"
-                                    class="btn btn-outline-warning btn-sm"
-                                    onclick="return confirm('Réinitialiser le mot de passe de ce soignant ?')">
-                                    Reset MDP
-                                </a>
+                                <form action="/admin/soignants/<?= $soignant['id'] ?>/reset-password" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                    <button type="submit" class="btn btn-outline-warning btn-sm"
+                                            onclick="return confirm('Réinitialiser le mot de passe de ce soignant ?')">
+                                        Reset MDP
+                                    </button>
+                                </form>
                             <?php endif; ?>
 
                             <?php if ($_SESSION['user_id'] == $soignant['id'] ): ?>
                                 <span class="text-muted">—</span>
                             <?php else : ?>
                                 <?php if ($soignant['statut'] === 'Actif') : ?>
-                                    <a href="/admin/soignants/<?= $soignant['id'] ?>/toggle"
-                                        class="btn btn-outline-danger btn-sm"
-                                        onclick="return confirm('Rendre ce soignant inactif ?')">
-                                        Désactiver
-                                    </a>
+                                    <form action="/admin/soignants/<?= $soignant['id'] ?>/toggle" method="POST" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                onclick="return confirm('Rendre ce soignant inactif ?')">
+                                            Désactiver
+                                        </button>
+                                    </form>
                                 <?php else : ?>
-                                    <a href="/admin/soignants/<?= $soignant['id'] ?>/toggle"
-                                        class="btn btn-outline-success btn-sm"
-                                        onclick="return confirm('Réactiver ce soignant ?')">
-                                        Activer
-                                    </a>
+                                    <form action="/admin/soignants/<?= $soignant['id'] ?>/toggle" method="POST" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                        <button type="submit" class="btn btn-outline-success btn-sm"
+                                                onclick="return confirm('Réactiver ce soignant ?')">
+                                            Activer
+                                        </button>
+                                    </form>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </td>

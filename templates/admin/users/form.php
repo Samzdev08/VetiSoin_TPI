@@ -23,7 +23,7 @@
 
             <form action="<?= $id ? "/admin/soignants/$id/edit" : "/admin/soignants/create" ?>" method="post" novalidate>
 
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                 <div class="row">
 

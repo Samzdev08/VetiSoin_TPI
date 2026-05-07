@@ -61,7 +61,7 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
             </p>
             <p class="mb-0 small">
                 <span class="text-muted">Retrait prévu le :</span>
-                <?= htmlspecialchars($row['date_retrait_effective'] ?? '—') ?>
+                <?= htmlspecialchars($row['date_retrait_previsionelle'] ?? '—') ?>
             </p>
         </div>
     </div>
@@ -114,11 +114,13 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
                             <?php if ($row['statut'] === 'Clôturée') : ?>
                                 <td class="text-center">
                                     <?php if ($ligne['retour_demande'] && !$ligne['est_retourne']) : ?>
-                                        <a href="/admin/reservations/<?= $row['id'] ?>/items/<?= $ligne['article_reserve_id'] ?>/retour"
-                                            class="btn btn-outline-success btn-sm"
-                                            onclick="return confirm('Valider le retour de cet article ?')">
-                                            Valider retour
-                                        </a>
+                                        <form action="/admin/reservations/<?= $row['id'] ?>/items/<?= $ligne['article_reserve_id'] ?>/retour" method="POST" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                            <button type="submit" class="btn btn-outline-success btn-sm"
+                                                    onclick="return confirm('Valider le retour de cet article ?')">
+                                                Valider retour
+                                            </button>
+                                        </form>
                                     <?php else : ?>
                                         <span class="text-muted small">—</span>
                                     <?php endif; ?>
@@ -145,11 +147,13 @@ $couleur = $badges[$row['statut']] ?? 'secondary';
     <div class="d-flex gap-2 mb-4">
 
         <?php if ($row['statut'] !== 'Annulée' && $row['statut'] !== 'Clôturée') : ?>
-            <a href="/admin/reservations/<?= $row['id'] ?>/annuler"
-                class="btn btn-outline-danger btn-sm"
-                onclick="return confirm('Annuler cette réservation ? Le stock sera restauré.')">
-                Annuler la réservation
-            </a>
+            <form action="/admin/reservations/<?= $row['id'] ?>/annuler" method="POST" class="d-inline">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                <button type="submit" class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Annuler cette réservation ? Le stock sera restauré.')">
+                    Annuler la réservation
+                </button>
+            </form>
         <?php endif; ?>
     </div>
 

@@ -44,9 +44,9 @@ class Stats
         $stmt = $db->prepare("
             SELECT a.nom, SUM(ar.quantite) AS total
             FROM article_reserve ar
-            JOIN reservation r       ON r.id  = ar.id_reservation
+            JOIN reservation r ON r.id  = ar.id_reservation
             JOIN article_variante av ON av.id = ar.id_article_variante
-            JOIN article a           ON a.id  = av.id_article
+            JOIN article a ON a.id  = av.id_article
             WHERE DATE(r.date_reservation) BETWEEN :debut AND :fin
             GROUP BY a.id, a.nom
             ORDER BY total DESC
@@ -63,10 +63,10 @@ class Stats
         $stmt = $db->prepare("
             SELECT c.nom, SUM(ar.quantite) AS total
             FROM article_reserve ar
-            JOIN reservation r       ON r.id  = ar.id_reservation
+            JOIN reservation r ON r.id  = ar.id_reservation
             JOIN article_variante av ON av.id = ar.id_article_variante
-            JOIN article a           ON a.id  = av.id_article
-            JOIN categorie c         ON c.id  = a.id_categorie
+            JOIN article a ON a.id  = av.id_article
+            JOIN categorie c ON c.id  = a.id_categorie
             WHERE DATE(r.date_reservation) BETWEEN :debut AND :fin
             GROUP BY c.id, c.nom
             ORDER BY total DESC
@@ -74,5 +74,44 @@ class Stats
         ");
         $stmt->execute([':debut' => $this->dateDebut, ':fin' => $this->dateFin]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function save(): void
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmtCheck = $db->prepare("SELECT id FROM stats WHERE date_debut = :debut AND date_fin = :fin");
+        $stmtCheck->execute([':debut' => $this->dateDebut, ':fin' => $this->dateFin]);
+        if ($stmtCheck->fetch()) {
+            return;
+        }
+
+        $nbReservations = $this->getNbReservations();
+
+        $stmtCat = $db->prepare("
+            SELECT c.id
+            FROM article_reserve ar
+            JOIN reservation r ON r.id  = ar.id_reservation
+            JOIN article_variante av ON av.id = ar.id_article_variante
+            JOIN article a ON a.id  = av.id_article
+            JOIN categorie c ON c.id  = a.id_categorie
+            WHERE DATE(r.date_reservation) BETWEEN :debut AND :fin
+            GROUP BY c.id
+            ORDER BY SUM(ar.quantite) DESC
+            LIMIT 1
+        ");
+        $stmtCat->execute([':debut' => $this->dateDebut, ':fin' => $this->dateFin]);
+        $categorieId = $stmtCat->fetchColumn() ?: null;
+
+        $stmt = $db->prepare("
+            INSERT INTO stats (date_debut, date_fin, nb_reservations, categorie_plus_demandee)
+            VALUES (:debut, :fin, :nb, :cat)
+        ");
+        $stmt->execute([
+            ':debut' => $this->dateDebut,
+            ':fin'   => $this->dateFin,
+            ':nb'    => $nbReservations,
+            ':cat'   => $categorieId,
+        ]);
     }
 }

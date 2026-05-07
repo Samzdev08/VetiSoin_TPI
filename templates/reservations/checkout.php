@@ -123,6 +123,7 @@
                     </div>
 
                     <form action="/reservations/add" method="post">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
                         <textarea name="commentaire" maxlength="250"
                             class="form-control mb-3"

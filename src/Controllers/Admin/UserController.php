@@ -41,6 +41,8 @@ class UserController
 
         $soignants = $userObj->getAll();
 
+        Csrf::generate();
+
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
             'title' => 'Accueil',
             'soignants' => $soignants
@@ -244,6 +246,12 @@ class UserController
 
     public function resetPassword(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/soignants')->withStatus(302);
+        }
+
         $idUser = $args['id'];
 
 
@@ -279,17 +287,22 @@ class UserController
 
     public function toggleStatut(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/soignants')->withStatus(302);
+        }
+
         $idUser = $args['id'];
-        $reservationObj = new Soignant($idUser, null, null, null, null, null, null);
-         $userObj = new Reservation(null, $idUser,null, null, null, null);
-        $isActive = $reservationObj->isActive();
+        $soignantObj = new Soignant($idUser, null, null, null, null, null, null);
+        $reservationObj = new Reservation(null, $idUser, null, null, null, null);
+        $isActive = $soignantObj->isActive();
 
         if ($isActive) {
-            $success = $userObj->desactiver();
+            $success = $soignantObj->desactiver();
             $reservationObj->desactiver();
-
         } else {
-            $success = $userObj->activer();
+            $success = $soignantObj->activer();
             $reservationObj->activer();
         }
 

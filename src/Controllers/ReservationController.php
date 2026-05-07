@@ -62,6 +62,8 @@ class ReservationController
 
         $allReservations = $reservation->getReservationById();
 
+        Csrf::generate();
+
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title'   => 'Détails de le réservations',
             'reservations' => $allReservations,
@@ -89,6 +91,7 @@ class ReservationController
         );
         $patients = $patient->getAll('Hospitalisé');
 
+        Csrf::generate();
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title' => 'Ma réservation',
@@ -108,11 +111,17 @@ class ReservationController
             return $response->withHeader('Location', '/login')->withStatus(302);
         }
 
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide, veuillez réessayer.';
+            return $response->withHeader('Location', '/reservations/checkout')->withStatus(302);
+        }
+
         $data['commentaire'] = !empty($data['commentaire'])
             ? filter_var($data['commentaire'], FILTER_SANITIZE_SPECIAL_CHARS)
             : null;
 
-        if (!isset($data['patient_id'], $data['date_retrait'])) {
+        if (!Validator::isNotEmpty($data['patient_id'] ?? null) || !Validator::isNotEmpty($data['date_retrait'] ?? null)) {
             $_SESSION['flash']['error'] = 'Données manquantes pour ajouter la réservation.';
             return $response->withHeader('Location', '/reservations/checkout')->withStatus(302);
         }
@@ -187,6 +196,12 @@ class ReservationController
 
     public function annuler(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/reservations')->withStatus(302);
+        }
+
         $idReservation = $args['id'] ?? null;
 
         if (!$idReservation) {
@@ -307,9 +322,13 @@ class ReservationController
         }
 
 
-        $commentaire = !empty($data['commentaire'])
-            ? trim(filter_var($data['commentaire'], FILTER_SANITIZE_SPECIAL_CHARS))
-            : null;
+        $commentaire = null;
+
+        if (!empty($data['commentaire'])) {
+            $commentaire = trim(
+                filter_var($data['commentaire'], FILTER_SANITIZE_SPECIAL_CHARS)
+            );
+        }
 
         $db = Database::getInstance()->getConnection();
         try {
@@ -317,7 +336,7 @@ class ReservationController
 
 
             foreach ($data['quantite'] as $idItem => $nouvelleQuantite) {
-                $nouvelleQuantite = (int)$nouvelleQuantite;
+
 
                 if ($nouvelleQuantite < 1) {
 
@@ -327,7 +346,17 @@ class ReservationController
                     return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
                 }
 
-                $item = new ReservationItem($idItem, null, null, null);
+                $idVariante = new ArticleVariant(null, null, null, null, null, null)->getIdVariante();
+
+                if (!$idVariante) {
+
+                    $db->rollBack();
+                    $_SESSION['flash']['error'] = 'Article introuvable.';
+                    return $response->withHeader('Location', '/reservations/' . $idReservation . '/updateForm')->withStatus(302);
+                }
+                
+                $item = new ReservationItem(null, null, $idVariante, null);
+
                 $stockDispo = $item->getStockById();
 
                 if ($nouvelleQuantite > $stockDispo) {
@@ -393,6 +422,12 @@ class ReservationController
 
     public function demanderRetour(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/reservations')->withStatus(302);
+        }
+
         $idReservation  = $args['id'] ?? null;
         $idArticleReserve = $args['itemId'] ?? null;
         $idSoignant = $_SESSION['user_id'] ?? null;

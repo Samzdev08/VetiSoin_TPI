@@ -45,7 +45,7 @@
                 <?php foreach ($reservations as $reservation) : ?>
                     <tr>
                         <td><?= htmlspecialchars($reservation['patient_nom'] . ' ' . $reservation['patient_prenom']) ?></td>
-                        <td><?= htmlspecialchars($reservation['date_retrait_effective'] ?? '—') ?></td>
+                        <td><?= htmlspecialchars($reservation['date_retrait_previsionelle'] ?? '—') ?></td>
                         <td>
                             <?php
                             $badges = [

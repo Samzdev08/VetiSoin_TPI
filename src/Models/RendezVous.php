@@ -25,13 +25,13 @@ class RendezVous
 
     public function __construct($id, $idReservation, $dateRdv, $heureRdv, $lieu, $statut = null, $idSoignant = null)
     {
-        $this->id            = $id;
+        $this->id  = $id;
         $this->idReservation = $idReservation;
-        $this->dateRdv       = $dateRdv;
-        $this->heureRdv      = $heureRdv;
-        $this->lieu          = $lieu;
-        $this->statut        = $statut;
-        $this->idSoignant    = $idSoignant;
+        $this->dateRdv = $dateRdv;
+        $this->heureRdv = $heureRdv;
+        $this->lieu  = $lieu;
+        $this->statut = $statut;
+        $this->idSoignant = $idSoignant;
     }
 
     public function create()

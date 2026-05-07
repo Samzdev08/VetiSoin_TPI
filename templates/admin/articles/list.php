@@ -79,11 +79,13 @@ $genreActif = $_GET['genre'] ?? '';
                         <td class="text-center">
                             <a href="/admin/articles/<?= $article['id'] ?>" class="btn btn-outline-primary btn-sm">Voir</a>
                             <a href="/admin/articles/<?= $article['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
-                            <a href="/admin/articles/<?= $article['id'] ?>/delete"
-                                class="btn btn-outline-danger btn-sm"
-                                onclick="return confirm('Supprimer cet article ?')">
-                                Supprimer
-                            </a>
+                            <form action="/admin/articles/<?= $article['id'] ?>/delete" method="POST" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Supprimer cet article ?')">
+                                    Supprimer
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -128,8 +128,8 @@ class PatientController
             return $response->withHeader('Location', $id ? "/patient/form/$id/edit" : '/patient/form')->withStatus(302);
         }
 
-        if(!preg_match('/^DOS-2026-\d+$/', $data['numeroDossier'])) {
-            $_SESSION['flash']['error'] = 'Le numéro de dossier doit être au format DOS-2026-XXX.';
+        if(!preg_match('/^DOS-' . date('Y') . '-\d+$/', $data['numeroDossier'])) {
+            $_SESSION['flash']['error'] = 'Le numéro de dossier doit être au format DOS-' . date('Y') . '-XXX.';
             return $response->withHeader('Location', $id ? "/patient/form/$id/edit" : '/patient/form')->withStatus(302);
         }
 

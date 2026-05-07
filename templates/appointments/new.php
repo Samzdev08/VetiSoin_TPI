@@ -13,10 +13,10 @@ $row = $infos[0];
 
 
 
-$dateActuelle  = date('Y-m-d', strtotime($row['date_retrait_effective']));
-$heureActuelle = date('H', strtotime($row['date_retrait_effective']))
+$dateActuelle  = date('Y-m-d', strtotime($row['date_retrait_previsionelle']));
+$heureActuelle = date('H', strtotime($row['date_retrait_previsionelle']))
     . 'h'
-    . date('i', strtotime($row['date_retrait_effective']));
+    . date('i', strtotime($row['date_retrait_previsionelle']));
 ?>
 
 <div class="container mt-4">
@@ -30,6 +30,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
     </a>
 
     <form action="/rdv/<?= $row['id'] ?>/post" method="post" id="form-rdv">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
 
         <div class="row g-4">
 
@@ -55,7 +56,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                         </select>
 
                         <input type="hidden" name="date_rdv" id="input-date-rdv"
-                            value="<?= htmlspecialchars($row['date_retrait_effective']) ?>">
+                            value="<?= htmlspecialchars($row['date_retrait_previsionelle']) ?>">
 
                     </div>
                 </div>
@@ -85,7 +86,7 @@ $heureActuelle = date('H', strtotime($row['date_retrait_effective']))
                         <div class="mb-3">
                             <div class="fw-semibold">Rendez-vous</div>
                             <div id="recapRdv" class="text-muted">
-                                <?= htmlspecialchars($row['date_retrait_effective']) ?>
+                                <?= htmlspecialchars($row['date_retrait_previsionelle']) ?>
                             </div>
                         </div>
 

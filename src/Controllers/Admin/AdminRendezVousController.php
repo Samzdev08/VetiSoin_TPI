@@ -38,6 +38,8 @@ class AdminRendezVousController
         $soignantObj = new Soignant(null, null, null, null, null, null, null);
         $soignants   = $soignantObj->getAll();
 
+        Csrf::generate();
+
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
             'title'      => 'Rendez-vous',
             'rendezVous' => $rdvs,
@@ -63,6 +65,8 @@ class AdminRendezVousController
             $_SESSION['flash']['error'] = 'Rendez-vous introuvable.';
             return $response->withHeader('Location', '/admin/rdv')->withStatus(302);
         }
+
+        Csrf::generate();
 
         $view = new PhpRenderer(__DIR__ . '/../../../templates', [
             'title' => 'Détail du rendez-vous',
@@ -212,6 +216,12 @@ class AdminRendezVousController
 
     public function annuler(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/rdv')->withStatus(302);
+        }
+
         $idRdv = $args['id'] ?? null;
 
         if (!$idRdv) {
@@ -247,6 +257,12 @@ class AdminRendezVousController
 
     public function marquerRealise(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/rdv')->withStatus(302);
+        }
+
         $idRdv = $args['id'] ?? null;
 
         if (!$idRdv) {
@@ -275,6 +291,12 @@ class AdminRendezVousController
 
     public function marquerNonHonore(Request $request, Response $response, $args): Response
     {
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide.';
+            return $response->withHeader('Location', '/admin/rdv')->withStatus(302);
+        }
+
         $idRdv = $args['id'] ?? null;
 
         if (!$idRdv) {

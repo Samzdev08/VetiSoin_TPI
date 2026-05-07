@@ -50,7 +50,7 @@ $statuts = ['En attente', 'Confirmée', 'Clôturée', 'Annulée'];
             <input type="date"
                 id="date_retrait"
                 name="date_retrait"
-                value="<?= htmlspecialchars(date('Y-m-d', strtotime($row['date_retrait_effective'])) ?? '') ?>"
+                value="<?= htmlspecialchars(date('Y-m-d', strtotime($row['date_retrait_previsionelle'])) ?? '') ?>"
                 class="form-control">
         </div>
 

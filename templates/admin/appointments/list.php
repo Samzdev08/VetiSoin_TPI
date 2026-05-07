@@ -110,21 +110,27 @@ $dateActive    = $_GET['date']     ?? '';
 
                             <?php if ($rdv['statut'] === 'Planifié') : ?>
                                 <a href="/admin/rdv/<?= $rdv['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
-                                <a href="/admin/rdv/<?= $rdv['id'] ?>/realise"
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="return confirm('Marquer ce rendez-vous comme réalisé ?')">
-                                    Réalisé
-                                </a>
-                                <a href="/admin/rdv/<?= $rdv['id'] ?>/non-honore"
-                                    class="btn btn-outline-warning btn-sm"
-                                    onclick="return confirm('Marquer ce rendez-vous comme non honoré ?')">
-                                    Non honoré
-                                </a>
-                                <a href="/admin/rdv/<?= $rdv['id'] ?>/annuler"
-                                    class="btn btn-outline-danger btn-sm"
-                                    onclick="return confirm('Annuler ce rendez-vous ?')">
-                                    Annuler
-                                </a>
+                                <form action="/admin/rdv/<?= $rdv['id'] ?>/realise" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                    <button type="submit" class="btn btn-outline-success btn-sm"
+                                            onclick="return confirm('Marquer ce rendez-vous comme réalisé ?')">
+                                        Réalisé
+                                    </button>
+                                </form>
+                                <form action="/admin/rdv/<?= $rdv['id'] ?>/non-honore" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                    <button type="submit" class="btn btn-outline-warning btn-sm"
+                                            onclick="return confirm('Marquer ce rendez-vous comme non honoré ?')">
+                                        Non honoré
+                                    </button>
+                                </form>
+                                <form action="/admin/rdv/<?= $rdv['id'] ?>/annuler" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Annuler ce rendez-vous ?')">
+                                        Annuler
+                                    </button>
+                                </form>
                             <?php endif; ?>
                         </td>
                     </tr>

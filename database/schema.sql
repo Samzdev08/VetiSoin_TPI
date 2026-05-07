@@ -58,7 +58,7 @@ CREATE TABLE categorie (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nom         VARCHAR(80) NOT NULL,
     description TEXT        NULL,
-    type_taille ENUM('habit', 'chaussure', 'unique') NOT NULL DEFAULT 'Lettres',
+    type_taille ENUM('habit', 'chaussure', 'unique') NOT NULL,
 
     CONSTRAINT uk_categorie_nom UNIQUE (nom)
 ) ENGINE=InnoDB;
@@ -110,7 +110,7 @@ CREATE TABLE reservation (
     id_soignant              INT UNSIGNED NOT NULL,
     id_patient               INT UNSIGNED NOT NULL,
     date_reservation         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    date_retrait_effective   DATETIME     NULL, 
+    date_retrait_previsionelle   DATETIME     NULL, 
     statut                   ENUM('En attente', 'Confirmée', 'Clôturée', 'Annulée')
                              NOT NULL DEFAULT 'En attente',
     is_archived              BOOLEAN      NOT NULL DEFAULT FALSE,
@@ -191,3 +191,13 @@ CREATE TABLE notification (
         FOREIGN KEY (id_soignant) REFERENCES soignant(id)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+
+CREATE TABLE stats (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    nb_reservations INT NOT NULL DEFAULT 0,
+    categorie_plus_demandee INT UNSIGNED NULL,
+    FOREIGN KEY (categorie_plus_demandee) REFERENCES categorie(id) ON DELETE SET NULL
+);

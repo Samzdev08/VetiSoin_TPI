@@ -95,7 +95,7 @@ $dateActive    = $_GET['date']     ?? '';
                         <td><?= htmlspecialchars($r['patient_nom'] . ' ' . $r['patient_prenom']) ?></td>
                         <td><?= htmlspecialchars($r['patient_service']) ?></td>
                         <td><?= htmlspecialchars($r['soignant_nom'] . ' ' . $r['soignant_prenom']) ?></td>
-                        <td><?= htmlspecialchars($r['date_retrait_effective'] ?? '—') ?></td>
+                        <td><?= htmlspecialchars($r['date_retrait_previsionelle'] ?? '—') ?></td>
                         <td>
                             <span class="badge bg-<?= $badges[$r['statut']] ?? 'secondary' ?>">
                                 <?= htmlspecialchars($r['statut']) ?>
@@ -106,11 +106,13 @@ $dateActive    = $_GET['date']     ?? '';
                             <a href="/admin/reservations/<?= $r['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">Modifier</a>
 
                             <?php if ($r['statut'] !== 'Annulée' && $r['statut'] !== 'Clôturée') : ?>
-                                <a href="/admin/reservations/<?= $r['id'] ?>/annuler"
-                                    class="btn btn-outline-danger btn-sm"
-                                    onclick="return confirm('Annuler cette réservation ?')">
-                                    Annuler
-                                </a>
+                                <form action="/admin/reservations/<?= $r['id'] ?>/annuler" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Annuler cette réservation ?')">
+                                        Annuler
+                                    </button>
+                                </form>
                             <?php endif; ?>
                         </td>
                     </tr>

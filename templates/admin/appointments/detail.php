@@ -105,21 +105,27 @@ $couleur = $badges[$rendezVous['statut']] ?? 'secondary';
             <a href="/admin/rdv/<?= $rendezVous['id'] ?>/edit" class="btn btn-outline-secondary btn-sm">
                 Modifier
             </a>
-            <a href="/admin/rdv/<?= $rendezVous['id'] ?>/realise"
-                class="btn btn-outline-success btn-sm"
-                onclick="return confirm('Marquer ce rendez-vous comme réalisé ?')">
-                Marquer réalisé
-            </a>
-            <a href="/admin/rdv/<?= $rendezVous['id'] ?>/non-honore"
-                class="btn btn-outline-warning btn-sm"
-                onclick="return confirm('Marquer ce rendez-vous comme non honoré ?')">
-                Marquer non honoré
-            </a>
-            <a href="/admin/rdv/<?= $rendezVous['id'] ?>/annuler"
-                class="btn btn-outline-danger btn-sm"
-                onclick="return confirm('Annuler ce rendez-vous ?')">
-                Annuler
-            </a>
+            <form action="/admin/rdv/<?= $rendezVous['id'] ?>/realise" method="POST" class="d-inline">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                <button type="submit" class="btn btn-outline-success btn-sm"
+                        onclick="return confirm('Marquer ce rendez-vous comme réalisé ?')">
+                    Marquer réalisé
+                </button>
+            </form>
+            <form action="/admin/rdv/<?= $rendezVous['id'] ?>/non-honore" method="POST" class="d-inline">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                <button type="submit" class="btn btn-outline-warning btn-sm"
+                        onclick="return confirm('Marquer ce rendez-vous comme non honoré ?')">
+                    Marquer non honoré
+                </button>
+            </form>
+            <form action="/admin/rdv/<?= $rendezVous['id'] ?>/annuler" method="POST" class="d-inline">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                <button type="submit" class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Annuler ce rendez-vous ?')">
+                    Annuler
+                </button>
+            </form>
         </div>
     <?php endif; ?>
 

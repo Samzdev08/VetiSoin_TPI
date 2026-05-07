@@ -37,13 +37,13 @@ class Soignant
     public function isUnique($id = null)
     {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare('SELECT id FROM soignant WHERE email = :email AND id != :id');
-        $stmt->execute([
-            ':email' => trim($this->email),
-            ':id' => $id
-
-        ]);
-
+        if ($id === null) {
+            $stmt = $db->prepare('SELECT id FROM soignant WHERE email = :email');
+            $stmt->execute([':email' => trim($this->email)]);
+        } else {
+            $stmt = $db->prepare('SELECT id FROM soignant WHERE email = :email AND id != :id');
+            $stmt->execute([':email' => trim($this->email), ':id' => $id]);
+        }
         return $stmt->fetch() === false;
     }
 

@@ -14,14 +14,14 @@
 
     <h1 class="h4 fw-bold mb-3">Liste des patients</h1>
 
-    <div class="card shadow-sm border-0 mb-4">
+    <div class="card shadow-sm border-0 mb-4 ">
         <div class="card-body">
 
             <form method="GET" action="/patients">
-                <div class="row g-3 align-items-end">
+                <div class="row g-3 align-items-end ">
 
                     <div class="col-md-4">
-                        <label for="nom" class="form-label fw-semibold">Nom ou prénom</label>
+                        <label for="nom" class="form-label fw-semibold">Nom ou prénom ou num dossier</label>
                         <input type="text" id="nom" name="nom"
                                class="form-control"
                                placeholder="Nom ou prénom"
@@ -29,18 +29,6 @@
                                value="<?= htmlspecialchars($_GET['nom'] ?? '') ?>">
                     </div>
 
-                    <div class="col-md-4">
-                        <label for="numeroDossier" class="form-label fw-semibold">Numéro de dossier</label>
-                        <input type="text" id="numeroDossier" name="numeroDossier"
-                               class="form-control"
-                               placeholder="Numéro de dossier"
-                               onchange="this.form.submit()"
-                               value="<?= htmlspecialchars($_GET['numeroDossier'] ?? '') ?>">
-                    </div>
-
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">Rechercher</button>
-                    </div>
 
                     <div class="col-md-2">
                         <a href="/patients" class="btn btn-secondary w-100">Réinitialiser</a>

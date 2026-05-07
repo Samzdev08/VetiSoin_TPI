@@ -48,6 +48,7 @@
                                 <td><?= htmlspecialchars($panier['taille']) ?></td>
                                 <td>
                                     <form action="/panier/update/<?= $i ?>" method="POST" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                         <input type="hidden" name="index" value="<?= $i ?>">
                                         <input type="hidden" name="maxStock" value="<?= $panier['maxStock'] ?>">
                                         <input type="number"
@@ -62,6 +63,7 @@
                                 </td>
                                 <td class="text-end">
                                     <form action="/panier/remove/<?= $i ?>" method="POST">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">
                                             X
                                         </button>
@@ -75,7 +77,11 @@
 
             <div class="card-footer bg-white d-flex justify-content-end gap-2">
                 <a href="/catalogue" class="btn btn-outline-secondary btn-sm">← Continuer mes achats</a>
-                <a href="/panier/vider" class="btn btn-outline-danger btn-sm">Vider le panier</a>
+                <form action="/panier/vider" method="POST" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('Vider le panier ?')">Vider le panier</button>
+                </form>
             </div>
         </div>
 

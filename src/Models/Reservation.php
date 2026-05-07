@@ -35,7 +35,7 @@ class Reservation
     public function create()
     {
         $db = Database::getInstance()->getConnection();
-        $stmt = $db->prepare("INSERT INTO reservation (id_soignant, id_patient, date_retrait_effective, commentaire) 
+        $stmt = $db->prepare("INSERT INTO reservation (id_soignant, id_patient, date_retrait_previsionelle, commentaire) 
         VALUES (:soignant, :patient_id, :date_retrait, :commentaires)");
         $stmt->execute([
 
@@ -57,7 +57,7 @@ class Reservation
         $sql = "
         SELECT 
             r.id,
-            r.date_retrait_effective,
+            r.date_retrait_previsionelle,
             r.commentaire,
             r.statut,
             r.is_archived,
@@ -77,7 +77,7 @@ class Reservation
             $params[':statut'] = $this->statut;
         }
 
-        $sql .= " ORDER BY r.date_retrait_effective DESC";
+        $sql .= " ORDER BY r.date_retrait_previsionelle DESC";
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
@@ -93,7 +93,7 @@ class Reservation
             r.id,
             r.date_reservation,
             r.id_soignant AS soignant_id,
-            r.date_retrait_effective,
+            r.date_retrait_previsionelle,
             r.statut,
             r.commentaire,
             r.is_archived,
@@ -133,7 +133,7 @@ class Reservation
             SELECT 
                 r.id,
                 r.date_reservation,
-                r.date_retrait_effective,
+                r.date_retrait_previsionelle,
                 r.statut,
                 r.is_archived,
                 p.nom AS patient_nom,
@@ -168,11 +168,11 @@ class Reservation
         }
 
         if ($this->date_retrait) {
-            $sql .= " AND DATE(r.date_retrait_effective) = :date";
+            $sql .= " AND DATE(r.date_retrait_previsionelle) = :date";
             $params[':date'] = $this->date_retrait;
         }
 
-        $sql .= " ORDER BY r.date_retrait_effective DESC";
+        $sql .= " ORDER BY r.date_retrait_previsionelle DESC";
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
@@ -185,7 +185,7 @@ class Reservation
         $sql = "
         UPDATE reservation
         SET id_patient = :id_patient,
-            date_retrait_effective = :date_retrait,
+            date_retrait_previsionelle = :date_retrait,
             commentaire = :commentaire
         WHERE id = :id
         AND statut = 'En attente'
@@ -228,7 +228,7 @@ class Reservation
     {
         $db = Database::getInstance()->getConnection();
         $sql = "UPDATE reservation 
-            SET statut = 'Clôturée', date_retrait_effective = NOW() 
+            SET statut = 'Clôturée', date_retrait_previsionelle = NOW() 
             WHERE id = :id AND statut = 'Confirmée'";
         $stmt = $db->prepare($sql);
         return $stmt->execute([':id' => $this->id]);
@@ -303,40 +303,35 @@ class Reservation
         $stmt = $db->prepare('
         UPDATE reservation
         SET statut = :statut,
-            date_retrait_effective = :date_retrait,
+            date_retrait_previsionelle = :date_retrait,
             commentaire = :commentaire
         WHERE id = :id
     ');
         return $stmt->execute([
-            ':statut'        => $this->statut,
-            ':date_retrait'  => $this->date_retrait,
-            ':commentaire'   => $this->commentaires,
-            ':id'            => $this->id,
+            ':statut'  => $this->statut,
+            ':date_retrait' => $this->date_retrait,
+            ':commentaire' => $this->commentaires,
+            ':id' => $this->id,
         ]);
     }
     public function expireOld()
     {
         $db   = Database::getInstance()->getConnection();
-
-
         $stmt = $db->prepare("
         SELECT id FROM reservation
         WHERE statut = 'En attente'
           AND is_archived = 0
-          AND date_reservation <= NOW() - INTERVAL 48 HOUR
-    ");
+          AND date_reservation <= NOW() - INTERVAL 48 HOUR ");
         $stmt->execute();
         $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $expireesIds = [];
 
         foreach ($reservations as $r) {
-
             $items = $db->prepare("
-            SELECT id, id_article_variante, quantite 
+            SELECT id_article_variante, quantite 
             FROM article_reserve 
-            WHERE id_reservation = :id
-        ");
+            WHERE id_reservation = :id ");
             $items->execute([':id' => $r['id']]);
             $lignes = $items->fetchAll(PDO::FETCH_ASSOC);
 
@@ -347,10 +342,9 @@ class Reservation
                 WHERE id = :id
             ")->execute([
                     ':quantite' => $ligne['quantite'],
-                    ':id' => $ligne['id_article_variante'],
+                    ':id'       => $ligne['id_article_variante'],
                 ]);
             }
-
 
             $db->prepare("
             UPDATE reservation 
@@ -358,20 +352,21 @@ class Reservation
             WHERE id = :id ")->execute([':id' => $r['id']]);
 
             $expireesIds[] = $r['id'];
-        }
 
-        $soignantStmt = $db->prepare("SELECT id_soignant FROM reservation WHERE id = :id");
-        $soignantStmt->execute([':id' => $r['id']]);
-        $idSoignant = $soignantStmt->fetchColumn();
+         
+            $soignantStmt = $db->prepare("SELECT id_soignant FROM reservation WHERE id = :id");
+            $soignantStmt->execute([':id' => $r['id']]);
+            $idSoignant = $soignantStmt->fetchColumn();
 
-        if ($idSoignant) {
-            (new Notification(
-                null,
-                $idSoignant,
-                'Réservation confirmée',
-                'Réservation expirée',
-                "Votre réservation #{$r['id']} a été annulée automatiquement (délai 48h dépassé)."
-            ))->create();
+            if ($idSoignant) {
+                (new Notification(
+                    null,
+                    $idSoignant,
+                    'Réservation confirmée',
+                    'Réservation expirée',
+                    "Votre réservation #{$r['id']} a été annulée automatiquement (délai 48h dépassé)."
+                ))->create();
+            }
         }
 
         return $expireesIds;

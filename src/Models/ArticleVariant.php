@@ -129,6 +129,19 @@ class ArticleVariant
         $stmt = $db->prepare('SELECT photo FROM article_variante WHERE id = :id');
         $stmt->execute([':id' => $this->id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
-        
+    }
+
+    public function getIdVariante()
+    {
+
+        $db   = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+        SELECT id_article_variante 
+        FROM article_reserve 
+        WHERE id = :id ");
+        $stmt->execute([':id' => $this->id]);
+        $idVariante = $stmt->fetchColumn();
+
+        return $idVariante;
     }
 }

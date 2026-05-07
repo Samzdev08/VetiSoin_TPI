@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\PhpRenderer;
 use App\Models\Article;
 use App\Models\ArticleVariant;
+use App\Outils\Csrf;
 
 class CatalogController
 {
@@ -53,6 +54,8 @@ class CatalogController
        
         $selectedColor = $articleData['variantes'][0]['couleur'] ?? null;
 
+        Csrf::generate();
+
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title' => 'Détails de l\'article',
             'article' => $articleData,
@@ -67,7 +70,12 @@ class CatalogController
         $color = $args['color'];
         $id = $args['id'];
 
-        
+        $csrf_token = $_POST['csrf_token'] ?? null;
+        if (!Csrf::check($csrf_token)) {
+            $_SESSION['flash']['error'] = 'Token de sécurité invalide, veuillez réessayer.';
+            return $response->withHeader('Location', '/catalogue/' . $id)->withStatus(302);
+        }
+
         $article = new Article($id, null, null, null, null, null, null, null);
         $articleData = $article->getById();
 
@@ -75,6 +83,8 @@ class CatalogController
             $response->getBody()->write('Article non trouvé');
             return $response->withStatus(404);
         }
+
+        Csrf::generate();
 
         $view = new PhpRenderer(__DIR__ . '/../../templates', [
             'title' => 'Détails de l\'article',
